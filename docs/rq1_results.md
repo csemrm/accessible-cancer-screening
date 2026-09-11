@@ -59,11 +59,35 @@ uncertainty/calibration/selective-prediction work (RQ2, S8/S18) is meant to
 address: without it, this system would confidently misclassify roughly half
 of Mendeley LBC's cases with no indication anything was wrong.
 
-This result used a single model (DeiT-Tiny); running the same cross-dataset
-eval against EfficientViT-M0 (the new overall best) and 1-2 other
-architectures would strengthen this into a general finding rather than a
-single-model observation — a reasonable next step before treating it as
-conclusive.
+### Second model, and a complication: in-distribution accuracy does not predict shift robustness
+
+Running the identical eval against EfficientViT-M0 — the overall best
+in-distribution model (97.37% balanced accuracy on this run, AUROC 0.9985,
+even higher than its original 96.54% result) — did not just confirm the
+collapse, it made the finding more interesting:
+
+| Evaluation | DeiT-Tiny | EfficientViT-M0 |
+|---|---|---|
+| SIPaKMeD (in-distribution) | 0.9504 bal. acc | **0.9737** bal. acc |
+| Herlev (zero-shot) | 0.7151 bal. acc | **0.6716** bal. acc |
+| Mendeley LBC (zero-shot) | 0.5230 bal. acc | **0.4731** bal. acc |
+
+EfficientViT-M0 is the *better* in-distribution model but the *worse*
+model under domain shift on both shift datasets — on Mendeley LBC its
+balanced accuracy (0.4731) is actually **below** the 0.50 chance floor for
+this binary task. Two models this close in architecture family and
+parameter count producing this reversal is a real, specific caution against
+using in-distribution accuracy as a proxy for deployment robustness: the
+smaller/more-accurate-in-distribution model here may simply be fitting
+SIPaKMeD's particular staining/scanner characteristics more tightly, at the
+cost of generalization — exactly the failure mode "resource-efficient"
+should not be assumed to avoid for free.
+
+This is now based on two models rather than one; running 1-2 more
+architectures (e.g. Swin-Tiny, ResNet50, spanning both the CNN and full-ViT
+families already benchmarked) would further test whether this
+accuracy/robustness reversal is general or specific to the two ViT-family
+models tried so far.
 
 ## Compute path and its problems (for anyone reproducing this)
 
