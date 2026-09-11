@@ -20,6 +20,7 @@ from torch.utils.data import DataLoader
 
 from cervical_screening.data.dataset import SipakmedManifestDataset
 from cervical_screening.data.transforms import build_transform
+from cervical_screening.device import select_device
 from cervical_screening.eval.efficiency import (
     count_parameters,
     measure_cpu_latency,
@@ -82,7 +83,7 @@ def main() -> None:
     torch.manual_seed(args.seed)
     args.out_dir.mkdir(parents=True, exist_ok=True)
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = select_device()
     input_size = input_size_for(args.model)
 
     train_ds = SipakmedManifestDataset(args.manifest, "train", build_transform(input_size, train=True))

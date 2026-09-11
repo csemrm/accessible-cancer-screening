@@ -375,6 +375,27 @@ def train_one(model_name: str, manifest_csv: Path, device, epochs: int, batch_si
     }
 
 
+def select_device() -> torch.device:
+    """Kaggle's GPU pool can hand out an older card (e.g. Tesla P100, compute
+    capability sm_60) that the pre-installed torch build no longer has kernel
+    support for (recent Kaggle images ship torch built only for sm_70+) —
+    that combination doesn't raise until the first real CUDA op runs, so
+    check compatibility up front and fall back to CPU rather than crash
+    every single model in the registry one by one."""
+    if not torch.cuda.is_available():
+        return torch.device("cpu")
+
+    major, minor = torch.cuda.get_device_capability(0)
+    cap_str = f"sm_{major}{minor}"
+    supported = torch.cuda.get_arch_list()
+    if cap_str not in supported:
+        name = torch.cuda.get_device_name(0)
+        print(f"GPU {name} ({cap_str}) not supported by this torch build "
+              f"(supports {supported}) — falling back to CPU")
+        return torch.device("cpu")
+    return torch.device("cuda")
+
+
 # ---------------------------------------------------------------------------
 # main
 # ---------------------------------------------------------------------------
@@ -393,7 +414,7 @@ def main():
     build_manifest(crops_root, manifest_csv)
     print("wrote manifest:", manifest_csv)
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = select_device()
     print("device:", device)
 
     all_results = []
