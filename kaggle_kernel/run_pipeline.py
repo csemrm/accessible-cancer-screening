@@ -421,8 +421,14 @@ def main():
     for model_name in MODEL_REGISTRY:
         print(f"=== training {model_name} ===", flush=True)
         try:
-            result = train_one(model_name, manifest_csv, device, epochs=30, batch_size=32,
-                                lr=3e-4, patience=7, seed=13)
+            # Kept deliberately short: no way to cancel a running Kaggle kernel
+            # or retrieve partial output before it finishes, and 12 models x 30
+            # epochs on a CPU fallback risks running past the session limit
+            # with nothing recoverable. This is a fast first-pass benchmark to
+            # validate the pipeline end-to-end; extend epochs once GPU access
+            # (or a confirmed compute-capability match) is available.
+            result = train_one(model_name, manifest_csv, device, epochs=10, batch_size=32,
+                                lr=3e-4, patience=4, seed=13)
         except Exception as e:  # keep going even if one model in the registry misbehaves
             result = {"model": model_name, "error": repr(e)}
             print(f"[{model_name}] FAILED: {e!r}")
