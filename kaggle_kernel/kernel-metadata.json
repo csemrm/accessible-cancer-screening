@@ -1,0 +1,13 @@
+{
+  "id": "mostafizursfbu/sipakmed-rq1-baseline-benchmark",
+  "title": "SIPaKMeD RQ1 baseline benchmark",
+  "code_file": "run_pipeline.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_internet": true,
+  "dataset_sources": ["marinaeplissiti/sipakmed"],
+  "competition_sources": [],
+  "kernel_sources": []
+}
