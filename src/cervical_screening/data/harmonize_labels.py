@@ -52,21 +52,26 @@ MENDELEY_LBC_TO_BINARY = {
 def scan_binary_manifest(root: Path, class_to_binary: dict[str, str],
                           extensions=(".jpg", ".jpeg", ".png", ".bmp")) -> list[tuple[Path, str]]:
     """Walk root/<class_name>/... (any depth) and label each image file
-    found under a known class_name by the binary mapping. Raises if a class
-    directory present in class_to_binary yields zero images, since a silent
-    empty class is more likely a naming mismatch than a genuinely empty
-    dataset."""
+    found under a known class_name by the binary mapping. Collects every
+    directory matching class_name, not just the first — Herlev in
+    particular splits into root/train/<class_name>/ and
+    root/test/<class_name>/, both of which belong to this evaluation set
+    since the whole dataset is a single zero-shot test split here (see
+    make_shift_manifest.py), not a train/test split to respect. Raises if a
+    class directory present in class_to_binary yields zero images, since a
+    silent empty class is more likely a naming mismatch than a genuinely
+    empty dataset."""
     rows: list[tuple[Path, str]] = []
     for class_name, binary_label in class_to_binary.items():
-        class_dir = root / class_name
-        if not class_dir.exists():
-            # allow a nested "root/<class_name>/<class_name>/..." layout too
-            nested = list(root.glob(f"**/{class_name}"))
-            if not nested:
-                raise FileNotFoundError(f"class directory not found: {class_dir}")
-            class_dir = nested[0]
+        class_dirs = [root / class_name] if (root / class_name).exists() else []
+        if not class_dirs:
+            # allow nested layouts, e.g. root/train/<class_name>/ + root/test/<class_name>/
+            class_dirs = [d for d in root.glob(f"**/{class_name}") if d.is_dir()]
+        if not class_dirs:
+            raise FileNotFoundError(f"class directory not found under {root}: {class_name}")
 
-        images = [p for p in class_dir.rglob("*") if p.suffix.lower() in extensions]
+        images = [p for class_dir in class_dirs
+                  for p in class_dir.rglob("*") if p.suffix.lower() in extensions]
         if not images:
             raise FileNotFoundError(f"no images found under {class_dir}")
         rows.extend((p, binary_label) for p in images)
