@@ -83,11 +83,42 @@ SIPaKMeD's particular staining/scanner characteristics more tightly, at the
 cost of generalization — exactly the failure mode "resource-efficient"
 should not be assumed to avoid for free.
 
-This is now based on two models rather than one; running 1-2 more
-architectures (e.g. Swin-Tiny, ResNet50, spanning both the CNN and full-ViT
-families already benchmarked) would further test whether this
-accuracy/robustness reversal is general or specific to the two ViT-family
-models tried so far.
+### Third and fourth models: the pattern is EfficientViT-M0 specifically, not ViT-vs-CNN
+
+Adding ResNet50 (the CNN baseline) and Swin-Tiny (the full-size ViT) completes
+one model from each of the three architecture families in the RQ1 registry:
+
+| Model (family) | SIPaKMeD (in-dist.) | Herlev (zero-shot) | Mendeley LBC (zero-shot) |
+|---|---|---|---|
+| EfficientViT-M0 (efficient ViT) | **0.9737** | 0.6716 | **0.4731** (below chance) |
+| Swin-Tiny (full ViT) | 0.9590 | **0.7282** | 0.5192 |
+| DeiT-Tiny (efficient ViT) | 0.9504 | 0.7151 | 0.5230 |
+| ResNet50 (CNN) | 0.9556 | 0.6838 | **0.6082** |
+
+This refines, rather than just confirms, the earlier two-model finding. It
+is not a clean CNN-vs-transformer split — on Herlev, the two transformer
+models (Swin-Tiny, DeiT-Tiny) actually beat ResNet50. What holds
+consistently across both shift datasets is narrower and sharper:
+**EfficientViT-M0, the single most parameter-efficient model in the entire
+registry and the best in-distribution performer, is the worst performer
+under domain shift on both external datasets** — and the only one to drop
+below the chance floor. ResNet50, the CNN baseline, is uniquely robust on
+Mendeley LBC specifically (0.6082, clearly above chance), despite not being
+the best in-distribution model on any of the four.
+
+Read together with the RQ1 efficiency table, this is the caution the
+proposal's "trustworthy AI" framing exists to surface: the same
+2.16M-parameter model that makes the strongest efficiency argument in
+Section 1 makes the weakest robustness argument in Section 2. Neither
+table alone tells the deployment-relevant story — a system that treated
+EfficientViT-M0's in-distribution numbers as sufficient evidence of
+readiness would have picked the model that fails worst in the field.
+
+Running the remaining 8 registry models against the shift eval would
+establish whether this is specifically an EfficientViT-family effect
+(cascaded-group attention over-fitting SIPaKMeD's specific
+staining/scanner characteristics) or a broader small-parameter-count
+effect — the next natural extension of this result.
 
 ## Compute path and its problems (for anyone reproducing this)
 
