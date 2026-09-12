@@ -127,8 +127,22 @@ transformer with cross-scale attention for explainable maize leaf disease
 diagnosis" (Scientific Reports, 2026) applies a parallel lightweight-ViT-
 plus-explainability design philosophy to a different domain (plant disease
 diagnosis), motivating this paper's own choice to hold efficiency and
-explainability as joint, not competing, design goals. The project's own
-literature-gap analysis (proposal Section 5)
+explainability as joint, not competing, design goals. Two further papers
+from the same author sit in adjacent clinical-AI territory without
+overlapping this paper's specific claims: Gony, Shuvra, Poudel, Dhakal,
+Rahman et al., "Dual-View Semi-Supervised Retinal Disease Recognition via
+Chromatic Structural Decomposition and Cross-View Contrastive Learning"
+(International Conference on Power, Electronics, Communications, 2026) is
+a medical-image disease-recognition system in a different clinical domain
+(retinal imaging) using a semi-supervised, non-transformer-explainability
+approach; Ahmed, Ahmed, Mow, Taha, Barua, Rahman et al., "An Explainable
+Multimodal AI Framework with Reinforcement Learning for Post-Surgical
+Clinical Decision Support" (medRxiv, 2026) applies explainable AI to a
+clinical decision-support setting downstream of diagnosis (post-surgical
+care) rather than a screening/diagnosis task itself. Both establish this
+author's continuing research program in trustworthy, explainable clinical
+AI, of which this paper's cervical cytology system is one instance. The
+project's own literature-gap analysis (proposal Section 5)
 identifies specific adjacent 2024-2026 work combining subsets of these
 methods for cervical or oral cancer imaging; none combine an
 efficiency-budgeted architecture, single-pass uncertainty, small-sample-
@@ -438,4 +452,6 @@ submission):
 - Plissiti, M. E., et al. "SIPAKMED: A New Dataset for Feature and Image Based Classification of Normal and Pathological Cervical Cells in Pap Smear Images." ICIP 2018.
 - Mohiuddin, A. B., Rahman, M. M., et al. "Accelerated and Accurate Cervical Cancer Diagnosis Using a Novel Stacking Ensemble Method with Explainable AI." International Conference on Quantum Photonics, Artificial Intelligence, 2025.
 - Rahman, M. M., et al. "MaizeFormerX: a lightweight vision transformer with cross-scale attention for explainable maize leaf disease diagnosis." Scientific Reports, 2026.
+- Gony, M. N., Shuvra, S. M. K., Poudel, R., Dhakal, K., Rahman, M. M., et al. "Dual-View Semi-Supervised Retinal Disease Recognition via Chromatic Structural Decomposition and Cross-View Contrastive Learning." International Conference on Power, Electronics, Communications, 2026.
+- Ahmed, M., Ahmed, F., Mow, S. M., Taha, P. A., Barua, S., Rahman, M. M., et al. "An Explainable Multimodal AI Framework with Reinforcement Learning for Post-Surgical Clinical Decision Support." medRxiv, 2026.
 - Herlev dataset and Mendeley LBC Pap smear dataset: **citations require verification** — not independently confirmed by this project beyond the Kaggle mirror pages used for data acquisition; do not cite a specific author/venue for either without first locating and confirming the primary source.
