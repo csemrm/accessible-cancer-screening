@@ -114,43 +114,66 @@ table alone tells the deployment-relevant story — a system that treated
 EfficientViT-M0's in-distribution numbers as sufficient evidence of
 readiness would have picked the model that fails worst in the field.
 
-### Fifth and sixth models: neither parameter count nor architecture family explains it — ResNet50 is a genuine outlier
+### Fifth through eleventh models: a CNN-vs-transformer split on Mendeley LBC, an extreme outlier, and one incomplete result
 
-Adding EfficientViT-B0 (near-identical parameter count to M0, same family)
-and MobileNetV2 (a second CNN, near-identical parameter count to both
-EfficientViT variants) rules out the two simplest explanations:
+Running the remaining registry models produced the full picture (11 of 12
+complete; ViT-Small's Mendeley LBC number was lost to a session death
+mid-fetch and is pending a retry — see status note at the end of this
+section):
 
 | Model (family, params) | SIPaKMeD (in-dist.) | Herlev (zero-shot) | Mendeley LBC (zero-shot) |
 |---|---|---|---|
-| EfficientViT-M0 (eff. ViT, 2.16M) | 0.9737 | 0.6716 | **0.4731** (below chance) |
-| EfficientViT-B0 (eff. ViT, 2.14M) | 0.9738 | 0.6818 | 0.5217 |
-| MobileNetV2 (CNN, 2.23M) | 0.9505 | 0.6919 | 0.5391 |
-| Swin-Tiny (full ViT, 27.5M) | 0.9590 | 0.7282 | 0.5192 |
-| DeiT-Tiny (eff. ViT, 5.5M) | 0.9504 | 0.7151 | 0.5230 |
+| EfficientNet-Lite0 (CNN, 3.38M) | 0.9455 | 0.5970 | **0.6674** |
 | ResNet50 (CNN, 23.5M) | 0.9556 | 0.6838 | **0.6082** |
+| MobileViTv2 (eff. ViT, 4.39M) | 0.9638 | **0.7501** | 0.5418 |
+| MobileNetV2 (CNN, 2.23M) | 0.9505 | 0.6919 | 0.5391 |
+| EfficientViT-B0 (eff. ViT, 2.14M) | 0.9738 | 0.6818 | 0.5217 |
+| DeiT-Tiny (eff. ViT, 5.5M) | 0.9504 | 0.7151 | 0.5230 |
+| Swin-Tiny (full ViT, 27.5M) | 0.9590 | 0.7282 | 0.5192 |
+| ViT-Small (full ViT, 21.7M) | pending | 0.7194 | pending |
+| LeViT-128 (eff. ViT, 8.4M) | 0.9526 | 0.5777 | 0.4764 |
+| EfficientViT-M0 (eff. ViT, 2.16M) | 0.9737 | 0.6716 | 0.4731 |
+| TinyViT-5M (eff. ViT, 5.1M) | 0.9685 | **0.7327** | 0.4543 |
+| MobileViT-S (eff. ViT, 4.94M) | 0.9520 | 0.7104 | **0.2927** (AUROC 0.215) |
 
-Two models with virtually identical parameter counts and the same
-architecture family — EfficientViT-M0 (2.16M) and -B0 (2.14M) — produce
-completely different shift outcomes: M0 collapses below chance, B0 sits
-with everything else at the ~0.52 chance-level cluster. And MobileNetV2, a
-CNN at the same ~2.2M parameter scale as both EfficientViT variants,
-behaves nothing like ResNet50 (its own family) — it lands in the same
-~0.54 chance-level cluster as the transformer models.
+**A real CNN-vs-transformer split emerges on Mendeley LBC specifically —
+but not on Herlev.** All three CNNs tested (EfficientNet-Lite0, ResNet50,
+MobileNetV2) land at 0.539–0.667 on Mendeley LBC, comfortably above the
+0.50 chance floor. Every one of the eight ViT-family models (efficient ViT
+or full ViT) lands at 0.473–0.542 — clustered at or below chance, with zero
+overlap into the CNN range. This did not hold on Herlev, where the
+relationship is mixed (transformer models like MobileViTv2 and TinyViT lead
+the whole field; the weakest performer there, LeViT-128, is itself a
+transformer). The earlier six-model read — "no clean CNN-vs-transformer
+split" — was wrong in exactly the way more data is supposed to correct: it
+generalizes on Mendeley LBC once every CNN and eight ViT-family
+architectures are compared, even though it does not generalize to Herlev.
 
-**Neither parameter count nor CNN-vs-transformer explains the pattern in
-this six-model sample.** What's left standing is narrower than either
-original hypothesis: five of six tested architectures cluster at or near
-chance level (0.52–0.54) on Mendeley LBC regardless of size or family, one
-specific model (EfficientViT-M0) drops below that cluster, and exactly one
-model (ResNet50) sits clearly above it (0.6082). ResNet50's robustness
-looks like a property of that specific architecture — plausibly its larger
-receptive field or its residual-hierarchy feature extraction handling
-Mendeley LBC's particular staining/imaging characteristics better — not a
-predictable consequence of being a CNN, being large, or being efficient.
-This is a genuinely open question the remaining 6 registry models
-(LeViT-128, TinyViT-5M, MobileViT-S, MobileViTv2, EfficientNet-Lite0,
-ViT-Small) could help resolve, particularly EfficientNet-Lite0 as a third
-CNN data point.
+**MobileViT-S is a severe, singular outlier — and it is the specific
+architecture family this proposal's own design (Section 9) is built
+around.** Its Mendeley LBC AUROC (0.215) is not just below the 0.50 chance
+floor every other below-chance model sits just under — it is far below it,
+meaning its predictions are *anti-correlated* with ground truth on this
+dataset, not merely uninformative. Its own successor, MobileViTv2, shows no
+such problem (0.542, plus the best Herlev score in the whole registry,
+0.7501) — the same "MobileViT" family name spans a catastrophic failure and
+a strong performer, which rules out judging shift robustness by
+architecture lineage/name as thoroughly as the parameter-count and
+CNN-vs-transformer explanations were already ruled out for other cases.
+
+**LeViT-128 and TinyViT-5M** both drop below chance on Mendeley LBC
+(0.4764, 0.4543) while simultaneously ranking among the *best* models on
+Herlev (0.5777 is actually the field's worst on Herlev for LeViT, while
+TinyViT's 0.7327 is second-best) — reinforcing that "robust" and "fragile"
+are properties of a specific model-dataset pair, not portable properties of
+a model. LeViT's result is consistent with the training instability
+(val-loss spikes) already flagged for it in the original RQ1 benchmark.
+
+**Status:** ViT-Small's Herlev result (0.7194) completed before its session
+was lost while fetching the Mendeley LBC number; a retry is pending on
+Colab quota availability. Its Herlev score alone does not change the
+CNN-vs-transformer pattern above (it is itself a full-ViT model, consistent
+with the rest of that cluster on Herlev).
 
 ## Compute path and its problems (for anyone reproducing this)
 
