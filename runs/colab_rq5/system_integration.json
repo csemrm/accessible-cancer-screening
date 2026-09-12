@@ -1,0 +1,74 @@
+{
+  "fitted_temperature": 1.3311557788944726,
+  "conformal_threshold": 0.09893139213323593,
+  "argmax_unchanged_by_calibration": true,
+  "in_distribution": {
+    "avg_conformal_set_size": 0.9225700164744646,
+    "confidence_only": {
+      "risk_coverage_auc": 0.00502730378727428,
+      "selective_accuracy_at_0.80": 0.9897119341563786,
+      "selective_accuracy_at_0.90": 0.9835164835164835,
+      "full_coverage_accuracy": 0.9621087314662273
+    },
+    "set_size_only": {
+      "risk_coverage_auc": 0.08337219214994536,
+      "selective_accuracy_at_0.80": 0.9588477366255144,
+      "selective_accuracy_at_0.90": 0.9578754578754579,
+      "full_coverage_accuracy": 0.9621087314662273
+    },
+    "combined": {
+      "risk_coverage_auc": 0.017261602034239414,
+      "selective_accuracy_at_0.80": 0.9629629629629629,
+      "selective_accuracy_at_0.90": 0.967032967032967,
+      "full_coverage_accuracy": 0.9621087314662273
+    }
+  },
+  "shift": {
+    "herlev": {
+      "avg_conformal_set_size": 0.6750272628135223,
+      "confidence_only": {
+        "risk_coverage_auc": 0.11899865708304261,
+        "selective_accuracy_at_0.80": 0.8147138964577657,
+        "selective_accuracy_at_0.90": 0.7878787878787878,
+        "full_coverage_accuracy": 0.7633587786259542
+      },
+      "set_size_only": {
+        "risk_coverage_auc": 0.32806835192628103,
+        "selective_accuracy_at_0.80": 0.771117166212534,
+        "selective_accuracy_at_0.90": 0.7915151515151515,
+        "full_coverage_accuracy": 0.7633587786259542
+      },
+      "combined": {
+        "risk_coverage_auc": 0.17932572856510104,
+        "selective_accuracy_at_0.80": 0.7929155313351499,
+        "selective_accuracy_at_0.90": 0.7818181818181819,
+        "full_coverage_accuracy": 0.7633587786259542
+      }
+    },
+    "mendeley_lbc": {
+      "avg_conformal_set_size": 0.7827442827442828,
+      "confidence_only": {
+        "risk_coverage_auc": 0.32443470293142074,
+        "selective_accuracy_at_0.80": 0.5831168831168831,
+        "selective_accuracy_at_0.90": 0.5727482678983834,
+        "full_coverage_accuracy": 0.5550935550935551
+      },
+      "set_size_only": {
+        "risk_coverage_auc": 0.4394733545120328,
+        "selective_accuracy_at_0.80": 0.5233766233766234,
+        "selective_accuracy_at_0.90": 0.5542725173210161,
+        "full_coverage_accuracy": 0.5550935550935551
+      },
+      "combined": {
+        "risk_coverage_auc": 0.2854847385919544,
+        "selective_accuracy_at_0.80": 0.5805194805194805,
+        "selective_accuracy_at_0.90": 0.5681293302540416,
+        "full_coverage_accuracy": 0.5550935550935551
+      }
+    }
+  },
+  "latency_cpu_ms": {
+    "bare_forward_median": 49.57790200001,
+    "forward_plus_explanation_median": 164.1253709999546
+  }
+}
