@@ -1,0 +1,30 @@
+{
+  "model": "mobilevit_s",
+  "in_distribution": {
+    "balanced_accuracy": 0.9686920352487901,
+    "macro_precision": 0.9695557952498257,
+    "macro_recall_sensitivity": 0.9686920352487901,
+    "macro_f1": 0.9688855938398611,
+    "macro_specificity": 0.9921537288059001,
+    "macro_auroc": 0.9975980944636017,
+    "macro_auprc": 0.9920529773247887
+  },
+  "efficiency": {
+    "num_parameters": 4940837,
+    "input_size": 256,
+    "latency": {
+      "median_latency_ms": 9.667773000273883,
+      "device": "cuda"
+    }
+  },
+  "apcem_shift": {
+    "balanced_accuracy": 0.3620626136722234,
+    "macro_precision": 0.41571005935865196,
+    "macro_recall_sensitivity": 0.3620626136722234,
+    "macro_f1": 0.36740654875094425,
+    "macro_specificity": 0.3620626136722234,
+    "macro_auroc": 0.3160700283714045,
+    "macro_auprc": 0.4337403764691036
+  },
+  "n_apcem": 4253
+}
