@@ -1,14 +1,16 @@
 """RQ1 3rd-shift-dataset setup: download + crop SIPaKMeD (same as the
-original RQ1/RQ4 pipeline), unzip the pre-uploaded APCEM archive (no
-Kaggle mirror exists for it, unlike SIPaKMeD/Herlev/Mendeley LBC -- it must
-be uploaded directly via `colab upload` before running this script), and
-build both the SIPaKMeD training manifest and the APCEM binary shift
+original RQ1/RQ4 pipeline), unzip the pre-uploaded per-class APCEM archives
+(no Kaggle mirror exists for this dataset, unlike SIPaKMeD/Herlev/Mendeley
+LBC; a single combined zip failed to upload -- SSL EOF errors, consistent
+across two attempts -- so it was split into one zip per class,
+/content/apcem_<CLASS>.zip, each under ~27MB, all of which uploaded fine),
+and build both the SIPaKMeD training manifest and the APCEM binary shift
 manifest.
 
-Run once per session via `colab exec -f setup.py`, after uploading
-apcem_clean.zip to /content/apcem_clean.zip. Every later step assumes the
-globals it sets (rp, cs, manifest_csv, apcem_rows, device) are already in
-the kernel's persistent namespace.
+Run once per session via `colab exec -f setup.py`, after uploading all 6
+apcem_<CLASS>.zip files. Every later step assumes the globals it sets (rp,
+cs, manifest_csv, apcem_rows, device) are already in the kernel's
+persistent namespace.
 """
 
 import subprocess
@@ -30,12 +32,15 @@ assert sum(counts.values()) == 4049
 manifest_csv = rp.DATA_ROOT / "processed/sipakmed_splits.csv"
 rp.build_manifest(crops_root, manifest_csv)
 
-print("unzipping APCEM...", flush=True)
+print("unzipping APCEM (per-class archives)...", flush=True)
 apcem_root = rp.DATA_ROOT / "raw/apcem"
 apcem_root.mkdir(parents=True, exist_ok=True)
-subprocess.run(["unzip", "-oq", "/content/apcem_clean.zip", "-d", str(apcem_root)], check=True)
+for cls in ["ASCH", "ASCUS", "HSIL", "LSIL", "NILM", "SSC"]:
+    zip_path = f"/content/apcem_{cls}.zip"
+    subprocess.run(["unzip", "-oq", zip_path, "-d", str(apcem_root)], check=True)
+    print(f"  unzipped {cls}", flush=True)
 
-apcem_rows = scan_binary_manifest(apcem_root / "Enhanced Cervical Cytology Image dataset", APCEM_TO_BINARY)
+apcem_rows = scan_binary_manifest(apcem_root, APCEM_TO_BINARY)
 print("apcem:", len(apcem_rows), flush=True)
 assert len(apcem_rows) == 4253
 
