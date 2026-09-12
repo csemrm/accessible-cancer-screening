@@ -114,11 +114,43 @@ table alone tells the deployment-relevant story — a system that treated
 EfficientViT-M0's in-distribution numbers as sufficient evidence of
 readiness would have picked the model that fails worst in the field.
 
-Running the remaining 8 registry models against the shift eval would
-establish whether this is specifically an EfficientViT-family effect
-(cascaded-group attention over-fitting SIPaKMeD's specific
-staining/scanner characteristics) or a broader small-parameter-count
-effect — the next natural extension of this result.
+### Fifth and sixth models: neither parameter count nor architecture family explains it — ResNet50 is a genuine outlier
+
+Adding EfficientViT-B0 (near-identical parameter count to M0, same family)
+and MobileNetV2 (a second CNN, near-identical parameter count to both
+EfficientViT variants) rules out the two simplest explanations:
+
+| Model (family, params) | SIPaKMeD (in-dist.) | Herlev (zero-shot) | Mendeley LBC (zero-shot) |
+|---|---|---|---|
+| EfficientViT-M0 (eff. ViT, 2.16M) | 0.9737 | 0.6716 | **0.4731** (below chance) |
+| EfficientViT-B0 (eff. ViT, 2.14M) | 0.9738 | 0.6818 | 0.5217 |
+| MobileNetV2 (CNN, 2.23M) | 0.9505 | 0.6919 | 0.5391 |
+| Swin-Tiny (full ViT, 27.5M) | 0.9590 | 0.7282 | 0.5192 |
+| DeiT-Tiny (eff. ViT, 5.5M) | 0.9504 | 0.7151 | 0.5230 |
+| ResNet50 (CNN, 23.5M) | 0.9556 | 0.6838 | **0.6082** |
+
+Two models with virtually identical parameter counts and the same
+architecture family — EfficientViT-M0 (2.16M) and -B0 (2.14M) — produce
+completely different shift outcomes: M0 collapses below chance, B0 sits
+with everything else at the ~0.52 chance-level cluster. And MobileNetV2, a
+CNN at the same ~2.2M parameter scale as both EfficientViT variants,
+behaves nothing like ResNet50 (its own family) — it lands in the same
+~0.54 chance-level cluster as the transformer models.
+
+**Neither parameter count nor CNN-vs-transformer explains the pattern in
+this six-model sample.** What's left standing is narrower than either
+original hypothesis: five of six tested architectures cluster at or near
+chance level (0.52–0.54) on Mendeley LBC regardless of size or family, one
+specific model (EfficientViT-M0) drops below that cluster, and exactly one
+model (ResNet50) sits clearly above it (0.6082). ResNet50's robustness
+looks like a property of that specific architecture — plausibly its larger
+receptive field or its residual-hierarchy feature extraction handling
+Mendeley LBC's particular staining/imaging characteristics better — not a
+predictable consequence of being a CNN, being large, or being efficient.
+This is a genuinely open question the remaining 6 registry models
+(LeViT-128, TinyViT-5M, MobileViT-S, MobileViTv2, EfficientNet-Lite0,
+ViT-Small) could help resolve, particularly EfficientNet-Lite0 as a third
+CNN data point.
 
 ## Compute path and its problems (for anyone reproducing this)
 
@@ -147,3 +179,12 @@ mid-run preemption: keep each `colab exec` call scoped to one model (or a
 handful of fast ones) rather than one long loop, and treat every checkpoint
 as needing to be pulled off the VM (`colab download`) before the session
 might die, not after the whole benchmark finishes.
+
+The three follow-on shift-eval sessions (EfficientViT-M0, then
+ResNet50+Swin-Tiny, then EfficientViT-B0+MobileNetV2) all ran to completion
+without preemption under the same paid-tier account, each downloading and
+cropping SIPaKMeD fresh (~1-5 min) rather than relying on any
+cross-session persistence, since no session's `/content/` survives it
+ending. Checkpoints still are not saved anywhere outside the ephemeral VM —
+retraining is currently the only way to re-run a shift eval on a given
+model.
