@@ -87,19 +87,61 @@ to a similarly-configured timm model without checking.
 
 \section{Related Work}
 
+\subsection{Post-hoc calibration and its limits under shift}
+
 Temperature scaling \cite{guo2017calibration} remains the standard
-post-hoc softmax calibration baseline. MC Dropout
-\cite{gal2016dropout} approximates Bayesian inference via dropout retained
-at test time; deep ensembles \cite{lakshminarayanan2017ensembles} instead
-use disagreement across independently-trained models; evidential deep
-learning \cite{sensoy2018evidential} reframes classification as Dirichlet
-evidence accumulation, producing a single-pass uncertainty signal
-(vacuity) without the multi-pass or multi-model cost the other two methods
-incur. Adjacent work applies conformal prediction and Monte Carlo
-inference specifically to cervical cancer screening uncertainty; this
-paper differs by comparing four methods head-to-head on a documented real
-(not assumed) shift-failure case, rather than proposing one method in
-isolation.
+post-hoc softmax calibration baseline: a single scalar fit on a held-out
+split rescales logits so that in-distribution confidence matches
+empirical accuracy, at essentially zero added inference cost. It is a
+strong in-distribution baseline (consistent with this paper's Table~1) but
+is a purely in-distribution correction by construction -- it cannot
+introduce information the model did not already encode about
+out-of-distribution inputs, which is exactly why it is the weakest signal
+here once shift severity increases (Table~1, right-hand columns). This
+motivates comparing it against methods that inject additional
+signal at training or inference time rather than only recalibrating a
+fixed model's existing outputs.
+
+\subsection{Multi-pass and ensemble uncertainty}
+
+MC Dropout \cite{gal2016dropout} approximates Bayesian inference by
+keeping dropout active at test time and treating the spread across
+repeated stochastic forward passes as an uncertainty signal, at a cost
+proportional to the number of passes. Deep ensembles
+\cite{lakshminarayanan2017ensembles} instead train several independently-
+initialized models and use their disagreement, at a cost proportional to
+ensemble size; empirically, ensemble diversity has been argued in the
+broader literature to capture a different, complementary source of
+uncertainty (functional diversity across independently-trained models)
+than a single model's own stochastic-forward-pass variance, which is
+consistent with this paper's finding that the two methods are not
+redundant with each other -- they win under different shift severities
+rather than one strictly dominating the other.
+
+\subsection{Single-pass uncertainty and evidential learning}
+
+Evidential deep learning \cite{sensoy2018evidential} reframes
+classification as Dirichlet evidence accumulation, producing a
+single-pass uncertainty signal (vacuity) without the multi-pass or
+multi-model inference cost MC Dropout and deep ensembles incur -- an
+attractive property for latency-constrained deployment, and the reason it
+is included here despite calibrating markedly worse than the other three
+methods in distribution (Table~1). Whether that single-pass efficiency
+advantage is worth its calibration cost is precisely an empirical,
+task-dependent question this comparison is designed to answer rather than
+assume from the method's design motivation alone.
+
+\subsection{Uncertainty quantification in cervical cancer screening}
+
+Adjacent work applies conformal prediction and Monte Carlo inference
+specifically to cervical cancer screening uncertainty, typically
+proposing or evaluating one uncertainty method in isolation against a
+single baseline. This paper differs by comparing four methods head-to-head
+on a documented real (not assumed or synthetically induced) shift-failure
+case, and by evaluating each method across two shift severities rather
+than one -- which is precisely what reveals the rank inversion (Table~1,
+Herlev vs.\ Mendeley LBC columns) a single-severity evaluation could not
+have surfaced.
 
 \section{Methods}
 
@@ -198,6 +240,16 @@ better than the plain baseline -- essentially within noise of each other
 -- despite the ensemble's clear win on the milder shift one row above.
 Member disagreement, which correctly flags moderate shift, does not
 reliably track the specific failure mode behind the severe collapse.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{figs/p2_fig1_risk_coverage.pdf}
+\caption{Risk-coverage AUC (lower is better) per method, at three
+conditions with independent y-axes (note the $\sim$100$\times$ scale
+difference between in-distribution and Mendeley LBC). The best method
+changes from deep ensemble (Herlev) to MC Dropout (Mendeley LBC).}
+\label{fig:risk-coverage}
+\end{figure}
 
 \textbf{No method reaches a reliable abstention operating point under
 severe shift.} Even MC Dropout's best result -- 0.583 selective accuracy

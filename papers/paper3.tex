@@ -93,27 +93,67 @@ $\sim$3.3$\times$ a bare forward pass.
 
 \section{Related Work}
 
-Relevancy propagation for transformers \cite{chefer2021transformer}
-extends attention rollout \cite{abnar2020quantifying} by weighting each
-transformer block's attention matrix with its gradient with respect to
-the target class before the same rollout aggregation, making the
-resulting relevance map class-discriminative rather than a fixed
-structural property of attention. Grad-CAM \cite{selvaraju2017gradcam}
-was originally designed for CNN feature maps and has been adapted to
-transformers by targeting a block's token-wise activations instead of a
-convolutional feature map; we identify and document a specific failure
-mode of this adaptation for CLS-token-pooled ViTs. MC Dropout
-\cite{gal2016dropout}, deep ensembles
+\subsection{Transformer explainability methods}
+
+Attention rollout \cite{abnar2020quantifying} treats a transformer's own
+attention weights, chained across layers via a fixed recurrence, as a
+relevance signal, on the premise that attention indicates where a model
+``looks.'' This premise has itself been contested in the broader
+literature examining whether attention weights are faithful explanations
+of a model's actual decision process rather than merely correlated with
+it -- a concern this paper's own faithfulness metrics (Section~3.3) are
+designed to test empirically rather than assume either way. Relevancy
+propagation \cite{chefer2021transformer} extends attention rollout by
+weighting each transformer block's attention matrix with its gradient
+with respect to the target class before the same rollout aggregation,
+making the resulting relevance map class-discriminative rather than a
+fixed structural property of attention, and is the primary method
+evaluated here specifically because it addresses the class-agnosticity
+critique of raw attention directly. Grad-CAM \cite{selvaraju2017gradcam}
+was originally designed for CNN feature maps, where a single late
+convolutional layer naturally encodes class-relevant spatial structure;
+its adaptation to transformers by targeting a block's token-wise
+activations instead of a convolutional feature map is common practice in
+the literature, but the specific failure mode we identify and document
+(Section~3.2) for CLS-token-pooled ViTs -- an all-zero heatmap if the
+wrong block is targeted -- does not appear to be widely flagged in prior
+adaptations, despite being silent rather than an error.
+
+\subsection{Selective prediction and conformal calibration}
+
+Split conformal prediction provides a distribution-free, finite-sample
+coverage guarantee from a single calibration split, at the cost of
+producing a set of plausible labels rather than one score; its prediction
+set size is a natural, model-agnostic uncertainty proxy, but one that is
+coarse (a small integer count) compared to a continuous confidence score.
+MC Dropout \cite{gal2016dropout}, deep ensembles
 \cite{lakshminarayanan2017ensembles}, and evidential deep learning
 \cite{sensoy2018evidential} are the three uncertainty-quantification
 methods our companion study compares against temperature-scaled softmax;
-conformal prediction's finite-sample coverage guarantee is the
-calibration method this paper's selective-prediction composition
-experiment builds on. Deletion/insertion faithfulness
-\cite{petsiuk2018rise} is the behavioral-faithfulness metric used
-throughout. Directly adjacent to this paper's own scope: the author's own
-prior work combining a stacking ensemble with explainable AI for cervical
-cancer diagnosis \cite{mohiuddin2025}, which this paper differs from by
+this paper's system-integration question -- whether combining
+temperature-scaled confidence with conformal set size outperforms either
+alone -- is, to our knowledge, not directly addressed by prior work
+proposing either signal independently, since each is typically evaluated
+as a self-contained method rather than as one input to a combined
+abstention rule.
+
+\subsection{Faithfulness evaluation}
+
+Deletion/insertion faithfulness \cite{petsiuk2018rise} evaluates an
+explanation by its behavioral effect on the model itself (does removing
+or revealing the patches an explanation calls important actually change
+the model's prediction), rather than by agreement with a human-annotated
+region, and is the behavioral-faithfulness metric used throughout this
+paper. Evaluating localization against SIPaKMeD's own expert-marked
+nucleus polygons, rather than a segmentation model's derived output,
+avoids compounding this paper's explainability evaluation with a second
+model's own errors.
+
+\subsection{The author's continuing research program}
+
+Directly adjacent to this paper's own scope: the author's own prior work
+combining a stacking ensemble with explainable AI for cervical cancer
+diagnosis \cite{mohiuddin2025}, which this paper differs from by
 evaluating explainability methods against a real expert-annotated
 localization ground truth and behavioral faithfulness metrics rather than
 an ensemble-accuracy framing; and the author's ``MaizeFormerX''
@@ -218,6 +258,15 @@ Attention rollout & 0.825 & 0.936 & 1.177 \\
 \end{tabular}
 \end{table}
 
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{figs/p3_fig1_explainability_metrics.pdf}
+\caption{Deletion AUC, insertion AUC, and nucleus concentration ratio for
+the three explainability methods. Relevancy propagation wins on all
+three, with the widest margin on nucleus concentration.}
+\label{fig:explainability-metrics}
+\end{figure}
+
 Relevancy propagation wins every comparison, and by a wide margin on
 nucleus concentration specifically (2.71$\times$ chance vs.\ attention
 rollout's 1.18$\times$ -- barely above chance). We attribute this to a
@@ -250,6 +299,15 @@ Mendeley LBC (severe shift) & 0.3244 & 0.4395 & \textbf{0.2855} \\
 \end{tabular}
 \end{table}
 
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.85\textwidth]{figs/p3_fig3_combined_selective.pdf}
+\caption{Risk-coverage AUC for confidence alone, conformal set size alone,
+and the rank-averaged combination, at three conditions. Combining hurts
+in-distribution and under moderate shift but helps under severe shift.}
+\label{fig:combined-selective}
+\end{figure}
+
 Composition is not a uniform win. In distribution and under moderate
 shift, confidence alone is already the best individual signal, and
 combining it with the noisier discrete conformal-set-size signal dilutes
@@ -277,6 +335,15 @@ above the 0.20 chance level for this 5-class task. On CPU, a bare DeiT-Tiny
 forward pass has a median latency of 49.6ms; a prediction that also
 returns a relevancy-propagation explanation costs 164.1ms -- about
 3.3$\times$ the bare-prediction cost.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{figs/p3_fig2_degradation_curves.pdf}
+\caption{Balanced accuracy vs.\ corruption severity for three synthetic
+degradations (EfficientViT-M0, SIPaKMeD test set). The dotted line marks
+the clean baseline (0.975). Gaussian blur causes the steepest decline.}
+\label{fig:degradation-curves}
+\end{figure}
 
 \section{Discussion}
 

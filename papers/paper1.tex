@@ -87,12 +87,55 @@ best-performing model in the registry on the other external dataset.
 
 \section{Related Work}
 
-Vision transformer variants proposed for medical image classification
-increasingly claim efficiency benefits, but rarely combine an
-efficiency-budgeted architecture with cross-dataset robustness evaluation
-in one study. Adjacent recent work on cervical and oral cancer imaging
-includes hybrid CNN--transformer explainability models, ensemble methods
-combining calibration with post-hoc explanation, and conformal-prediction
+\subsection{Efficient vision transformers}
+
+Efficiency-oriented vision transformer variants form three loose lineages
+relevant to the registry benchmarked here. Hybrid local--global designs
+(MobileViT \cite{mehta2022mobilevit}, MobileViTv2
+\cite{mehta2022mobilevitv2}) interleave convolutional stages with
+transformer blocks to keep early-stage compute cheap while retaining
+global attention at coarser resolutions. Distillation-oriented designs
+(DeiT \cite{touvron2021deit}) instead keep a standard ViT backbone but use
+a distillation token and teacher network to reach competitive accuracy at
+far smaller pretraining-data budgets than the original ViT
+\cite{dosovitskiy2021vit} required. Hardware-aware designs (LeViT
+\cite{graham2021levit}, TinyViT \cite{wu2022tinyvit}) reintroduce
+convolutional stages specifically to improve real-device latency, not
+just FLOP count, by favoring operations that map efficiently onto
+standard inference kernels. EfficientViT-M0/B0, the two smallest and most
+accurate models in this study, sit in a fourth lineage using
+cascaded-group attention to reduce redundant computation across attention
+heads; the exact source paper for the specific pretrained checkpoints
+used here requires verification before final submission, since at least
+two unrelated architectures share the ``EfficientViT'' name in the
+literature (an MIT/ICCV'23 lineage and a Microsoft/CVPR'23 lineage). None
+of these efficiency-oriented design papers evaluate cross-institution
+domain shift as part of their own efficiency claim -- efficiency and
+robustness are treated as separate, unrelated properties in the
+architecture literature this registry draws from, which is precisely the
+gap this paper's joint evaluation addresses.
+
+\subsection{Domain shift and model selection in medical imaging}
+
+A substantial general (not cervical-cytology-specific) medical-imaging
+literature documents that models selected on held-out in-distribution
+data can degrade sharply under real-world distribution shift across
+scanners, sites, and populations, motivating external-validation
+practices increasingly required by regulators and journals alike.
+However, this literature typically evaluates one or a small number of
+architectures rather than a systematic sweep across CNN, full-size
+transformer, and efficient-transformer families at matched task and
+data scale, which is what distinguishes this paper's 12-model, two-shift-
+dataset design: the question is not whether shift degrades performance
+(well established) but \emph{whether any measurable static property of a
+model predicts which model degrades least}, tested directly rather than
+assumed from a single architecture's behavior.
+
+\subsection{Adjacent cervical and oral cancer imaging work}
+
+Adjacent recent work on cervical and oral cancer imaging includes hybrid
+CNN--transformer explainability models, ensemble methods combining
+calibration with post-hoc explanation, and conformal-prediction
 approaches to cervical screening uncertainty, none of which jointly
 evaluate efficiency and real (not synthetic) cross-institution domain
 shift together -- including the author's own prior work combining a
@@ -179,6 +222,15 @@ data scale, the efficiency-accuracy trade-off does not appear at all
 in-distribution -- whether this generalizes is exactly what Section~4.2
 tests, and the answer is not reassuring.
 
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.82\textwidth]{figs/p1_fig1_params_vs_accuracy.pdf}
+\caption{Parameters (log scale) vs.\ in-distribution balanced accuracy,
+colored by architecture family. The two efficient-ViT models with the
+fewest parameters (EfficientViT-M0/B0) are also the two most accurate.}
+\label{fig:params-vs-acc}
+\end{figure}
+
 \subsection{Cross-dataset domain shift, escalating from 2 to 12 models}
 
 \textbf{Stage 1 (DeiT-Tiny alone):} in distribution 0.9504 balanced
@@ -261,6 +313,16 @@ same architecture-family name spanning a catastrophic failure and a top
 performer, ruling out architecture lineage as a predictor of shift
 robustness as thoroughly as parameter count and in-distribution accuracy
 already have been.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.82\textwidth]{figs/p1_fig2_mendeley_shift.pdf}
+\caption{Balanced accuracy on Mendeley LBC (zero-shot), sorted, colored by
+architecture family. All three CNNs cluster above chance; eight of nine
+transformer-family models cluster at or below chance, with MobileViT-S
+the sole catastrophic outlier.}
+\label{fig:mendeley-shift}
+\end{figure}
 
 \section{Discussion}
 
