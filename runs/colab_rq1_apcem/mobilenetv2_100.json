@@ -1,0 +1,30 @@
+{
+  "model": "mobilenetv2_100",
+  "in_distribution": {
+    "balanced_accuracy": 0.9622850832559358,
+    "macro_precision": 0.963408682718463,
+    "macro_recall_sensitivity": 0.9622850832559358,
+    "macro_f1": 0.9625819828606208,
+    "macro_specificity": 0.9905016672985258,
+    "macro_auroc": 0.996963225159876,
+    "macro_auprc": 0.9900055946757537
+  },
+  "efficiency": {
+    "num_parameters": 2230277,
+    "input_size": 224,
+    "latency": {
+      "median_latency_ms": 6.03040099986174,
+      "device": "cuda"
+    }
+  },
+  "apcem_shift": {
+    "balanced_accuracy": 0.6157731041450039,
+    "macro_precision": 0.5815095542229796,
+    "macro_recall_sensitivity": 0.6157731041450039,
+    "macro_f1": 0.5834372603696751,
+    "macro_specificity": 0.6157731041450039,
+    "macro_auroc": 0.6527911727167448,
+    "macro_auprc": 0.5745754545044502
+  },
+  "n_apcem": 4253
+}
