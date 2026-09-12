@@ -113,7 +113,22 @@ softmax; conformal prediction's finite-sample coverage guarantee (Vovk et
 al.) is the calibration method this paper's selective-prediction
 composition experiment builds on. Deletion/insertion faithfulness (Petsiuk
 et al., RISE, BMVC 2018) is the behavioral-faithfulness metric used
-throughout. The project's own literature-gap analysis (proposal Section 5)
+throughout. Directly adjacent to this paper's own scope: Mohiuddin, Rahman
+et al., "Accelerated and Accurate Cervical Cancer Diagnosis Using a Novel
+Stacking Ensemble Method with Explainable AI" (International Conference on
+Quantum Photonics, Artificial Intelligence, 2025) combines a stacking
+ensemble with explainable AI for cervical cancer diagnosis; this paper
+differs in evaluating explainability methods against a real expert-
+annotated localization ground truth (nucleus polygons) and behavioral
+faithfulness metrics rather than an ensemble-accuracy framing, and in
+explicitly comparing three explainability methods head-to-head rather than
+applying one. Rahman et al., "MaizeFormerX: a lightweight vision
+transformer with cross-scale attention for explainable maize leaf disease
+diagnosis" (Scientific Reports, 2026) applies a parallel lightweight-ViT-
+plus-explainability design philosophy to a different domain (plant disease
+diagnosis), motivating this paper's own choice to hold efficiency and
+explainability as joint, not competing, design goals. The project's own
+literature-gap analysis (proposal Section 5)
 identifies specific adjacent 2024-2026 work combining subsets of these
 methods for cervical or oral cancer imaging; none combine an
 efficiency-budgeted architecture, single-pass uncertainty, small-sample-
@@ -421,4 +436,6 @@ submission):
 - Petsiuk, V., Das, A., & Saenko, K. "RISE: Randomized Input Sampling for Explanation of Black-box Models." BMVC 2018.
 - Guo, C., Pleiss, G., Sun, Y., & Weinberger, K. Q. "On Calibration of Modern Neural Networks." ICML 2017.
 - Plissiti, M. E., et al. "SIPAKMED: A New Dataset for Feature and Image Based Classification of Normal and Pathological Cervical Cells in Pap Smear Images." ICIP 2018.
+- Mohiuddin, A. B., Rahman, M. M., et al. "Accelerated and Accurate Cervical Cancer Diagnosis Using a Novel Stacking Ensemble Method with Explainable AI." International Conference on Quantum Photonics, Artificial Intelligence, 2025.
+- Rahman, M. M., et al. "MaizeFormerX: a lightweight vision transformer with cross-scale attention for explainable maize leaf disease diagnosis." Scientific Reports, 2026.
 - Herlev dataset and Mendeley LBC Pap smear dataset: **citations require verification** — not independently confirmed by this project beyond the Kaggle mirror pages used for data acquisition; do not cite a specific author/venue for either without first locating and confirming the primary source.
