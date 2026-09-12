@@ -1,16 +1,18 @@
-"""Harmonize SIPaKMeD, Herlev, and Mendeley LBC onto a shared binary label
-space for the cross-dataset domain-shift evaluation (proposal S16/RQ4).
+"""Harmonize SIPaKMeD, Herlev, Mendeley LBC, and APCEM onto a shared binary
+label space for the cross-dataset domain-shift evaluation (proposal
+S16/RQ4).
 
-The three source datasets use incompatible fine-grained taxonomies with no
-1:1 correspondence — SIPaKMeD's 5 cytomorphology classes, Herlev's 7
-dysplasia-grade classes, and Mendeley LBC's 4 Bethesda-system classes don't
-line up cell-for-cell. The only label space all three datasets can be
-honestly compared on is the coarse Normal / Abnormal split every one of them
-already implies, which is also the standard regrouping used elsewhere in
-this literature for exactly this reason. Fine-grained cross-dataset
-transfer is out of scope: it would require assuming a correspondence
-between, say, SIPaKMeD's "Dyskeratotic" and Herlev's "severe_dysplastic"
-that neither dataset's documentation actually supports.
+The source datasets use incompatible fine-grained taxonomies with no 1:1
+correspondence — SIPaKMeD's 5 cytomorphology classes, Herlev's 7
+dysplasia-grade classes, Mendeley LBC's 4 Bethesda-system classes, and
+APCEM's 6 Bethesda-system classes don't line up cell-for-cell. The only
+label space all of them can be honestly compared on is the coarse Normal /
+Abnormal split every one of them already implies, which is also the
+standard regrouping used elsewhere in this literature for exactly this
+reason. Fine-grained cross-dataset transfer is out of scope: it would
+require assuming a correspondence between, say, SIPaKMeD's "Dyskeratotic"
+and Herlev's "severe_dysplastic" that neither dataset's documentation
+actually supports.
 """
 
 from __future__ import annotations
@@ -46,6 +48,25 @@ MENDELEY_LBC_TO_BINARY = {
     "Low squamous intra-epithelial lesion": ABNORMAL,
     "High squamous intra-epithelial lesion": ABNORMAL,
     "Squamous cell carcinoma": ABNORMAL,
+}
+
+# APCEM-Enhanced Cervical Cytology Pap Smear Image Dataset (Mendeley Data,
+# snzb5g6ddy). Folder names verified directly against the extracted zip's
+# own directory listing: ASCH (119), ASCUS (340), HSIL (1300), LSIL (1241),
+# NILM (779), SSC (474) -- note "SSC" (not the more standard "SCC") is the
+# actual folder name used in this dataset's own archive, kept as-is rather
+# than silently corrected. NILM is Bethesda's "negative for intraepithelial
+# lesion or malignancy" (normal); ASC-US/ASC-H (atypical squamous cells,
+# undetermined/cannot-exclude-HSIL significance) are grouped abnormal along
+# with LSIL/HSIL/SSC, consistent with how this project already treats the
+# analogous atypical/dysplastic categories in Herlev and Mendeley LBC.
+APCEM_TO_BINARY = {
+    "NILM": NORMAL,
+    "ASCUS": ABNORMAL,
+    "ASCH": ABNORMAL,
+    "LSIL": ABNORMAL,
+    "HSIL": ABNORMAL,
+    "SSC": ABNORMAL,
 }
 
 
