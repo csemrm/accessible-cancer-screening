@@ -1,0 +1,30 @@
+{
+  "model": "swin_tiny_patch4_window7_224",
+  "in_distribution": {
+    "balanced_accuracy": 0.9330319421730277,
+    "macro_precision": 0.9353682537829642,
+    "macro_recall_sensitivity": 0.9330319421730277,
+    "macro_f1": 0.9323298593380016,
+    "macro_specificity": 0.9830891796458314,
+    "macro_auroc": 0.9930971169576079,
+    "macro_auprc": 0.9789376208237588
+  },
+  "efficiency": {
+    "num_parameters": 27523199,
+    "input_size": 224,
+    "latency": {
+      "median_latency_ms": 11.733464999906573,
+      "device": "cuda"
+    }
+  },
+  "apcem_shift": {
+    "balanced_accuracy": 0.472352845971874,
+    "macro_precision": 0.45177725500306143,
+    "macro_recall_sensitivity": 0.472352845971874,
+    "macro_f1": 0.22057151333066208,
+    "macro_specificity": 0.472352845971874,
+    "macro_auroc": 0.3082106172166167,
+    "macro_auprc": 0.4382459252234496
+  },
+  "n_apcem": 4253
+}
