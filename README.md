@@ -8,28 +8,69 @@ notes) for the full literature-grounded revision — gap analysis, architecture
 design, research questions/hypotheses, experimental design, and the
 national-importance evidence review.
 
-## Status
+## Status (Months 1–11 complete)
 
-Currently executing the Month 1–2 timeline item: dataset acquisition and
-pipeline scaffolding for the primary application (cervical cytology). See
-`docs/dataset_provenance.md` for what's been verified so far and what's
-still in progress.
+All five research questions and the Month 11 resource-efficiency/robustness
+benchmark have real, completed results (not projections). Each phase's full
+writeup lives in `docs/`:
+
+| Phase | What it covers | Backbone | Writeup |
+|---|---|---|---|
+| RQ1 | Efficiency/accuracy benchmark, 12 CNN/ViT/efficient-ViT models | all 12 | `docs/rq1_results.md` |
+| RQ4 | Cross-dataset domain shift (SIPaKMeD → Herlev, Mendeley LBC), same 12 models | all 12 | `docs/rq1_results.md` (combined with RQ1) |
+| RQ2 | Uncertainty/calibration: temp-scaled softmax vs. MC Dropout vs. evidential vs. deep ensemble | EfficientViT-M0 (RQ1's winner) | `docs/rq2_results.md` |
+| RQ3 | Explainability: relevancy propagation vs. attention rollout vs. Grad-CAM | DeiT-Tiny (pure ViT — see note below) | `docs/rq3_results.md` |
+| RQ5 | System integration: does composing calibration/explainability/selective-prediction degrade anything? | DeiT-Tiny | `docs/rq5_results.md` |
+| Month 11 | Resource-efficiency (params/FLOPs/CPU latency/memory, all 12 models) + synthetic degradation/OOD sanity check | all 12 (efficiency) / EfficientViT-M0 (degradation+OOD) | `docs/month11_results.md` |
+
+**Why RQ3/RQ5 use DeiT-Tiny instead of RQ1's winning EfficientViT-M0:**
+relevancy propagation and attention rollout are both defined for standard
+multi-head self-attention transformer blocks; EfficientViT-M0's hybrid conv +
+cascaded-group-attention design has no established propagation rule for
+either method. DeiT-Tiny (0.9606 balanced accuracy in RQ1, vs.
+EfficientViT-M0's 0.9654) is the closest standard-ViT baseline in the
+registry, used for RQ3/RQ5 rather than forcing an ad hoc extension onto an
+architecture these methods weren't designed for. This is stated as a
+limitation in each affected writeup, not hidden.
+
+Remaining timeline items (Month 12): Paper 3 drafting, code/data release
+preparation, national-importance evidence refresh.
 
 ## Layout
 
 ```
 src/cervical_screening/
   data/
-    crop_sipakmed.py   # derive native-resolution single-cell crops from raw SIPaKMeD
-    make_splits.py      # stratified train/val/calibration/test manifest
-    dataset.py           # torch Dataset reading the manifest
-    transforms.py         # ImageNet-normalized train/eval transforms
+    crop_sipakmed.py       # native-resolution single-cell crops from raw SIPaKMeD (+ optional nucleus-polygon manifest for RQ3)
+    make_splits.py          # stratified train/val/calibration/test manifest
+    harmonize_labels.py      # SIPaKMeD/Herlev/Mendeley LBC -> shared normal/abnormal binary labels for cross-dataset shift eval
+    make_shift_manifest.py    # CLI wrapper for scan_binary_manifest
+    dataset.py                 # torch Dataset reading the manifest
+    transforms.py                # ImageNet-normalized train/eval transforms
   models/
-    registry.py           # RQ1 baseline registry (CNN / full ViT / efficient ViT), all timm tags verified against the pinned timm version
+    registry.py                  # RQ1 baseline registry (CNN / full ViT / efficient ViT), all timm tags verified against the pinned timm version
   eval/
-    metrics.py             # sensitivity/specificity/F1/AUROC/AUPRC/balanced accuracy — not accuracy-only, per proposal S14
-    efficiency.py           # measured params/CPU latency/RSS delta — not asserted from architecture name
-  train.py                  # RQ1 baseline training + evaluation entrypoint
+    metrics.py                     # sensitivity/specificity/F1/AUROC/AUPRC/balanced accuracy
+    efficiency.py                    # measured params/CPU latency/RSS delta (see isolation caveat in the docstring)
+    flops.py                          # FLOPs via torch's own FlopCounterMode
+    cross_dataset.py                   # 5-class -> binary probability grouping for shift eval
+  uncertainty/                          # RQ2: calibration, conformal prediction, evidential DL, MC Dropout, selective prediction
+    calibration.py, conformal.py, evidential.py, mc_dropout.py, selective.py, train_variants.py
+  explainability/                        # RQ3: relevancy propagation, attention rollout, Grad-CAM, faithfulness, nucleus overlap
+    relevancy_propagation.py, attention_rollout.py, gradcam.py, faithfulness.py, nucleus_overlap.py, vit_hooks.py, rollout.py, heatmap.py
+  integration/                            # RQ5: combined selective-prediction signal, pipeline latency
+    combined_selective.py, pipeline_latency.py
+  robustness/                             # Month 11: synthetic degradation + OOD sanity check
+    degradation.py, ood_sanity.py
+  train.py                                 # RQ1 baseline training + evaluation entrypoint
+  measure_efficiency.py                     # Month 11 local (no-GPU) efficiency benchmark CLI
+
+colab_kernel/
+  run_pipeline.py       # self-contained RQ1/RQ4 Colab script
+  rq2/, rq3/, rq5/, rq_month11/    # per-phase Colab setup + eval scripts (see docs/colab_cli_pipeline.md)
+
+runs/            # saved JSON results per phase (colab_rq1, colab_rq2, colab_rq3, colab_rq5, efficiency, month11_robustness)
+docs/            # full writeups, one per phase, plus dataset provenance and Colab-pipeline notes
 ```
 
 ## Setup
@@ -39,9 +80,31 @@ python3 -m venv .venv && source .venv/bin/activate
 pip install -e .
 ```
 
-Requires a working `~/.kaggle/kaggle.json` for dataset acquisition.
+Requires a working `~/.kaggle/kaggle.json` for dataset acquisition
+(SIPaKMeD, Herlev, Mendeley LBC — see `docs/dataset_provenance.md`).
 
-## Running the RQ1 baseline benchmark (once data is in place)
+## Reproducing a phase
+
+Every phase after RQ1 was actually run on Google Colab (via
+[`google-colab-cli`](https://github.com/googlecolab/google-colab-cli), not
+the Colab notebook UI) rather than locally, since training needs a GPU.
+`docs/colab_cli_pipeline.md` covers the exact CLI workflow and its quirks.
+The general pattern, using RQ2 as an example:
+
+```
+colab new -s <session> --gpu T4
+colab upload -s <session> colab_kernel/run_pipeline.py /content/run_pipeline.py
+# zip+upload src/cervical_screening, upload kaggle.json, unzip on the VM — see docs/colab_cli_pipeline.md
+colab exec -s <session> -f colab_kernel/rq2/setup.py --timeout 1800
+colab exec -s <session> -f colab_kernel/rq2/common_eval.py --timeout 300
+colab exec -s <session> -f colab_kernel/rq2/run_baseline.py --timeout 1800
+# ...then run_mc_dropout.py, run_evidential.py, 5x run_ensemble_member.py, run_ensemble_eval.py
+```
+
+Each `runs/colab_*/*.json` file is the exact result of one such run, saved
+immediately after it completed.
+
+### RQ1 baseline benchmark (12 CNN/ViT/efficient-ViT models)
 
 ```
 python -m cervical_screening.data.crop_sipakmed \
@@ -57,3 +120,19 @@ python -m cervical_screening.train \
 Repeat the last command once per entry in `MODEL_REGISTRY`
 (`src/cervical_screening/models/registry.py`) to reproduce the full
 efficiency/accuracy baseline table.
+
+### Month 11 resource-efficiency benchmark (no GPU needed)
+
+```
+python -m cervical_screening.measure_efficiency --out runs/efficiency/benchmark.json
+```
+
+Runs entirely locally: params, FLOPs, and CPU latency/memory are
+architecture properties, not trained-weight properties.
+
+## Known limitations (see each doc for full detail)
+
+- Public cytology datasets are small (900–4,000 images) and drawn from a handful of institutions/countries.
+- RQ3/RQ5 use a different backbone (DeiT-Tiny) than RQ1's winner (EfficientViT-M0) — see the table above.
+- CPU latency in the Month 11 benchmark was measured on one shared consumer laptop, not dedicated hardware (`docs/month11_results.md` quantifies the resulting run-to-run noise).
+- No trained-weight checkpoints are persisted anywhere in this repo — every Colab session trains from scratch, since `/content/` is ephemeral. `runs/*.json` files are the durable record of each result.
