@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import json
 from pathlib import Path
 
 from PIL import Image
@@ -53,7 +54,8 @@ def bbox(points: list[tuple[float, float]], margin: float) -> tuple[int, int, in
     )
 
 
-def crop_class(raw_root: Path, out_root: Path, class_dir: str, margin: float) -> int:
+def crop_class(raw_root: Path, out_root: Path, class_dir: str, margin: float,
+                nucleus_rows: list[dict] | None = None) -> int:
     src_dir = raw_root / class_dir / class_dir
     if not src_dir.exists():
         raise FileNotFoundError(f"expected raw class directory not found: {src_dir}")
@@ -87,6 +89,25 @@ def crop_class(raw_root: Path, out_root: Path, class_dir: str, margin: float) ->
             crop.save(out_path)
             n_written += 1
 
+            if nucleus_rows is not None:
+                # RQ3's nucleus-overlap explainability metric needs the nucleus
+                # boundary in crop-local coordinates. SIPaKMeD occasionally
+                # ships more than one nucleus polygon per cell (binucleated
+                # cells), hence a list rather than a single polygon.
+                nuc_files = sorted(src_dir.glob(f"{cluster_id}_nuc{cell_idx}*.dat"))
+                polygons_local = []
+                for nuc_path in nuc_files:
+                    nuc_points = read_polygon(nuc_path)
+                    if len(nuc_points) < 3:
+                        continue
+                    polygons_local.append([[x - left, y - top] for x, y in nuc_points])
+                nucleus_rows.append({
+                    "crop_path": str(out_path.relative_to(out_root)),
+                    "crop_width": right - left,
+                    "crop_height": bottom - top,
+                    "nucleus_polygons": json.dumps(polygons_local),
+                })
+
     return n_written
 
 
@@ -98,14 +119,26 @@ def main() -> None:
                          help="directory to write native-resolution crops into, one subfolder per class")
     parser.add_argument("--margin", type=float, default=4.0,
                          help="pixels of margin added around the cytoplasm bounding box")
+    parser.add_argument("--nucleus-manifest", type=Path, default=None,
+                         help="if set, also write a CSV mapping each crop to its crop-local nucleus "
+                              "polygon(s), for RQ3's nucleus-overlap explainability metric")
     args = parser.parse_args()
 
     total = 0
+    nucleus_rows: list[dict] | None = [] if args.nucleus_manifest else None
     for class_dir in CLASSES:
-        n = crop_class(args.raw_root, args.out_root, class_dir, args.margin)
+        n = crop_class(args.raw_root, args.out_root, class_dir, args.margin, nucleus_rows=nucleus_rows)
         print(f"{class_dir}: {n} crops")
         total += n
     print(f"TOTAL: {total} crops")
+
+    if args.nucleus_manifest and nucleus_rows is not None:
+        args.nucleus_manifest.parent.mkdir(parents=True, exist_ok=True)
+        with open(args.nucleus_manifest, "w", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=["crop_path", "crop_width", "crop_height", "nucleus_polygons"])
+            writer.writeheader()
+            writer.writerows(nucleus_rows)
+        print(f"nucleus manifest: {len(nucleus_rows)} rows -> {args.nucleus_manifest}")
 
 
 if __name__ == "__main__":
