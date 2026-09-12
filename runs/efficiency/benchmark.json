@@ -1,0 +1,134 @@
+{
+  "resnet50": {
+    "input_size": 224,
+    "params": 23518277,
+    "flops": 8174292992,
+    "cpu_latency_ms": {
+      "batch_size": 1,
+      "median_latency_ms": 32.036707998486236,
+      "p90_latency_ms": 35.40941700339317
+    },
+    "cpu_memory_delta_mb": 51.25
+  },
+  "mobilenetv2_100": {
+    "input_size": 224,
+    "params": 2230277,
+    "flops": 599001344,
+    "cpu_latency_ms": {
+      "batch_size": 1,
+      "median_latency_ms": 33.50550000322983,
+      "p90_latency_ms": 39.92954199202359
+    },
+    "cpu_memory_delta_mb": 20.8125
+  },
+  "efficientnet_lite0": {
+    "input_size": 224,
+    "params": 3377413,
+    "flops": 767827904,
+    "cpu_latency_ms": {
+      "batch_size": 1,
+      "median_latency_ms": 137.67341600032523,
+      "p90_latency_ms": 147.4090419942513
+    },
+    "cpu_memory_delta_mb": 28.703125
+  },
+  "vit_small_patch16_224": {
+    "input_size": 224,
+    "params": 21667589,
+    "flops": 8481672960,
+    "cpu_latency_ms": {
+      "batch_size": 1,
+      "median_latency_ms": 26.797750004334375,
+      "p90_latency_ms": 28.695624991087243
+    },
+    "cpu_memory_delta_mb": 16.1875
+  },
+  "swin_tiny_patch4_window7_224": {
+    "input_size": 224,
+    "params": 27523199,
+    "flops": 8979604992,
+    "cpu_latency_ms": {
+      "batch_size": 1,
+      "median_latency_ms": 54.00045798160136,
+      "p90_latency_ms": 63.101832987740636
+    },
+    "cpu_memory_delta_mb": 41.96875
+  },
+  "deit_tiny_patch16_224": {
+    "input_size": 224,
+    "params": 5525381,
+    "flops": 2149320576,
+    "cpu_latency_ms": {
+      "batch_size": 1,
+      "median_latency_ms": 15.399791998788714,
+      "p90_latency_ms": 19.58008299698122
+    },
+    "cpu_memory_delta_mb": 11.515625
+  },
+  "levit_128": {
+    "input_size": 224,
+    "params": 8447786,
+    "flops": 809115136,
+    "cpu_latency_ms": {
+      "batch_size": 1,
+      "median_latency_ms": 17.48300000326708,
+      "p90_latency_ms": 20.646666001994163
+    },
+    "cpu_memory_delta_mb": 12.234375
+  },
+  "tiny_vit_5m_224": {
+    "input_size": 224,
+    "params": 5073369,
+    "flops": 2509712640,
+    "cpu_latency_ms": {
+      "batch_size": 1,
+      "median_latency_ms": 44.92945902165957,
+      "p90_latency_ms": 52.738500002305955
+    },
+    "cpu_memory_delta_mb": 29.296875
+  },
+  "mobilevit_s": {
+    "input_size": 256,
+    "params": 4940837,
+    "flops": 3645118720,
+    "cpu_latency_ms": {
+      "batch_size": 1,
+      "median_latency_ms": 66.34062499506399,
+      "p90_latency_ms": 70.11695901746862
+    },
+    "cpu_memory_delta_mb": 45.9375
+  },
+  "mobilevitv2_100": {
+    "input_size": 256,
+    "params": 4391406,
+    "flops": 3623162880,
+    "cpu_latency_ms": {
+      "batch_size": 1,
+      "median_latency_ms": 65.17595797777176,
+      "p90_latency_ms": 72.67654198221862
+    },
+    "cpu_memory_delta_mb": 63.09375
+  },
+  "efficientvit_b0": {
+    "input_size": 224,
+    "params": 2135413,
+    "flops": 197919232,
+    "cpu_latency_ms": {
+      "batch_size": 1,
+      "median_latency_ms": 41.57645898521878,
+      "p90_latency_ms": 46.82537500048056
+    },
+    "cpu_memory_delta_mb": 8.5625
+  },
+  "efficientvit_m0": {
+    "input_size": 224,
+    "params": 2157401,
+    "flops": 158005120,
+    "cpu_latency_ms": {
+      "batch_size": 1,
+      "median_latency_ms": 36.24445799505338,
+      "p90_latency_ms": 49.366624996764585
+    },
+    "cpu_memory_delta_mb": 7.90625
+  }
+}

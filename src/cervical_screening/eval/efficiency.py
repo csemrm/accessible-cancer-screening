@@ -46,7 +46,17 @@ def measure_peak_rss_delta_mb(model: nn.Module, input_size: int, batch_size: int
     proxy. Deliberately not tracemalloc: torch's C++-allocated tensors are
     invisible to Python's allocator, so tracemalloc would silently under-report.
     RSS delta is coarser (it includes any other process activity in the window)
-    but at least measures real memory the OS actually committed."""
+    but at least measures real memory the OS actually committed.
+
+    CALLER MUST ISOLATE EACH MODEL IN ITS OWN PROCESS. ru_maxrss is a
+    monotonically non-decreasing high-water mark for the whole process
+    lifetime, not a live delta -- calling this (or any other measurement that
+    runs a forward pass) on a second model in the same process after a first,
+    larger model already ran will silently return 0.0, because the second
+    model's forward pass never exceeds the peak the first one already
+    established. measure_efficiency.py's measure_memory_isolated() spawns a
+    fresh subprocess per model specifically to avoid this; do not call this
+    function directly in a loop over multiple models in one process."""
     import resource
 
     model = model.eval().to("cpu")
