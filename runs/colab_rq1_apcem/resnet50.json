@@ -1,0 +1,30 @@
+{
+  "model": "resnet50",
+  "in_distribution": {
+    "balanced_accuracy": 0.9638979864817424,
+    "macro_precision": 0.964861405844578,
+    "macro_recall_sensitivity": 0.9638979864817424,
+    "macro_f1": 0.9641608412555731,
+    "macro_specificity": 0.9909106652535362,
+    "macro_auroc": 0.9965714225973284,
+    "macro_auprc": 0.989056169996522
+  },
+  "efficiency": {
+    "num_parameters": 23518277,
+    "input_size": 224,
+    "latency": {
+      "median_latency_ms": 6.657027000073867,
+      "device": "cuda"
+    }
+  },
+  "apcem_shift": {
+    "balanced_accuracy": 0.3339197545234247,
+    "macro_precision": 0.4003979172502314,
+    "macro_recall_sensitivity": 0.3339197545234247,
+    "macro_f1": 0.3280338293967224,
+    "macro_specificity": 0.3339197545234247,
+    "macro_auroc": 0.29288689941712615,
+    "macro_auprc": 0.424989017103677
+  },
+  "n_apcem": 4253
+}
