@@ -1,0 +1,30 @@
+{
+  "model": "levit_128",
+  "in_distribution": {
+    "balanced_accuracy": 0.9001334253641584,
+    "macro_precision": 0.905553521199348,
+    "macro_recall_sensitivity": 0.9001334253641584,
+    "macro_f1": 0.8974663157819245,
+    "macro_specificity": 0.9748576586120405,
+    "macro_auroc": 0.9865370080151299,
+    "macro_auprc": 0.9636681263198261
+  },
+  "efficiency": {
+    "num_parameters": 8447786,
+    "input_size": 224,
+    "latency": {
+      "median_latency_ms": 13.452613000026759,
+      "device": "cuda"
+    }
+  },
+  "apcem_shift": {
+    "balanced_accuracy": 0.5263263206670791,
+    "macro_precision": 0.549109561563499,
+    "macro_recall_sensitivity": 0.5263263206670791,
+    "macro_f1": 0.24782291704790632,
+    "macro_specificity": 0.5263263206670791,
+    "macro_auroc": 0.5375894320028556,
+    "macro_auprc": 0.5194908242728451
+  },
+  "n_apcem": 4253
+}
