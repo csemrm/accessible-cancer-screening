@@ -1,0 +1,24 @@
+{
+  "n_samples": 50,
+  "n_nucleus_matched": 50,
+  "methods": {
+    "relevancy_propagation": {
+      "deletion_auc_mean": 0.7341687881639904,
+      "insertion_auc_mean": 0.970017783191541,
+      "concentration_ratio_mean": 2.7143565106391905,
+      "n_concentration_samples": 50
+    },
+    "attention_rollout": {
+      "deletion_auc_mean": 0.8249280049339522,
+      "insertion_auc_mean": 0.9357065894236223,
+      "concentration_ratio_mean": 1.1767589062452317,
+      "n_concentration_samples": 50
+    },
+    "gradcam": {
+      "deletion_auc_mean": 0.8182437319355753,
+      "insertion_auc_mean": 0.8770128116548044,
+      "concentration_ratio_mean": 1.471804202310741,
+      "n_concentration_samples": 50
+    }
+  }
+}

@@ -83,7 +83,7 @@ for i, idx in enumerate(sampled_indices):
     if nucleus_entry is not None:
         n_nucleus_matched += 1
         mask = rasterize_nucleus_mask(nucleus_entry["polygons"], nucleus_entry["width"],
-                                       nucleus_entry["height"], INPUT_SIZE)
+                                       nucleus_entry["height"], INPUT_SIZE).to(device)
 
     for method_name, heatmap in heatmaps.items():
         per_method[method_name]["deletion_auc"].append(
