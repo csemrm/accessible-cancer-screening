@@ -213,12 +213,21 @@ def input_size_for(name: str) -> int:
 
 
 def select_device() -> torch.device:
+    """Real-op check, not a static arch-list string match: an exact
+    sm_XY-in-arch_list comparison produced a false "unsupported" verdict on
+    a real Colab L4 session (compute 8.9) even though a real matmul and a
+    real model forward pass both succeeded on that GPU -- PTX forward
+    compatibility means a build with sm_86 kernels still runs correctly on
+    an sm_89 device. Running the real op ourselves avoids hand-encoding
+    CUDA's forward-compatibility rules."""
     if not torch.cuda.is_available():
         return torch.device("cpu")
-    major, minor = torch.cuda.get_device_capability(0)
-    cap_str = f"sm_{major}{minor}"
-    if cap_str not in torch.cuda.get_arch_list():
-        print(f"GPU {torch.cuda.get_device_name(0)} ({cap_str}) unsupported — falling back to CPU")
+    try:
+        x = torch.randn(8, 8, device="cuda")
+        (x @ x).sum().item()
+    except RuntimeError as e:
+        print(f"GPU {torch.cuda.get_device_name(0)} (compute {torch.cuda.get_device_capability(0)}) "
+              f"failed a real CUDA op ({e}) — falling back to CPU")
         return torch.device("cpu")
     return torch.device("cuda")
 
