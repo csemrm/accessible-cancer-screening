@@ -15,33 +15,38 @@
 \maketitle
 
 \begin{abstract}
-Vision-transformer explainability methods for medical image classification
-are typically evaluated against one baseline at a time, on whichever
-backbone a given paper happens to train, without asking whether the choice
-of explainability method matters more or less than the choice of
-uncertainty-quantification method for the same underlying trustworthiness
-goal. We evaluate three explainability methods (relevancy propagation,
-attention rollout, and Grad-CAM adapted for vision transformers) on a
-cervical cytology classifier, using both behavioral faithfulness
+``Trustworthy AI'' is usually evaluated as if it were one property a
+pipeline either has or lacks. We show instead that it decomposes into at
+least three independently-varying claims -- which explainability method
+is most faithful, whether combining two uncertainty signals improves
+selective prediction, and whether an efficient architecture's efficiency
+claim holds under real measurement -- and that each one resolves
+differently: cleanly, conditionally, or only under direct measurement.
+Testing all three side by side on one cervical cytology screening
+pipeline, rather than picking one and assuming the others follow the same
+pattern, is itself the point. First, we compare three explainability
+methods (relevancy propagation, attention rollout, and Grad-CAM adapted
+for vision transformers) against both behavioral faithfulness
 (deletion/insertion) and a real, expert-annotated localization ground
-truth (nucleus boundaries from the SIPaKMeD dataset) rather than a derived
-proxy. Relevancy propagation wins cleanly on all three metrics. We then
-ask a system-level question our own prior uncertainty-quantification
-comparison could not answer alone: does composing two independently-useful
-uncertainty signals -- temperature-scaled confidence and conformal
-prediction-set size -- into one abstention rule help, hurt, or do nothing?
-The answer is conditional: composition helps exactly where the better
-individual signal was already struggling (under severe distribution shift)
-and hurts where it was already excellent (in-distribution and under mild
-shift). Finally, we measure what trustworthiness costs in practice:
-resource-efficiency claims for lightweight vision transformers, evaluated
-by parameter count and FLOPs alone, do not reliably predict real CPU
+truth (nucleus boundaries from the SIPaKMeD dataset); relevancy
+propagation wins cleanly on all three metrics, with no method-ranking
+flip across conditions. Second, we test whether composing two
+independently-useful uncertainty signals -- temperature-scaled confidence
+and conformal prediction-set size -- into one abstention rule helps: the
+answer is conditional, helping exactly where the better individual signal
+was already struggling (under severe distribution shift) and hurting
+where it was already excellent (in-distribution and under mild shift).
+Third, we measure what trustworthiness costs in practice: resource-
+efficiency claims for lightweight vision transformers, evaluated by
+parameter count and FLOPs alone, do not reliably predict real CPU
 inference latency, and returning an explanation alongside a prediction
-costs roughly 3.3$\times$ a bare forward pass on CPU. Taken together,
-these results argue that explainability method choice is more reliably
-consequential than uncertainty-signal composition strategy, and that both
-claims require direct measurement rather than architectural or
-metric-count inference.
+costs roughly 3.3$\times$ a bare forward pass on CPU. The pattern across
+all three -- a clean answer, a conditional answer, and an answer that
+only exists once measured -- is the paper's central argument: a single
+verification strategy (pick the best method once, assume composition
+helps, trust an architectural efficiency claim) does not work uniformly
+across a trustworthy-AI pipeline, and each property needs its own,
+independent test.
 
 \keywords{Explainable AI \and Vision transformers \and Selective prediction \and Conformal prediction \and Cervical cytology \and Resource efficiency}
 \end{abstract}
@@ -65,31 +70,53 @@ shift-failure detection on the severe shift condition, while a deep
 ensemble -- the best method in-distribution and under mild shift -- does
 not transfer that advantage to the severe case.
 
-This paper asks the analogous question for explainability -- does the
-choice of explainability method matter as much, and in the same
-condition-dependent way? -- and then asks a genuinely different question
-neither prior study could answer: given that no single component
-(backbone, uncertainty method) is reliably best across all conditions,
-does \emph{composing} two different native uncertainty signals into one
-system help, or does composition just average away whichever signal was
-better? Finally, since a lightweight-architecture claim is only as good as
-its measured deployment cost, we report the actual CPU latency and memory
-cost of the full pipeline, not an estimate from parameter count.
+These two prior findings already show that no single fixed choice
+(backbone, uncertainty method) is safe across all conditions -- but each
+paper tested only one property of the pipeline. The question this paper
+asks is broader: if trustworthiness is not one property but several, do
+they all fail to compose the same way, or does each one behave
+differently under scrutiny? We answer this by testing three additional
+properties of the same pipeline side by side, deliberately choosing
+properties that a reader might otherwise assume behave alike:
+\textbf{explainability method choice} (does picking the best
+explainability method matter as much, and in the same
+condition-dependent way, as picking the best uncertainty method?),
+\textbf{uncertainty-signal composition} (given that no single uncertainty
+method is reliably best, does \emph{combining} two different native
+signals into one system help, or does composition just average away
+whichever signal was better?), and \textbf{measured deployment cost} (does
+a lightweight-architecture claim, evaluated only by parameter count and
+FLOPs, actually hold once CPU latency and the cost of an explanation are
+measured directly?). The answers turn out to differ in kind, not just in
+degree: explainability method choice resolves cleanly to one winner
+across all metrics tested; signal composition resolves conditionally,
+flipping between helpful and harmful depending on shift severity; and the
+deployment-cost claim resolves only once measured, contradicting what
+parameter count and FLOPs alone would predict. This three-way divergence
+-- not any single result -- is this paper's contribution: it demonstrates
+that a trustworthy-AI pipeline cannot be verified with one strategy
+applied uniformly to every component.
 
-Our contributions are threefold. First, a three-way explainability
-comparison (relevancy propagation vs.\ attention rollout vs.\ Grad-CAM) on
-deletion/insertion faithfulness \emph{and} real expert-annotated
-nucleus-localization ground truth, where relevancy propagation wins
-unambiguously on all three metrics -- a cleaner result than either
-companion study's uncertainty-method comparisons produced. Second, the
-first system-level test of whether combining two uncertainty signals for
+Our contributions are threefold, one per property tested. First, a
+three-way explainability comparison (relevancy propagation vs.\ attention
+rollout vs.\ Grad-CAM) on deletion/insertion faithfulness \emph{and} real
+expert-annotated nucleus-localization ground truth, where relevancy
+propagation wins unambiguously on all three metrics -- a cleaner result
+than either companion study's uncertainty-method comparisons produced,
+and evidence that this property, at least, does not need the
+condition-by-condition re-testing the other two do. Second, the first
+system-level test of whether combining two uncertainty signals for
 selective prediction helps: a conditional answer (helps under severe
 shift, hurts in-distribution and under mild shift) that extends the ``no
 single best method'' finding from individual methods to method
-combinations. Third, a measured, not estimated, resource-efficiency and
-deployment-cost analysis: parameter count and FLOPs do not reliably
-predict CPU latency across a 12-model registry, and an explanation costs
-$\sim$3.3$\times$ a bare forward pass.
+combinations, and shows that composition is not a safe default even when
+each signal alone is well understood. Third, a measured, not estimated,
+resource-efficiency and deployment-cost analysis: parameter count and
+FLOPs do not reliably predict CPU latency across a 12-model registry, and
+an explanation costs $\sim$3.3$\times$ a bare forward pass -- a reminder
+that even the most ``static'' of the three properties tested here still
+required direct measurement, not architectural reasoning, to characterize
+correctly.
 
 \section{Related Work}
 
@@ -282,7 +309,10 @@ Two proposed sub-claims about safe composition hold by construction given
 this project's post-hoc-attachment architecture, and were verified rather
 than assumed: temperature scaling changed \textbf{zero} argmax predictions
 on the calibration split, and explainability computation is a read-only
-analysis that cannot touch model weights.
+analysis that cannot touch model weights. The moderate- and severe-shift
+conditions below reuse the Herlev \cite{jantzen2005herlev} and Mendeley
+LBC \cite{hussain2020mendeley} datasets from our companion cross-dataset
+shift study.
 
 \begin{table}[htbp]
 \centering
@@ -361,6 +391,43 @@ trusted: FLOP count did not predict CPU latency; and OOD confidence
 dropped only partially, not to the clean near-chance level a reader might
 assume from an ``OOD detection'' framing.
 
+\section{Threats to Validity}
+
+\textbf{Internal validity.} The explainability comparison (Table~1) uses
+50 test images, 10 per class, from one fixed stratified sample; a
+different sample could shift the exact deletion/insertion/nucleus-
+concentration numbers, though the margin by which relevancy propagation
+wins on all three metrics is large enough that a resampling-driven
+reversal of the ranking is unlikely. The OOD sanity check's 25-image
+sample is smaller still, and its qualitative conclusion (confidence drops
+but not to chance) should be treated as suggestive rather than a precise
+estimate for this reason. CPU latency figures (Section~4.4) were measured
+on one shared consumer laptop rather than isolated benchmark hardware; a
+$\sim$30\% run-to-run swing was observed for the same model, so the exact
+3.3$\times$ explanation-cost multiplier should be read as approximate, not
+a precise constant.
+
+\textbf{External validity.} All results use a single backbone (DeiT-Tiny)
+chosen specifically because relevancy propagation is defined for standard
+multi-head self-attention transformers and not for EfficientViT-M0's
+hybrid design; whether the explainability ranking, the selective-
+prediction composition result, or the degradation/OOD findings transfer
+to a hybrid conv+attention backbone, or to a different medical imaging
+task entirely, is untested. Single-institution data (SIPaKMeD,
+$\sim$4{,}000 images) throughout.
+
+\textbf{Construct validity.} Deletion/insertion AUC and nucleus
+concentration ratio are both well-established or directly interpretable
+metrics (Section~3.3), reducing the risk that the explainability ranking
+is an artifact of an unusual scoring choice; using SIPaKMeD's own
+expert-marked nucleus polygons as ground truth, rather than a
+segmentation model's derived output, specifically avoids compounding this
+paper's evaluation with a second model's own errors. No clinical or
+expert-review validation of explanation localization fidelity was
+performed -- agreement with a nucleus boundary is not equivalent to a
+cytotechnologist judging an explanation clinically meaningful, a
+distinction stated explicitly rather than implied away.
+
 \section{Limitations}
 
 Backbone mismatch: the explainability and system-integration results use
@@ -377,17 +444,23 @@ localization fidelity.
 
 \section{Conclusion}
 
-Relevancy propagation is a clearly better explainability method than
-attention rollout or Grad-CAM for this cervical cytology classifier, on
-both behavioral faithfulness and real expert-annotated localization
-ground truth -- the most unambiguous positive result in this line of
-work. Composing two uncertainty signals for selective prediction, by
-contrast, helps only under the specific condition where the better
-individual signal was already failing. Resource-efficiency and robustness
-claims for lightweight vision transformers require direct measurement in
-both directions: FLOP-efficient does not mean latency-efficient, and
+Three properties of one trustworthy-AI pipeline, tested side by side, do
+not resolve alike. Relevancy propagation is a clearly better
+explainability method than attention rollout or Grad-CAM for this
+cervical cytology classifier, on both behavioral faithfulness and real
+expert-annotated localization ground truth -- a clean, condition-
+independent result. Composing two uncertainty signals for selective
+prediction, by contrast, helps only under the specific condition where
+the better individual signal was already failing -- a conditional result
+that would have been reported backwards by an evaluation run under only
+one shift severity. Resource-efficiency and robustness claims for
+lightweight vision transformers resolve only under direct measurement,
+in both directions: FLOP-efficient does not mean latency-efficient, and
 ``confidence drops on OOD input'' does not mean ``confidence reaches a
-safe abstention level.''
+safe abstention level.'' No single verification strategy -- pick the best
+method once, assume composition helps, trust an architectural efficiency
+claim -- would have correctly characterized all three properties of this
+one pipeline; each required its own test, on its own terms.
 
 \begin{thebibliography}{99}
 
@@ -428,6 +501,16 @@ neural networks. In: ICML (2017)
 Touvron, H., Cord, M., Douze, M., Massa, F., Sablayrolles, A., J\'egou,
 H.: Training data-efficient image transformers \& distillation through
 attention. In: ICML (2021)
+
+\bibitem{jantzen2005herlev}
+Jantzen, J., Norup, J., Dounias, G., Bjerregaard, B.: Pap-smear benchmark
+data for pattern classification. In: Proceedings of Nature Inspired Smart
+Information Systems (NiSIS), pp.\ 1--9 (2005)
+
+\bibitem{hussain2020mendeley}
+Hussain, E., Mahanta, L.B., Borah, H., Das, C.R.: Liquid based-cytology
+Pap smear dataset for automated multi-class diagnosis of pre-cancerous
+and cervical cancer lesions. Data in Brief 30, 105589 (2020)
 
 \bibitem{mohiuddin2025}
 Mohiuddin, A.B., Rahman, M.M., et al.: Accelerated and accurate cervical

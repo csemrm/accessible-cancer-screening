@@ -102,13 +102,21 @@ far smaller pretraining-data budgets than the original ViT
 \cite{graham2021levit}, TinyViT \cite{wu2022tinyvit}) reintroduce
 convolutional stages specifically to improve real-device latency, not
 just FLOP count, by favoring operations that map efficiently onto
-standard inference kernels. EfficientViT-M0/B0, the two smallest and most
-accurate models in this study, sit in a fourth lineage using
-cascaded-group attention to reduce redundant computation across attention
-heads; the exact source paper for the specific pretrained checkpoints
-used here requires verification before final submission, since at least
-two unrelated architectures share the ``EfficientViT'' name in the
-literature (an MIT/ICCV'23 lineage and a Microsoft/CVPR'23 lineage). None
+standard inference kernels. EfficientViT-M0 and EfficientViT-B0, the two
+smallest and most accurate models in this study, are frequently assumed to
+share a lineage because timm's tag naming groups them together --
+verified directly rather than assumed, they do not. EfficientViT-M0 uses
+cascaded group attention \cite{liu2023efficientvit}, a Microsoft-authored
+design that reduces redundant computation across attention heads by
+feeding each head a different split of the input feature map.
+EfficientViT-B0 belongs to an entirely unrelated MIT-authored lineage
+built around multi-scale linear attention for high-resolution dense
+prediction \cite{cai2023efficientvit}, originally designed for
+segmentation and detection rather than classification efficiency. That
+this study's two best-performing, most-efficient models come from two
+architecturally unrelated papers sharing only a name is itself a small
+caution against treating ``the EfficientViT family'' as one coherent
+design lineage in future efficiency claims. None
 of these efficiency-oriented design papers evaluate cross-institution
 domain shift as part of their own efficiency claim -- efficiency and
 robustness are treated as separate, unrelated properties in the
@@ -154,15 +162,12 @@ transformers (ViT-Small \cite{dosovitskiy2021vit}, Swin-Tiny
 \cite{liu2021swin}), and efficient/mobile-oriented vision transformers
 (DeiT-Tiny \cite{touvron2021deit}, LeViT-128 \cite{graham2021levit},
 TinyViT-5M \cite{wu2022tinyvit}, MobileViT-S \cite{mehta2022mobilevit},
-MobileViTv2 \cite{mehta2022mobilevitv2}, EfficientViT-B0, EfficientViT-M0).
+MobileViTv2 \cite{mehta2022mobilevitv2}, EfficientViT-B0
+\cite{cai2023efficientvit}, EfficientViT-M0 \cite{liu2023efficientvit}).
 All timm tags verified against the pinned timm version rather than assumed
-from memory. \emph{The EfficientViT-B0/M0 citation requires verification
-before final submission: at least two unrelated architectures share the
-``EfficientViT'' name in the literature (an MIT/ICCV'23 lineage and a
-Microsoft/CVPR'23 lineage), and the exact source paper for the specific
-timm tags used here (\texttt{efficientvit\_b0.r224\_in1k},
-\texttt{efficientvit\_m0.r224\_in1k}) was not re-confirmed against the
-correct lineage in this draft.}
+from memory; the two EfficientViT variants' source papers were confirmed
+independently against timm's own model cards rather than assumed from the
+shared tag prefix (see Section~2.1).
 
 \subsection{Training and in-distribution evaluation}
 
@@ -177,14 +182,12 @@ measured (not estimated) inference latency.
 \subsection{Cross-dataset domain-shift evaluation}
 
 Each model evaluated zero-shot -- no retraining, no recalibration -- on
-Herlev and Mendeley LBC after harmonizing all three datasets' differing
+Herlev \cite{jantzen2005herlev} and Mendeley LBC
+\cite{hussain2020mendeley} after harmonizing all three datasets' differing
 label taxonomies onto one shared binary normal/abnormal label. This tests
 generalization under the conditions this application will actually face:
 different institutions, scanners, and staining protocols, not a synthetic
-corruption of the same source images. \emph{Citations for the Herlev and
-Mendeley LBC datasets require verification before final submission; they
-are not independently confirmed beyond the data-mirror pages used for
-acquisition.}
+corruption of the same source images.
 
 \section{Results}
 
@@ -345,6 +348,40 @@ backbone choice alone is safe, can a model's own confidence signal at
 least correctly flag when it has entered a regime where its predictions
 should not be trusted?
 
+\section{Threats to Validity}
+
+\textbf{Internal validity.} Each model was trained once (seed 13) rather
+than averaged over multiple runs, so any single balanced-accuracy figure
+carries unquantified seed-to-seed variance; this threat is sharpest for
+closely-ranked models, such as the 0.003 gap between MobileViTv2 and
+MobileNetV2 on Mendeley LBC (Table~3), which could plausibly change
+under a different seed. No trained-weight checkpoints persist across
+sessions, so results could not be re-verified from the original weights
+without full retraining; the reported numbers are the direct, unedited
+output of the training and evaluation code released alongside this paper,
+which mitigates but does not eliminate this threat.
+
+\textbf{External validity.} All three datasets are drawn from a small
+number of source institutions (SIPaKMeD, Herlev, and Mendeley LBC
+together represent three geographic/clinical sources, per
+Section~4.2), and generalization to other scanners, staining protocols,
+or populations beyond these three is not established. The two shift
+conditions tested (Herlev, Mendeley LBC) are real cross-institution
+shifts, not a systematic sweep across shift types (e.g., scanner
+resolution, stain intensity, patient demographics varied independently),
+so the finding that no static model property predicts shift robustness is
+demonstrated for these two shifts specifically, not proven for shift in
+general.
+
+\textbf{Construct validity.} Balanced accuracy, macro F1, and AUROC are
+standard, well-understood metrics for imbalanced multi-class
+classification, reducing the risk that the efficiency or robustness
+claims are artifacts of an unusual metric choice. Measured CPU/GPU
+latency (Table~1) is a single-run, single-batch-size figure per model and
+is not the focus of this paper's central claims (which concern accuracy
+and robustness), so its precision is secondary to the accuracy/robustness
+findings the paper's contributions rest on.
+
 \section{Limitations}
 
 Two external datasets, both drawn from a small number of source
@@ -421,6 +458,25 @@ mobile-friendly vision transformer. In: ICLR (2022)
 \bibitem{mehta2022mobilevitv2}
 Mehta, S., Rastegari, M.: Separable self-attention for mobile vision
 transformers. arXiv preprint (2022)
+
+\bibitem{cai2023efficientvit}
+Cai, H., Li, J., Hu, M., Gan, C., Han, S.: EfficientViT: Multi-scale
+linear attention for high-resolution dense prediction. In: ICCV (2023)
+
+\bibitem{liu2023efficientvit}
+Liu, X., Peng, H., Zheng, N., Yang, Y., Hu, H., Yuan, Y.: EfficientViT:
+Memory efficient vision transformer with cascaded group attention. In:
+CVPR (2023)
+
+\bibitem{jantzen2005herlev}
+Jantzen, J., Norup, J., Dounias, G., Bjerregaard, B.: Pap-smear benchmark
+data for pattern classification. In: Proceedings of Nature Inspired Smart
+Information Systems (NiSIS), pp.\ 1--9 (2005)
+
+\bibitem{hussain2020mendeley}
+Hussain, E., Mahanta, L.B., Borah, H., Das, C.R.: Liquid based-cytology
+Pap smear dataset for automated multi-class diagnosis of pre-cancerous
+and cervical cancer lesions. Data in Brief 30, 105589 (2020)
 
 \bibitem{mohiuddin2025}
 Mohiuddin, A.B., Rahman, M.M., et al.: Accelerated and accurate cervical
