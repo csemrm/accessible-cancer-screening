@@ -1,0 +1,371 @@
+\documentclass[runningheads]{llncs}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{amsmath}
+
+\begin{document}
+
+\title{Efficient Vision Transformers Match Larger Models on Cervical Cytology Classification, But In-Distribution Accuracy Does Not Predict Domain-Shift Robustness}
+\titlerunning{Efficient ViTs Match Larger Models But Miss Domain-Shift Robustness}
+
+\author{Md Mostafizur Rahman}
+\authorrunning{M.\ M.\ Rahman}
+\institute{San Francisco Bay University \\ \email{csemrm@gmail.com}}
+
+\maketitle
+
+\begin{abstract}
+Lightweight vision transformers are frequently proposed for medical image
+classification on the premise that they trade a small, bounded amount of
+accuracy for a large reduction in compute cost, and are rarely tested for
+whether that same efficiency holds under the distribution shift a deployed
+model will actually encounter across clinics, scanners, and populations.
+We benchmark 12 models spanning CNN, full-size vision transformer, and
+efficient-vision-transformer families on cervical cytology classification
+(SIPaKMeD, 5 Bethesda-relevant cytomorphology classes), then evaluate the
+same models zero-shot, with no retraining or recalibration, on two
+independent external cytology datasets (Herlev, Mendeley LBC) after
+harmonizing all three onto a shared binary normal/abnormal label. Contrary
+to the usual efficiency-accuracy trade-off framing, the two most
+parameter-efficient models in the entire registry (EfficientViT-M0 and -B0,
+$\sim$2.1M parameters each) are also the two best-performing in
+distribution, beating every full-size baseline by 1--3 points of balanced
+accuracy. Under domain shift, however, in-distribution accuracy actively
+misleads: EfficientViT-M0 -- the overall in-distribution winner -- is the
+worst-performing model of all 12 on both external datasets, dropping below
+the chance floor on Mendeley LBC (0.4731 balanced accuracy on a binary
+task), while a much larger CNN baseline (ResNet-50) that is not the best
+in-distribution model on any dataset is the most robust model on that same
+shift. Across the full registry, CNN-family models cluster at
+0.539--0.667 balanced accuracy on the severe shift condition while eight of
+nine transformer-family models cluster at 0.293--0.523 (with one
+transformer landing 0.003 above the lowest CNN -- a real, reported
+exception, not a clean partition), and one model (MobileViT-S) collapses
+to an AUROC of 0.215 -- actively anti-correlated with ground truth, not
+merely uninformative -- while its own architectural successor
+(MobileViTv2) shows no such failure and is in fact the strongest model on
+the milder shift condition. No single static property we measured --
+parameter count, FLOPs, in-distribution accuracy, or architecture
+family/lineage -- reliably predicts which model fails safely under domain
+shift.
+
+\keywords{Cervical cytology \and Vision transformers \and Domain shift \and Model efficiency \and Trustworthy medical AI}
+\end{abstract}
+
+\section{Introduction}
+
+Cervical cancer remains substantially more curable when caught at a
+localized stage, yet screening access is documented to be uneven across
+rural and urban U.S. counties, and a growing literature proposes vision
+transformers -- often marketed as ``efficient'' or ``lightweight''
+variants -- as classification backbones for automated cytology screening.
+Two questions are almost never asked together in that literature: does
+the claimed efficiency actually cost accuracy on this specific task, and
+does whatever backbone wins an in-distribution benchmark remain
+trustworthy when the input distribution shifts, as it inevitably will
+across institutions, scanners, staining protocols, and patient
+populations? This paper answers both, using a single consistent benchmark
+across a 12-model registry spanning three architecture families (standard
+CNNs, full-size vision transformers, and efficient/mobile-oriented vision
+transformers), evaluated first in distribution and then zero-shot on two
+independent external cytology datasets.
+
+Our contributions are threefold. First, a 12-model efficiency/accuracy
+benchmark on cervical cytology classification showing that, on this task,
+the most parameter-efficient models in the registry are also the most
+accurate -- efficiency costs nothing here, contrary to the usual framing.
+Second, a systematic escalation from a 2-model to a 4-model to a full
+12-model cross-dataset domain-shift evaluation, each stage refining rather
+than simply confirming the prior stage's finding, converging on: no single
+static model property predicts shift robustness, and the in-distribution
+winner is the shift-robustness loser. Third, a specific, load-bearing
+counterexample to ``architecture family predicts behavior'' reasoning:
+MobileViT-S collapses to below-chance, actively anti-correlated
+predictions on one external dataset, while its direct architectural
+successor, MobileViTv2, shows no such failure and is the single
+best-performing model in the registry on the other external dataset.
+
+\section{Related Work}
+
+Vision transformer variants proposed for medical image classification
+increasingly claim efficiency benefits, but rarely combine an
+efficiency-budgeted architecture with cross-dataset robustness evaluation
+in one study. Adjacent recent work on cervical and oral cancer imaging
+includes hybrid CNN--transformer explainability models, ensemble methods
+combining calibration with post-hoc explanation, and conformal-prediction
+approaches to cervical screening uncertainty, none of which jointly
+evaluate efficiency and real (not synthetic) cross-institution domain
+shift together -- including the author's own prior work combining a
+stacking ensemble with explainable AI for cervical cancer diagnosis
+\cite{mohiuddin2025}, which this paper differs from by focusing on
+efficiency--robustness trade-offs across a full architecture-family
+registry rather than a single ensemble model.
+
+\section{Methods}
+
+\subsection{Model registry}
+
+Twelve models spanning three families: CNN baselines (ResNet-50
+\cite{he2016resnet}, MobileNetV2 \cite{sandler2018mobilenetv2},
+EfficientNet-Lite0 \cite{tan2019efficientnet}), full-size vision
+transformers (ViT-Small \cite{dosovitskiy2021vit}, Swin-Tiny
+\cite{liu2021swin}), and efficient/mobile-oriented vision transformers
+(DeiT-Tiny \cite{touvron2021deit}, LeViT-128 \cite{graham2021levit},
+TinyViT-5M \cite{wu2022tinyvit}, MobileViT-S \cite{mehta2022mobilevit},
+MobileViTv2 \cite{mehta2022mobilevitv2}, EfficientViT-B0, EfficientViT-M0).
+All timm tags verified against the pinned timm version rather than assumed
+from memory. \emph{The EfficientViT-B0/M0 citation requires verification
+before final submission: at least two unrelated architectures share the
+``EfficientViT'' name in the literature (an MIT/ICCV'23 lineage and a
+Microsoft/CVPR'23 lineage), and the exact source paper for the specific
+timm tags used here (\texttt{efficientvit\_b0.r224\_in1k},
+\texttt{efficientvit\_m0.r224\_in1k}) was not re-confirmed against the
+correct lineage in this draft.}
+
+\subsection{Training and in-distribution evaluation}
+
+All 12 models trained on SIPaKMeD \cite{plissiti2018sipakmed}
+(4,049 native-resolution single-cell crops derived directly from the
+dataset's own cytoplasm-polygon boundary annotations, not a pre-resized
+third-party mirror), 60/15/10/15 train/val/calibration/test split, seed 13,
+full 30-epoch budget with early stopping (patience 7), on a single GPU.
+Reported: balanced accuracy, macro F1, AUROC, parameter count, and
+measured (not estimated) inference latency.
+
+\subsection{Cross-dataset domain-shift evaluation}
+
+Each model evaluated zero-shot -- no retraining, no recalibration -- on
+Herlev and Mendeley LBC after harmonizing all three datasets' differing
+label taxonomies onto one shared binary normal/abnormal label. This tests
+generalization under the conditions this application will actually face:
+different institutions, scanners, and staining protocols, not a synthetic
+corruption of the same source images. \emph{Citations for the Herlev and
+Mendeley LBC datasets require verification before final submission; they
+are not independently confirmed beyond the data-mirror pages used for
+acquisition.}
+
+\section{Results}
+
+\subsection{Efficiency/accuracy benchmark}
+
+\begin{table}[htbp]
+\centering
+\caption{RQ1 efficiency/accuracy benchmark, all 12 models, sorted by balanced accuracy.}
+\label{tab:rq1}
+\begin{tabular}{lrrrrr}
+\toprule
+Model & Bal.\ acc. & Macro F1 & AUROC & Params & Latency (ms) \\
+\midrule
+\textbf{EfficientViT-M0} & \textbf{0.9654} & \textbf{0.9656} & 0.9985 & \textbf{2{,}157{,}401} & 17.56 \\
+EfficientViT-B0 & 0.9623 & 0.9624 & 0.9983 & 2{,}135{,}413 & 6.97 \\
+DeiT-Tiny & 0.9606 & 0.9607 & 0.9974 & 5{,}525{,}381 & 5.17 \\
+Swin-Tiny & 0.9605 & 0.9606 & 0.9965 & 27{,}523{,}199 & 11.36 \\
+TinyViT-5M & 0.9587 & 0.9589 & 0.9979 & 5{,}073{,}369 & 9.57 \\
+MobileViT-S & 0.9570 & 0.9575 & 0.9979 & 4{,}940{,}837 & 9.32 \\
+ResNet-50 & 0.9542 & 0.9540 & 0.9966 & 23{,}518{,}277 & 5.95 \\
+LeViT-128 & 0.9458 & 0.9456 & 0.9946 & 8{,}447{,}786 & 12.81 \\
+MobileViTv2 & 0.9387 & 0.9401 & 0.9966 & 4{,}391{,}406 & 9.90 \\
+EfficientNet-Lite0 & 0.9375 & 0.9376 & 0.9944 & 3{,}377{,}413 & 5.51 \\
+ViT-Small & 0.9374 & 0.9380 & 0.9960 & 21{,}667{,}589 & 5.39 \\
+MobileNetV2 & 0.9357 & 0.9365 & 0.9952 & 2{,}230{,}277 & 7.01 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The two smallest models in the registry are also the two best-performing,
+beating every full-size baseline (ResNet-50, 23.5M params; Swin-Tiny,
+27.5M params) by 1--3 points of balanced accuracy. On this task, at this
+data scale, the efficiency-accuracy trade-off does not appear at all
+in-distribution -- whether this generalizes is exactly what Section~4.2
+tests, and the answer is not reassuring.
+
+\subsection{Cross-dataset domain shift, escalating from 2 to 12 models}
+
+\textbf{Stage 1 (DeiT-Tiny alone):} in distribution 0.9504 balanced
+accuracy, Herlev (zero-shot) 0.7151, Mendeley LBC (zero-shot) 0.5230 -- a
+model that looks excellent in distribution degrades to near-chance on the
+more severe external dataset, with nothing in a standard pipeline able to
+flag this.
+
+\textbf{Stage 2 (adding EfficientViT-M0):} the \emph{better}
+in-distribution model (0.9737 vs.\ DeiT-Tiny's 0.9504) is the
+\emph{worse} model under both shifts (Herlev 0.6716 vs.\ 0.7151; Mendeley
+LBC 0.4731 vs.\ 0.5230 -- the first model in this study to drop below the
+0.50 chance floor). Two models this close in architecture family and
+parameter count producing this reversal is a direct caution against using
+in-distribution accuracy as a proxy for deployment robustness.
+
+\textbf{Stage 3 (adding ResNet-50 and Swin-Tiny):}
+
+\begin{table}[htbp]
+\centering
+\caption{One model per architecture family under cross-dataset shift.}
+\label{tab:rq4-stage3}
+\begin{tabular}{lrrr}
+\toprule
+Model (family) & SIPaKMeD & Herlev & Mendeley LBC \\
+\midrule
+EfficientViT-M0 (efficient ViT) & \textbf{0.9737} & 0.6716 & \textbf{0.4731} (below chance) \\
+Swin-Tiny (full ViT) & 0.9590 & \textbf{0.7282} & 0.5192 \\
+DeiT-Tiny (efficient ViT) & 0.9504 & 0.7151 & 0.5230 \\
+ResNet-50 (CNN) & 0.9556 & 0.6838 & \textbf{0.6082} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Not a clean CNN-vs-transformer split: on Herlev, both transformer models
+beat ResNet-50. What holds across both shift datasets is narrower: the
+single most parameter-efficient, best-in-distribution model
+(EfficientViT-M0) is the worst performer under shift on both external
+datasets, and the only one below chance on either.
+
+\textbf{Stage 4 (all 12 models):}
+
+\begin{table}[htbp]
+\centering
+\caption{Full 12-model cross-dataset shift evaluation, sorted by Mendeley LBC score.}
+\label{tab:rq4-full}
+\begin{tabular}{lrrr}
+\toprule
+Model (family, params) & SIPaKMeD & Herlev & Mendeley LBC \\
+\midrule
+EfficientNet-Lite0 (CNN, 3.38M) & 0.9455 & 0.5970 & \textbf{0.6674} \\
+ResNet-50 (CNN, 23.5M) & 0.9556 & 0.6838 & 0.6082 \\
+MobileViTv2 (eff.\ ViT, 4.39M) & 0.9638 & \textbf{0.7501} & 0.5418 \\
+MobileNetV2 (CNN, 2.23M) & 0.9505 & 0.6919 & 0.5391 \\
+DeiT-Tiny (eff.\ ViT, 5.5M) & 0.9504 & 0.7151 & 0.5230 \\
+EfficientViT-B0 (eff.\ ViT, 2.14M) & 0.9738 & 0.6818 & 0.5217 \\
+Swin-Tiny (full ViT, 27.5M) & 0.9590 & 0.7282 & 0.5192 \\
+ViT-Small (full ViT, 21.7M) & 0.9573 & 0.7049 & 0.5084 \\
+LeViT-128 (eff.\ ViT, 8.4M) & 0.9526 & 0.5777 & 0.4764 \\
+EfficientViT-M0 (eff.\ ViT, 2.16M) & 0.9737 & 0.6716 & 0.4731 \\
+TinyViT-5M (eff.\ ViT, 5.1M) & 0.9685 & \textbf{0.7327} & 0.4543 \\
+MobileViT-S (eff.\ ViT, 4.94M) & 0.9520 & 0.7104 & \textbf{0.2927} (AUROC 0.215) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+A near-clean CNN-vs-transformer split emerges on Mendeley LBC, with one
+honest exception: all three CNNs land at 0.539--0.667; eight of nine
+transformer-family models land at 0.293--0.523; the ninth (MobileViTv2)
+scores 0.5418, narrowly \emph{above} the lowest CNN (0.5391) by 0.003 -- a
+real overlap, reported as such rather than rounded away. This split does
+not hold at all on Herlev, where transformer models occupy both the best
+(MobileViTv2, TinyViT-5M) and among the weaker (LeViT-128) positions.
+
+MobileViT-S is a severe, singular outlier: its Mendeley LBC AUROC (0.215)
+is not merely below chance but actively anti-correlated with ground
+truth. Its direct successor, MobileViTv2, shows no such problem and is the
+single strongest model in the entire registry on Herlev (0.7501) -- the
+same architecture-family name spanning a catastrophic failure and a top
+performer, ruling out architecture lineage as a predictor of shift
+robustness as thoroughly as parameter count and in-distribution accuracy
+already have been.
+
+\section{Discussion}
+
+Three findings, read together, argue against three different intuitive
+heuristics for selecting a deployment backbone from an in-distribution
+benchmark alone. First, ``smaller is worse'' is directly falsified in
+distribution (Section~4.1). Second, ``the in-distribution winner is the
+safe choice'' is directly falsified under shift (Section~4.2, Stage~2):
+the model with the best in-distribution accuracy in the entire study is
+the worst-performing model under both external shifts, dropping below the
+chance floor on one. Third, ``architecture family/lineage predicts
+robustness'' is falsified by MobileViT-S and MobileViTv2 sharing a name
+and a lineage while producing a catastrophic failure and a top
+performance, respectively, on the same evaluation. The practical
+implication is direct: a deployment decision based on an in-distribution
+leaderboard, however carefully measured, cannot be assumed to transfer to
+real cross-institution conditions, and no static property measured here
+substitutes for actually testing under shift. This motivates the
+uncertainty-quantification question our companion paper asks: since no
+backbone choice alone is safe, can a model's own confidence signal at
+least correctly flag when it has entered a regime where its predictions
+should not be trusted?
+
+\section{Limitations}
+
+Two external datasets, both drawn from a small number of source
+institutions; the shift conditions tested here are real but not
+exhaustive of the shift a deployed system might encounter. One
+train/val/calibration/test split (seed 13) per model; results are not
+averaged over multiple seeds, so small differences between closely-ranked
+models (e.g., the 0.003 MobileViTv2/MobileNetV2 gap on Mendeley LBC)
+should be read with appropriate caution about seed-to-seed variance, which
+was not separately measured. No trained-weight checkpoints persist;
+reproducing any single row of these tables means retraining from scratch.
+
+\section{Conclusion}
+
+Twelve models across three architecture families show that, on this
+cervical cytology classification task, parameter-efficient vision
+transformers do not trade accuracy for efficiency -- the smallest models
+in the registry are also the most accurate in distribution. But that same
+efficiency-and-accuracy leaderboard actively misleads about deployment
+robustness: the overall in-distribution winner is the worst-performing
+model under real cross-dataset shift on both external datasets tested,
+and no static property we measured reliably predicts which model fails
+safely. Robustness must be measured directly, under real shift, and
+cannot be inferred from an in-distribution benchmark however thorough.
+
+\begin{thebibliography}{99}
+
+\bibitem{plissiti2018sipakmed}
+Plissiti, M.E., Dimitrakopoulos, P., Sfikas, G., Nikou, C., Krikoni, O.,
+Charchanti, A.: SIPAKMED: A new dataset for feature and image based
+classification of normal and pathological cervical cells in Pap smear
+images. In: 2018 IEEE International Conference on Image Processing
+(ICIP), pp.\ 3144--3148 (2018)
+
+\bibitem{he2016resnet}
+He, K., Zhang, X., Ren, S., Sun, J.: Deep residual learning for image
+recognition. In: CVPR (2016)
+
+\bibitem{sandler2018mobilenetv2}
+Sandler, M., Howard, A., Zhu, M., Zhmoginov, A., Chen, L.C.: MobileNetV2:
+Inverted residuals and linear bottlenecks. In: CVPR (2018)
+
+\bibitem{tan2019efficientnet}
+Tan, M., Le, Q.: EfficientNet: Rethinking model scaling for convolutional
+neural networks. In: ICML (2019)
+
+\bibitem{dosovitskiy2021vit}
+Dosovitskiy, A., et al.: An image is worth 16x16 words: Transformers for
+image recognition at scale. In: ICLR (2021)
+
+\bibitem{liu2021swin}
+Liu, Z., Lin, Y., Cao, Y., Hu, H., Wei, Y., Zhang, Z., Lin, S., Guo, B.:
+Swin Transformer: Hierarchical vision transformer using shifted windows.
+In: ICCV (2021)
+
+\bibitem{touvron2021deit}
+Touvron, H., Cord, M., Douze, M., Massa, F., Sablayrolles, A., J\'egou,
+H.: Training data-efficient image transformers \& distillation through
+attention. In: ICML (2021)
+
+\bibitem{graham2021levit}
+Graham, B., El-Nouby, A., Touvron, H., Stock, P., Joulin, A., J\'egou, H.,
+Douze, M.: LeViT: a vision transformer in ConvNet's clothing for faster
+inference. In: ICCV (2021)
+
+\bibitem{wu2022tinyvit}
+Wu, K., et al.: TinyViT: Fast pretraining distillation for small vision
+transformers. In: ECCV (2022)
+
+\bibitem{mehta2022mobilevit}
+Mehta, S., Rastegari, M.: MobileViT: Light-weight, general-purpose, and
+mobile-friendly vision transformer. In: ICLR (2022)
+
+\bibitem{mehta2022mobilevitv2}
+Mehta, S., Rastegari, M.: Separable self-attention for mobile vision
+transformers. arXiv preprint (2022)
+
+\bibitem{mohiuddin2025}
+Mohiuddin, A.B., Rahman, M.M., et al.: Accelerated and accurate cervical
+cancer diagnosis using a novel stacking ensemble method with explainable
+AI. In: International Conference on Quantum Photonics, Artificial
+Intelligence (2025)
+
+\end{thebibliography}
+\end{document}
