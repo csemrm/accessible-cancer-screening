@@ -87,10 +87,26 @@ IMAGENET_MEAN, IMAGENET_STD = (0.485, 0.456, 0.406), (0.229, 0.224, 0.225)
 # 0. Dataset acquisition
 # ---------------------------------------------------------------------------
 
-def kaggle_download(ref: str, dest: Path) -> None:
+def kaggle_download(ref: str, dest: Path, timeout: int = 300, max_attempts: int = 3) -> None:
+    """`kaggle datasets download` has hung indefinitely at least twice in
+    practice, blocking the whole kernel with no recovery path since the
+    unprotected subprocess.run() had no timeout -- the client-side
+    `colab exec --timeout` only bounds how long the LOCAL CLI waits for a
+    reply, not how long the REMOTE kernel keeps running. A hard subprocess
+    timeout plus a few retries is exactly what worked when this was done
+    manually after the fact; build it in instead of rediscovering it."""
     dest.mkdir(parents=True, exist_ok=True)
-    subprocess.run(["kaggle", "datasets", "download", "-d", ref, "-p", str(dest), "--unzip"],
-                    check=True)
+    last_error: Exception | None = None
+    for attempt in range(1, max_attempts + 1):
+        try:
+            subprocess.run(["kaggle", "datasets", "download", "-d", ref, "-p", str(dest), "--unzip"],
+                            check=True, timeout=timeout)
+            return
+        except subprocess.TimeoutExpired as e:
+            last_error = e
+            print(f"[kaggle_download] {ref} timed out after {timeout}s (attempt {attempt}/{max_attempts})",
+                  flush=True)
+    raise RuntimeError(f"kaggle_download({ref}) failed after {max_attempts} attempts") from last_error
 
 
 def download_all() -> None:
