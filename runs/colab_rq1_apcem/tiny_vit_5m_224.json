@@ -1,0 +1,30 @@
+{
+  "model": "tiny_vit_5m_224",
+  "in_distribution": {
+    "balanced_accuracy": 0.9670384480011653,
+    "macro_precision": 0.9676164760001242,
+    "macro_recall_sensitivity": 0.9670384480011653,
+    "macro_f1": 0.9672002396604013,
+    "macro_specificity": 0.9917447727537347,
+    "macro_auroc": 0.9970253681427781,
+    "macro_auprc": 0.9926055236615265
+  },
+  "efficiency": {
+    "num_parameters": 5073369,
+    "input_size": 224,
+    "latency": {
+      "median_latency_ms": 9.27324199983559,
+      "device": "cuda"
+    }
+  },
+  "apcem_shift": {
+    "balanced_accuracy": 0.4100055944655438,
+    "macro_precision": 0.43814745341129063,
+    "macro_recall_sensitivity": 0.4100055944655438,
+    "macro_f1": 0.3194479189908565,
+    "macro_specificity": 0.4100055944655438,
+    "macro_auroc": 0.36809338471077646,
+    "macro_auprc": 0.45268144369661056
+  },
+  "n_apcem": 4253
+}
