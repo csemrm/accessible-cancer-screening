@@ -4,10 +4,11 @@ import the real cervical_screening.uncertainty package (uploaded as a zip
 and unzipped to /content/cervical_screening -- see docs/colab_cli_pipeline.md
 for why this replaced re-inlining the same logic in every Colab script).
 
-Run this once per session via `colab exec -f setup.py`; every later step in
-this directory assumes the globals it sets (rp, cs, manifest_csv, device,
-herlev_rows, mendeley_rows, ALL_RESULTS) are already in the kernel's
-persistent namespace.
+Run this once per session via `colab exec -f setup.py`, THEN run
+`common_eval.py` once (it needs manifest_csv/device/herlev_rows/mendeley_rows
+from this script already in the namespace) before any of the per-method
+scripts -- they all assume EVAL_LOADERS/evaluate_method/ALL_RESULTS already
+exist in the kernel's persistent namespace.
 """
 
 import subprocess
