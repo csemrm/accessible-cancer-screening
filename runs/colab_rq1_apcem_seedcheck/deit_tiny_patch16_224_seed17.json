@@ -1,0 +1,31 @@
+{
+  "model": "deit_tiny_patch16_224",
+  "seed": 17,
+  "in_distribution": {
+    "balanced_accuracy": 0.9372667522852609,
+    "macro_precision": 0.9440543701494922,
+    "macro_recall_sensitivity": 0.9372667522852609,
+    "macro_f1": 0.9385345441286155,
+    "macro_specificity": 0.9842930222427493,
+    "macro_auroc": 0.9969049019013848,
+    "macro_auprc": 0.9899684879759161
+  },
+  "efficiency": {
+    "num_parameters": 5525381,
+    "input_size": 224,
+    "latency": {
+      "median_latency_ms": 5.5060910008251085,
+      "device": "cuda"
+    }
+  },
+  "apcem_shift": {
+    "balanced_accuracy": 0.39316122776717266,
+    "macro_precision": 0.420676439037907,
+    "macro_recall_sensitivity": 0.39316122776717266,
+    "macro_f1": 0.40358523303649585,
+    "macro_specificity": 0.39316122776717266,
+    "macro_auroc": 0.2757047954990049,
+    "macro_auprc": 0.4174401297422673
+  },
+  "n_apcem": 4253
+}
