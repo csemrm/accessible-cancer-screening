@@ -1,0 +1,25 @@
+{
+  "backbone": "vit_small_patch16_224",
+  "n_samples": 50,
+  "n_nucleus_matched": 50,
+  "methods": {
+    "relevancy_propagation": {
+      "deletion_auc_mean": 0.8159679244053227,
+      "insertion_auc_mean": 0.9645779207011238,
+      "concentration_ratio_mean": 4.204529365897178,
+      "n_concentration_samples": 50
+    },
+    "attention_rollout": {
+      "deletion_auc_mean": 0.8884241176427871,
+      "insertion_auc_mean": 0.9268887366972755,
+      "concentration_ratio_mean": 0.9739926606416702,
+      "n_concentration_samples": 50
+    },
+    "gradcam": {
+      "deletion_auc_mean": 0.887639284450596,
+      "insertion_auc_mean": 0.8954434254088565,
+      "concentration_ratio_mean": 1.346697276265222,
+      "n_concentration_samples": 50
+    }
+  }
+}
