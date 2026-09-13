@@ -1,0 +1,40 @@
+{
+  "model": "resnet50",
+  "seed": 17,
+  "in_distribution": {
+    "balanced_accuracy": 0.9571705635529764,
+    "macro_precision": 0.9578322738193707,
+    "macro_recall_sensitivity": 0.9571705635529764,
+    "macro_f1": 0.9574026934640385,
+    "macro_specificity": 0.9892730704350136,
+    "macro_auroc": 0.997604951628302,
+    "macro_auprc": 0.9922887725625094
+  },
+  "herlev": {
+    "balanced_accuracy": 0.6937067646158556,
+    "macro_precision": 0.8196161616161616,
+    "macro_recall_sensitivity": 0.6937067646158556,
+    "macro_f1": 0.7223735997577959,
+    "macro_specificity": 0.6937067646158556,
+    "macro_auroc": 0.6652249770431589,
+    "macro_auprc": 0.7094491377080288
+  },
+  "mendeley_lbc": {
+    "balanced_accuracy": 0.49915499533146596,
+    "macro_precision": 0.49920219330723936,
+    "macro_recall_sensitivity": 0.49915499533146596,
+    "macro_f1": 0.47793884612545967,
+    "macro_specificity": 0.49915499533146596,
+    "macro_auroc": 0.48515406162464986,
+    "macro_auprc": 0.5112045103737162
+  },
+  "apcem": {
+    "balanced_accuracy": 0.36590317362131897,
+    "macro_precision": 0.41951071071639434,
+    "macro_recall_sensitivity": 0.36590317362131897,
+    "macro_f1": 0.3478121698701614,
+    "macro_specificity": 0.36590317362131897,
+    "macro_auroc": 0.3139647134813317,
+    "macro_auprc": 0.42636083354153725
+  }
+}
