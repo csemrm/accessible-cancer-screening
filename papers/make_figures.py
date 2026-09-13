@@ -83,6 +83,43 @@ fig.savefig("figs/p1_fig2_mendeley_shift.pdf")
 plt.close(fig)
 
 # ---------------------------------------------------------------------------
+# Paper 1, Figure 3: APCEM AUROC, sorted, by family (3rd independent shift dataset)
+# ---------------------------------------------------------------------------
+apcem = [
+    ("MobileNetV2", 0.6528, "cnn"),
+    ("EfficientNet-Lite0", 0.5701, "cnn"),
+    ("LeViT-128", 0.5376, "eff"),
+    ("MobileViTv2", 0.4120, "eff"),
+    ("DeiT-Tiny", 0.3799, "eff"),
+    ("TinyViT-5M", 0.3681, "eff"),
+    ("EfficientViT-M0", 0.3407, "eff"),
+    ("Swin-Tiny", 0.3082, "full"),
+    ("MobileViT-S", 0.3161, "eff"),
+    ("EfficientViT-B0", 0.3206, "eff"),
+    ("ResNet-50", 0.2929, "cnn"),
+    ("ViT-Small", 0.2555, "full"),
+]
+apcem.sort(key=lambda r: r[1], reverse=True)
+fig, ax = plt.subplots(figsize=(5.2, 3.6))
+names = [r[0] for r in apcem]
+vals = [r[1] for r in apcem]
+bar_colors = [colors[r[2]] for r in apcem]
+y_pos = range(len(names))
+ax.barh(y_pos, vals, color=bar_colors, edgecolor="black", linewidth=0.4)
+ax.axvline(0.5, color="black", linestyle="--", linewidth=1, label="Chance level")
+ax.set_yticks(y_pos)
+ax.set_yticklabels(names, fontsize=7.5)
+ax.invert_yaxis()
+ax.set_xlabel("AUROC on APCEM (zero-shot)")
+handles = [plt.Rectangle((0, 0), 1, 1, color=colors[k]) for k in ("cnn", "full", "eff")]
+ax.legend(handles + [plt.Line2D([0], [0], color="black", linestyle="--")],
+          ["CNN", "Full ViT", "Efficient ViT", "Chance level"], loc="lower right", fontsize=7)
+ax.grid(alpha=0.25, linewidth=0.5, axis="x")
+fig.tight_layout()
+fig.savefig("figs/p1_fig3_apcem_shift.pdf")
+plt.close(fig)
+
+# ---------------------------------------------------------------------------
 # Paper 2, Figure 1: risk-coverage AUC per method, 3 conditions (own y-scales)
 # ---------------------------------------------------------------------------
 methods = ["Baseline", "MC Dropout", "Evidential", "Deep ensemble"]

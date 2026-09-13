@@ -2,6 +2,7 @@
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{amsmath}
+\usepackage{url}
 
 \begin{document}
 
@@ -23,31 +24,39 @@ model will actually encounter across clinics, scanners, and populations.
 We benchmark 12 models spanning CNN, full-size vision transformer, and
 efficient-vision-transformer families on cervical cytology classification
 (SIPaKMeD, 5 Bethesda-relevant cytomorphology classes), then evaluate the
-same models zero-shot, with no retraining or recalibration, on two
-independent external cytology datasets (Herlev, Mendeley LBC) after
-harmonizing all three onto a shared binary normal/abnormal label. Contrary
-to the usual efficiency-accuracy trade-off framing, the two most
-parameter-efficient models in the entire registry (EfficientViT-M0 and -B0,
-$\sim$2.1M parameters each) are also the two best-performing in
-distribution, beating every full-size baseline by 1--3 points of balanced
-accuracy. Under domain shift, however, in-distribution accuracy actively
-misleads: EfficientViT-M0 -- the overall in-distribution winner -- is the
-worst-performing model of all 12 on both external datasets, dropping below
-the chance floor on Mendeley LBC (0.4731 balanced accuracy on a binary
-task), while a much larger CNN baseline (ResNet-50) that is not the best
-in-distribution model on any dataset is the most robust model on that same
-shift. Across the full registry, CNN-family models cluster at
-0.539--0.667 balanced accuracy on the severe shift condition while eight of
-nine transformer-family models cluster at 0.293--0.523 (with one
-transformer landing 0.003 above the lowest CNN -- a real, reported
-exception, not a clean partition), and one model (MobileViT-S) collapses
-to an AUROC of 0.215 -- actively anti-correlated with ground truth, not
-merely uninformative -- while its own architectural successor
-(MobileViTv2) shows no such failure and is in fact the strongest model on
-the milder shift condition. No single static property we measured --
-parameter count, FLOPs, in-distribution accuracy, or architecture
-family/lineage -- reliably predicts which model fails safely under domain
-shift.
+same models zero-shot, with no retraining or recalibration, on three
+independent external cytology datasets (Herlev, Mendeley LBC, and
+APCEM-Enhanced Cervical Cytology) after harmonizing all four onto a shared
+binary normal/abnormal label. Contrary to the usual efficiency-accuracy
+trade-off framing, the two most parameter-efficient models in the entire
+registry (EfficientViT-M0 and -B0, $\sim$2.1M parameters each) are also the
+two best-performing in distribution, beating every full-size baseline by
+1--3 points of balanced accuracy. Under domain shift, however,
+in-distribution accuracy actively misleads: EfficientViT-M0 -- the overall
+in-distribution winner -- is the worst-performing model of all 12 on both
+Herlev and Mendeley LBC, dropping below the chance floor on Mendeley LBC
+(0.4731 balanced accuracy on a binary task), while a much larger CNN
+baseline (ResNet-50) that is not the best in-distribution model on any
+dataset is the most robust model on that same shift -- yet on the third,
+independently sourced shift dataset (APCEM), ResNet-50 is instead the
+single worst-performing model of all 12 (AUROC 0.293), while a different
+CNN (MobileNetV2) becomes the only model of the 12 to clear chance
+(0.6158 balanced accuracy, AUROC 0.6528). Across Mendeley LBC, CNN-family
+models cluster at 0.539--0.667 balanced accuracy while eight of nine
+transformer-family models cluster at 0.293--0.523 (with one transformer
+landing 0.003 above the lowest CNN -- a real, reported exception, not a
+clean partition); on APCEM this apparent CNN-vs-transformer split
+collapses entirely, since the CNN family alone spans both the best
+(MobileNetV2) and one of the worst (ResNet-50) models in the registry.
+One model (MobileViT-S) collapses to a Mendeley LBC AUROC of 0.215 --
+actively anti-correlated with ground truth, not merely uninformative --
+while its own architectural successor (MobileViTv2) shows no such failure
+and is in fact the strongest model on that milder shift condition. No
+single static property we measured -- parameter count, FLOPs,
+in-distribution accuracy, or architecture family/lineage -- reliably
+predicts which model fails safely under domain shift, and which model
+fails safely is itself not stable across which external dataset is used
+to test it.
 
 \keywords{Cervical cytology \and Vision transformers \and Domain shift \and Model efficiency \and Trustworthy medical AI}
 \end{abstract}
@@ -67,23 +76,31 @@ across institutions, scanners, staining protocols, and patient
 populations? This paper answers both, using a single consistent benchmark
 across a 12-model registry spanning three architecture families (standard
 CNNs, full-size vision transformers, and efficient/mobile-oriented vision
-transformers), evaluated first in distribution and then zero-shot on two
-independent external cytology datasets.
+transformers), evaluated first in distribution and then zero-shot on
+three independent external cytology datasets.
 
-Our contributions are threefold. First, a 12-model efficiency/accuracy
+Our contributions are fourfold. First, a 12-model efficiency/accuracy
 benchmark on cervical cytology classification showing that, on this task,
 the most parameter-efficient models in the registry are also the most
 accurate -- efficiency costs nothing here, contrary to the usual framing.
 Second, a systematic escalation from a 2-model to a 4-model to a full
-12-model cross-dataset domain-shift evaluation, each stage refining rather
-than simply confirming the prior stage's finding, converging on: no single
-static model property predicts shift robustness, and the in-distribution
-winner is the shift-robustness loser. Third, a specific, load-bearing
-counterexample to ``architecture family predicts behavior'' reasoning:
-MobileViT-S collapses to below-chance, actively anti-correlated
-predictions on one external dataset, while its direct architectural
-successor, MobileViTv2, shows no such failure and is the single
-best-performing model in the registry on the other external dataset.
+12-model cross-dataset domain-shift evaluation on Herlev and Mendeley LBC,
+each stage refining rather than simply confirming the prior stage's
+finding, converging on: no single static model property predicts shift
+robustness, and the in-distribution winner is the shift-robustness loser.
+Third, a specific, load-bearing counterexample to ``architecture family
+predicts behavior'' reasoning: MobileViT-S collapses to below-chance,
+actively anti-correlated predictions on one external dataset, while its
+direct architectural successor, MobileViTv2, shows no such failure and is
+the single best-performing model in the registry on the other external
+dataset. Fourth, a full 12-model replication of the domain-shift
+evaluation on a third, independently sourced external dataset (APCEM),
+which does not merely confirm the first two shifts' conclusion but
+overturns the CNN-family robustness pattern they suggested: the CNN family
+on APCEM contains both the single best-performing model in the entire
+registry (MobileNetV2) and one of the single worst (ResNet-50), directly
+falsifying any reading of the Herlev/Mendeley results as ``CNNs are the
+safe family.''
 
 \section{Related Work}
 
@@ -188,6 +205,16 @@ label taxonomies onto one shared binary normal/abnormal label. This tests
 generalization under the conditions this application will actually face:
 different institutions, scanners, and staining protocols, not a synthetic
 corruption of the same source images.
+
+A third, independently sourced external dataset -- the APCEM-Enhanced
+Cervical Cytology Pap Smear Image Dataset \cite{aswini2026apcem}, 4,253
+images across the 6-class Bethesda taxonomy (NILM, ASC-US, ASC-H, LSIL,
+HSIL, SSC) -- is evaluated identically, harmonized to the same binary label
+(NILM normal; all five atypical/dysplastic classes abnormal). This dataset
+differs from Herlev and Mendeley LBC in acquisition pipeline, institution,
+and label granularity, so it functions as a genuinely independent
+replication of the domain-shift evaluation rather than a second look at
+the same shift.
 
 \section{Results}
 
@@ -326,27 +353,95 @@ the sole catastrophic outlier.}
 \label{fig:mendeley-shift}
 \end{figure}
 
+\textbf{Stage 5 (all 12 models, third independent shift dataset -- APCEM):}
+
+\begin{table}[htbp]
+\centering
+\caption{Full 12-model evaluation on the third external shift dataset (APCEM), sorted by AUROC.}
+\label{tab:rq1-apcem}
+\begin{tabular}{lrrr}
+\toprule
+Model (family, params) & SIPaKMeD & APCEM bal.\ acc. & APCEM AUROC \\
+\midrule
+MobileNetV2 (CNN, 2.23M) & 0.9623 & \textbf{0.6158} & \textbf{0.6528} \\
+EfficientNet-Lite0 (CNN, 3.38M) & 0.9309 & 0.5393 & 0.5701 \\
+LeViT-128 (eff.\ ViT, 8.4M) & 0.9001 & 0.5263 & 0.5376 \\
+Swin-Tiny (full ViT, 27.5M) & 0.9330 & 0.4724 & 0.3082 \\
+EfficientViT-B0 (eff.\ ViT, 2.14M) & 0.9638 & 0.4481 & 0.3206 \\
+DeiT-Tiny (eff.\ ViT, 5.5M) & 0.9589 & 0.4469 & 0.3799 \\
+MobileViTv2 (eff.\ ViT, 4.39M) & 0.9570 & 0.4290 & 0.4120 \\
+TinyViT-5M (eff.\ ViT, 5.1M) & 0.9670 & 0.4100 & 0.3681 \\
+EfficientViT-M0 (eff.\ ViT, 2.16M) & 0.9621 & 0.3730 & 0.3407 \\
+MobileViT-S (eff.\ ViT, 4.94M) & 0.9687 & 0.3621 & 0.3161 \\
+ViT-Small (full ViT, 21.7M) & 0.9538 & 0.3444 & 0.2555 \\
+ResNet-50 (CNN, 23.5M) & 0.9639 & \textbf{0.3339} & \textbf{0.2929} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+APCEM is a genuinely independent replication -- different acquisition
+pipeline, institution, and label granularity from either Herlev or
+Mendeley LBC -- and it does not merely confirm the earlier finding that
+in-distribution accuracy fails to predict shift robustness (11 of 12
+models land at or below the 0.50 chance floor for balanced accuracy on
+APCEM, several with AUROC well below 0.35), it overturns the one pattern
+that had looked stable across Stages 3--4: that CNN-family models cluster
+above chance while transformer-family models cluster at or below it. Here
+the CNN family alone spans the single best-performing model in the entire
+registry (MobileNetV2, 0.6158 balanced accuracy, the only model of the 12
+to clear chance meaningfully) and one of the single worst
+(ResNet-50, AUROC 0.2929, second-lowest of all 12) -- the same family that
+was the more robust one, on average, on Mendeley LBC. DeiT-Tiny and
+EfficientViT-M0, the two models directly compared since Stage 2, again
+replicate their earlier ranking (DeiT-Tiny 0.4469 vs.\ EfficientViT-M0
+0.3730), with EfficientViT-M0 again the weaker model under shift despite
+again being the stronger in-distribution model on this run (0.9621 vs.\
+0.9589) -- the same reversal, now observed on a third, independently
+sourced dataset.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.82\textwidth]{figs/p1_fig3_apcem_shift.pdf}
+\caption{AUROC on APCEM (zero-shot), sorted, colored by architecture
+family. Unlike Mendeley LBC, the CNN family spans both the single best
+(MobileNetV2) and one of the single worst (ResNet-50) models in the
+registry -- no family-level pattern survives this third dataset.}
+\label{fig:apcem-shift}
+\end{figure}
+
 \section{Discussion}
 
-Three findings, read together, argue against three different intuitive
+Four findings, read together, argue against four different intuitive
 heuristics for selecting a deployment backbone from an in-distribution
 benchmark alone. First, ``smaller is worse'' is directly falsified in
 distribution (Section~4.1). Second, ``the in-distribution winner is the
 safe choice'' is directly falsified under shift (Section~4.2, Stage~2):
 the model with the best in-distribution accuracy in the entire study is
-the worst-performing model under both external shifts, dropping below the
-chance floor on one. Third, ``architecture family/lineage predicts
-robustness'' is falsified by MobileViT-S and MobileViTv2 sharing a name
-and a lineage while producing a catastrophic failure and a top
-performance, respectively, on the same evaluation. The practical
-implication is direct: a deployment decision based on an in-distribution
-leaderboard, however carefully measured, cannot be assumed to transfer to
-real cross-institution conditions, and no static property measured here
-substitutes for actually testing under shift. This motivates the
-uncertainty-quantification question our companion paper asks: since no
-backbone choice alone is safe, can a model's own confidence signal at
-least correctly flag when it has entered a regime where its predictions
-should not be trusted?
+the worst-performing model under both Herlev and Mendeley LBC shift,
+dropping below the chance floor on one, and it replicates this same
+reversal on APCEM (Stage~5). Third, ``architecture family/lineage
+predicts robustness'' is falsified by MobileViT-S and MobileViTv2 sharing
+a name and a lineage while producing a catastrophic failure and a top
+performance, respectively, on the same evaluation. Fourth, and only
+visible once a third, independently sourced shift dataset is added:
+``CNNs are the robust family'' -- a pattern that looked genuinely stable
+across Stages 3--4, where all three CNNs outperformed eight of nine
+transformer models on Mendeley LBC -- is directly falsified on APCEM,
+where the CNN family spans both the single best-performing model in the
+entire registry (MobileNetV2) and one of the single worst (ResNet-50).
+That reversal is the paper's sharpest methodological warning: even a
+robustness pattern that survives two independent shift datasets is not
+guaranteed to survive a third, so ``tested under two external shifts''
+should not be read as license to stop testing. The practical implication
+is direct: a deployment decision based on an in-distribution leaderboard,
+however carefully measured, cannot be assumed to transfer to real
+cross-institution conditions, and no static property measured here --
+including which architecture family fared best on the shift datasets
+tested so far -- substitutes for actually testing under the specific
+shift a deployment will face. This motivates the uncertainty-quantification
+question our companion paper asks: since no backbone choice alone is
+safe, can a model's own confidence signal at least correctly flag when it
+has entered a regime where its predictions should not be trusted?
 
 \section{Threats to Validity}
 
@@ -361,17 +456,23 @@ without full retraining; the reported numbers are the direct, unedited
 output of the training and evaluation code released alongside this paper,
 which mitigates but does not eliminate this threat.
 
-\textbf{External validity.} All three datasets are drawn from a small
-number of source institutions (SIPaKMeD, Herlev, and Mendeley LBC
-together represent three geographic/clinical sources, per
-Section~4.2), and generalization to other scanners, staining protocols,
-or populations beyond these three is not established. The two shift
-conditions tested (Herlev, Mendeley LBC) are real cross-institution
-shifts, not a systematic sweep across shift types (e.g., scanner
-resolution, stain intensity, patient demographics varied independently),
-so the finding that no static model property predicts shift robustness is
-demonstrated for these two shifts specifically, not proven for shift in
-general.
+\textbf{External validity.} All four datasets are drawn from a small
+number of source institutions (SIPaKMeD, Herlev, Mendeley LBC, and APCEM
+together represent four geographic/clinical sources), and generalization
+to other scanners, staining protocols, or populations beyond these four is
+not established. The three shift conditions tested (Herlev, Mendeley LBC,
+APCEM) are real cross-institution shifts, not a systematic sweep across
+shift types (e.g., scanner resolution, stain intensity, patient
+demographics varied independently), so the finding that no static model
+property predicts shift robustness is demonstrated for these three shifts
+specifically, not proven for shift in general. The APCEM result itself is
+direct evidence for why this caveat matters in practice, not just in
+principle: the CNN-family robustness pattern that held across the first
+two shift datasets did not survive the third, so a reader should not
+assume the specific findings reported here (e.g., which individual model
+is most robust) transfer to a fourth, untested shift condition either --
+only the higher-level conclusion, that no static property reliably
+predicts shift robustness, is expected to generalize.
 
 \textbf{Construct validity.} Balanced accuracy, macro F1, and AUROC are
 standard, well-understood metrics for imbalanced multi-class
@@ -384,9 +485,13 @@ findings the paper's contributions rest on.
 
 \section{Limitations}
 
-Two external datasets, both drawn from a small number of source
+Three external datasets, all drawn from a small number of source
 institutions; the shift conditions tested here are real but not
-exhaustive of the shift a deployed system might encounter. One
+exhaustive of the shift a deployed system might encounter, and the
+architecture-family pattern found stable across the first two shift
+datasets (Section~4.2, Stages 3--4) did not survive the third (Stage~5),
+so any single-dataset robustness ranking reported here should be read as
+specific to that dataset rather than as a general robustness ordering. One
 train/val/calibration/test split (seed 13) per model; results are not
 averaged over multiple seeds, so small differences between closely-ranked
 models (e.g., the 0.003 MobileViTv2/MobileNetV2 gap on Mendeley LBC)
@@ -402,10 +507,18 @@ transformers do not trade accuracy for efficiency -- the smallest models
 in the registry are also the most accurate in distribution. But that same
 efficiency-and-accuracy leaderboard actively misleads about deployment
 robustness: the overall in-distribution winner is the worst-performing
-model under real cross-dataset shift on both external datasets tested,
-and no static property we measured reliably predicts which model fails
-safely. Robustness must be measured directly, under real shift, and
-cannot be inferred from an in-distribution benchmark however thorough.
+model under real cross-dataset shift on two of the three external datasets
+tested, and no static property we measured reliably predicts which model
+fails safely. A third, independently sourced shift dataset (APCEM)
+sharpens this warning rather than merely repeating it: even the one
+pattern that survived the first two shift datasets -- that CNN-family
+models are, on average, more robust than transformer-family models --
+collapses on the third, where the CNN family contains both the single
+best- and one of the single worst-performing models in the entire
+registry. Robustness must be measured directly, under the real shift a
+deployment will actually face, and cannot be inferred from an
+in-distribution benchmark however thorough, nor safely generalized from a
+robustness pattern observed on only one or two external datasets.
 
 \begin{thebibliography}{99}
 
@@ -483,6 +596,10 @@ Mohiuddin, A.B., Rahman, M.M., et al.: Accelerated and accurate cervical
 cancer diagnosis using a novel stacking ensemble method with explainable
 AI. In: International Conference on Quantum Photonics, Artificial
 Intelligence (2025)
+
+\bibitem{aswini2026apcem}
+Aswini, H.: APCEM-Enhanced Cervical Cytology Image Dataset (Version 2)
+[Data set]. Mendeley Data (2026). \url{https://doi.org/10.17632/snzb5g6ddy.2}
 
 \end{thebibliography}
 \end{document}
