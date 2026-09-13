@@ -1,0 +1,33 @@
+{
+  "model": "mobilenetv2_100",
+  "seed": 17,
+  "in_distribution": {
+    "balanced_accuracy": 0.9524551939106003,
+    "macro_precision": 0.9534615600814579,
+    "macro_recall_sensitivity": 0.9524551939106003,
+    "macro_f1": 0.9528111098773973,
+    "macro_specificity": 0.9880248948429111,
+    "macro_auroc": 0.9968868298721889,
+    "macro_auprc": 0.9894582266308973
+  },
+  "shift_results": {
+    "herlev": {
+      "balanced_accuracy": 0.7112090602999693,
+      "macro_precision": 0.7820783255661843,
+      "macro_recall_sensitivity": 0.7112090602999693,
+      "macro_f1": 0.7333379491795333,
+      "macro_specificity": 0.7112090602999693,
+      "macro_auroc": 0.7208448117539028,
+      "macro_auprc": 0.7491735788158032
+    },
+    "mendeley_lbc": {
+      "balanced_accuracy": 0.6036694677871148,
+      "macro_precision": 0.5988528158762804,
+      "macro_recall_sensitivity": 0.6036694677871148,
+      "macro_f1": 0.5716537582756166,
+      "macro_specificity": 0.6036694677871148,
+      "macro_auroc": 0.633202614379085,
+      "macro_auprc": 0.6188868183249985
+    }
+  }
+}
