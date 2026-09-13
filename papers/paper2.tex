@@ -30,19 +30,29 @@ evidential deep learning's raw belief masses are markedly less calibrated
 (0.159) at matched point accuracy. Under moderate shift, a five-member
 deep ensemble is unambiguously the best method by every metric measured.
 Under severe shift -- the condition that matters most, since it is where
-the backbone is known to fail -- the ranking inverts: MC Dropout's entropy
-is the only signal that substantially improves shift-failure detection
-over the uncalibrated baseline (risk-coverage AUC 0.515 to 0.285), while
-the deep ensemble's advantage does not transfer (0.473, barely better than
-baseline) despite being the clear winner on the milder shift. No method
-reaches a reliable abstention operating point on the severe shift
-condition: even MC Dropout's best selective accuracy at 90\% coverage
-(0.583, on a binary task) is barely better than chance after abstaining on
-the least-confident decile. We conclude that uncertainty-method ranking is
-itself shift-magnitude-dependent, not a fixed property of the method, and
-that no single fixed uncertainty-quantification choice can be assumed safe
-across the range of shift severity a deployed screening tool will
-encounter.
+the backbone is known to fail -- the ranking inverts in our original run:
+MC Dropout's entropy is the only signal that substantially improves
+shift-failure detection over the uncalibrated baseline (risk-coverage AUC
+0.515 to 0.285), while the deep ensemble's advantage does not transfer
+(0.473, barely better than baseline) despite being the clear winner on the
+milder shift. A follow-up paired-bootstrap significance test, run on an
+independently retrained MC Dropout model (identical seed, recipe, and
+data), does not reproduce this advantage: the retrained model's Mendeley
+LBC risk-coverage AUC is 0.503, not 0.285, and is statistically
+indistinguishable from the deep ensemble's 0.474 (95\% CI for the
+difference $[-0.066, 0.010]$, one-sided $p=0.929$) -- so the reported
+severe-shift rank inversion, while real for the specific trained model in
+Table~1, is not a stable property that survives retraining under an
+identical recipe. No method reaches a reliable abstention operating point
+on the severe shift condition in either run: even MC Dropout's best
+selective accuracy at 90\% coverage (0.583, on a binary task, from the
+original run) is barely better than chance after abstaining on the
+least-confident decile. We conclude that uncertainty-method ranking is
+itself shift-magnitude-dependent and, on this severe-shift condition, not
+even stable across retraining of the same method -- so no single fixed
+uncertainty-quantification choice, however it performed in one training
+run, can be assumed safe across the range of shift severity a deployed
+screening tool will encounter.
 
 \keywords{Uncertainty quantification \and Calibration \and Domain shift \and Selective prediction \and Cervical cytology}
 \end{abstract}
@@ -64,26 +74,37 @@ signal, not a method-specific post-hoc correction layered on top) so the
 comparison reflects what a deployed system would actually have access to
 without extra engineering?
 
-Our contributions are fourfold. First, a four-method uncertainty-
+Our contributions are fivefold. First, a four-method uncertainty-
 quantification comparison (temperature-scaled softmax, MC Dropout,
 evidential deep learning, deep ensembles) on a backbone with a documented,
 severe, real (not synthetic) distribution-shift failure mode, rather than
 a synthetic corruption benchmark. Second, evidence that uncertainty-method
 ranking itself depends on shift severity: the method that wins under
 moderate shift (deep ensemble) is not the method that wins under severe
-shift (MC Dropout), and the gap between them under severe shift is large
-(0.473 vs.\ 0.285 risk-coverage AUC) while their gap under moderate shift
-favors the ensemble even more strongly (0.147 vs.\ 0.203). Third, a
-direct, quantified answer to whether any of the four methods reaches a
-\emph{reliable} abstention policy under severe shift: none does, and we
-report the closest result (MC Dropout, 0.583 selective accuracy at 90\%
-coverage) as still practically insufficient for an ``abstain and refer''
-deployment policy, rather than rounding it up to a success. Fourth, a
-methods-level finding independent of the uncertainty comparison itself:
-MC Dropout is completely degenerate on this exact backbone unless a
-code-level fix is applied before training, not just at inference
-(Section~3.3) -- a reproducibility hazard for anyone applying MC Dropout
-to a similarly-configured timm model without checking.
+shift (MC Dropout) in our original run, and the gap between them under
+severe shift is large (0.473 vs.\ 0.285 risk-coverage AUC) while their gap
+under moderate shift favors the ensemble even more strongly (0.147 vs.\
+0.203). Third, a direct, quantified answer to whether any of the four
+methods reaches a \emph{reliable} abstention policy under severe shift:
+none does, and we report the closest result (MC Dropout, 0.583 selective
+accuracy at 90\% coverage) as still practically insufficient for an
+``abstain and refer'' deployment policy, rather than rounding it up to a
+success. Fourth, a methods-level finding independent of the uncertainty
+comparison itself: MC Dropout is completely degenerate on this exact
+backbone unless a code-level fix is applied before training, not just at
+inference (Section~3.3) -- a reproducibility hazard for anyone applying MC
+Dropout to a similarly-configured timm model without checking. Fifth, a
+significance test that complicates the second contribution rather than
+simply confirming it: retraining MC Dropout once more under the identical
+seed and recipe used for Table~1 does not reproduce its reported
+severe-shift advantage (risk-coverage AUC 0.503 versus the original run's
+0.285), and a paired bootstrap test on this retrained run finds no
+statistically significant difference from the deep ensemble at all --
+meaning the specific rank inversion reported here should be read as a
+property of one trained model, not a stable property of the method,
+which is itself a load-bearing caution for any paper (including this one)
+that reports a single-training-run method comparison as if it were a
+method-level fact.
 
 \section{Related Work}
 
@@ -241,13 +262,40 @@ better than the plain baseline -- essentially within noise of each other
 Member disagreement, which correctly flags moderate shift, does not
 reliably track the specific failure mode behind the severe collapse.
 
+\textbf{A significance test, and an unexpected non-replication.} To test
+whether MC Dropout's apparent Mendeley LBC advantage over the deep
+ensemble (0.285 vs.\ 0.473) is distinguishable from bootstrap sampling
+noise, we ran a paired bootstrap test (2000 resamples) on per-sample
+risk-coverage curves. Because only Table~1's aggregate metrics, not its
+per-sample predictions, had been retained, this required retraining MC
+Dropout from scratch -- with the identical seed (13), dropout rate, epoch
+budget, and manifest used for Table~1 -- while the deep ensemble was
+reloaded from its five original saved checkpoints. The retrained MC
+Dropout model did not reproduce Table~1's result: its Mendeley LBC
+risk-coverage AUC came out at 0.503, not 0.285, despite every controllable
+factor being held fixed. Against this retrained run, the paired bootstrap
+test found no statistically significant difference from the deep ensemble
+(0.503 vs.\ 0.474; 95\% CI for the difference $[-0.066, 0.010]$, one-sided
+$p=0.929$). This is a stronger and more concerning result than a mere
+failure to reach significance: a fixed random seed did not reproduce a
+result on this specific severe-shift metric, and the gap between the two
+training runs of the identical MC Dropout recipe (0.285 vs.\ 0.503) is
+larger than the sampling uncertainty the bootstrap places around either
+individual run. Read together, the two runs mean the reported
+severe-shift rank inversion is a property of the one specific trained
+model in Table~1, not a property of ``MC Dropout'' as a method on this
+backbone -- retraining alone, with no change to data, architecture, or
+hyperparameters, was sufficient to erase the reported advantage entirely.
+
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{figs/p2_fig1_risk_coverage.pdf}
 \caption{Risk-coverage AUC (lower is better) per method, at three
 conditions with independent y-axes (note the $\sim$100$\times$ scale
-difference between in-distribution and Mendeley LBC). The best method
-changes from deep ensemble (Herlev) to MC Dropout (Mendeley LBC).}
+difference between in-distribution and Mendeley LBC). The best method in
+this run changes from deep ensemble (Herlev) to MC Dropout (Mendeley
+LBC), though a retraining check found the Mendeley LBC advantage does not
+reproduce (see text).}
 \label{fig:risk-coverage}
 \end{figure}
 
@@ -266,33 +314,55 @@ itself a function of shift severity, not a fixed property of the method.
 A reader who evaluated these four methods only in distribution, or only
 under the milder of the two shifts tested, would conclude the deep
 ensemble is the best choice and MC Dropout is mediocre -- the opposite of
-what the severe-shift evaluation shows. This has a direct practical
-consequence: a system designer who validates an uncertainty method under
-one shift condition and deploys it expecting the same ranking to hold
-under a more severe, unseen shift is making an assumption this data does
-not support. It also sharpens our companion architectural finding: no
-architectural property predicts shift robustness, and no
-uncertainty-quantification property predicts shift-detection quality
-either, at least not one held fixed across shift severities. Together,
-these argue that a trustworthy deployment cannot rely on a single fixed
-choice at either level (backbone or uncertainty method) validated once and
-assumed stable.
+what the severe-shift evaluation shows in our original run. This has a
+direct practical consequence: a system designer who validates an
+uncertainty method under one shift condition and deploys it expecting the
+same ranking to hold under a more severe, unseen shift is making an
+assumption this data does not support. It also sharpens our companion
+architectural finding: no architectural property predicts shift
+robustness, and no uncertainty-quantification property predicts
+shift-detection quality either, at least not one held fixed across shift
+severities.
+
+The significance test (Section~4, ``A significance test, and an
+unexpected non-replication'') adds a second, sharper layer to this same
+warning. It was not enough for MC Dropout's severe-shift advantage to fail
+a bootstrap significance test against the ensemble -- retraining the exact
+same method with the exact same seed produced a qualitatively different
+result (0.285 becoming 0.503), large enough to flip which method looks
+better at all. If a single fixed backbone choice cannot be assumed safe
+across shift conditions, and a single fixed uncertainty-method choice
+cannot be assumed safe across shift conditions, this result adds a third,
+more uncomfortable layer: a single uncertainty-method \emph{evaluation run}
+cannot be assumed to represent that method's behavior on a severe shift
+either, even holding the seed fixed. Together, these argue that a
+trustworthy deployment cannot rely on a single fixed choice validated once
+at any of these three levels (backbone, uncertainty method, or a single
+training run of that method) and assumed stable -- and that papers
+reporting a method comparison from one trained model per method, this one
+included, should be read with that specific caveat in mind unless the
+comparison has itself been replicated.
 
 \section{Threats to Validity}
 
-\textbf{Internal validity.} The deep ensemble's 5 members use one fixed
-set of seeds; seed-to-seed ensemble variance was not separately measured,
-so its risk-coverage AUC at each condition (Table~1) is a point estimate
-from one specific ensemble composition, not an average over repeated
-ensemble constructions. MC Dropout's 20-pass estimate is similarly a
-single realization of the stochastic-forward-pass procedure, not averaged
-over repeated evaluation runs. Both threats are sharpest exactly where the
-paper's central claim depends on a close comparison -- the Mendeley LBC
-column, where MC Dropout (0.285) and the next-best methods (evidential
-0.476, ensemble 0.473) are far enough apart that this threat is unlikely
-to overturn the ranking, but the evidential/ensemble gap (0.476 vs.\
-0.473) is close enough that it should not be over-interpreted as a real
-difference between those two methods specifically.
+\textbf{Internal validity.} This threat is no longer hypothetical for this
+paper: we tested it directly by retraining MC Dropout once more under the
+identical seed (13), dropout rate, epoch budget, and manifest used for
+Table~1, and its Mendeley LBC risk-coverage AUC came out at 0.503 instead
+of 0.285 -- a large enough swing to erase the reported severe-shift
+advantage entirely and to make the retrained run statistically
+indistinguishable from the deep ensemble (paired bootstrap 95\% CI for the
+difference $[-0.066, 0.010]$, one-sided $p=0.929$; Section~4). The deep
+ensemble's 5 members use one fixed set of seeds, reused unchanged for this
+significance test; seed-to-seed ensemble variance was not separately
+measured, so its risk-coverage AUC at each condition (Table~1) is a point
+estimate from one specific ensemble composition, not an average over
+repeated ensemble constructions. Table~1's headline Mendeley LBC ranking
+(MC Dropout 0.285, evidential 0.476, ensemble 0.473) should accordingly be
+read as the result observed for one specific trained instance of each
+method, not as a stable per-method property -- the retraining check shows
+this is not a theoretical caveat but an empirically demonstrated failure
+mode for at least one of the four methods on this exact condition.
 
 \textbf{External validity.} Single backbone (EfficientViT-M0) and two
 shift conditions (Herlev, Mendeley LBC); the paper's central claim --
@@ -326,21 +396,38 @@ measurements. Evidential deep learning's calibration numbers are reported
 without the post-hoc correction its raw outputs would need for a fully
 fair comparison to the other three methods' already-calibrated numbers.
 Deep ensemble results depend on the specific 5 seeds used; seed-to-seed
-ensemble variance was not separately measured.
+ensemble variance was not separately measured. Most importantly, a direct
+retraining check found MC Dropout's reported severe-shift advantage
+(Table~1) does not reproduce under an identical seed and recipe (0.503
+versus 0.285 risk-coverage AUC on retraining), so the paper's specific
+severe-shift ranking should not be treated as a stable per-method result
+-- only the higher-level conclusion, that uncertainty-method ranking is
+shift-dependent and not safely assumed fixed, is expected to generalize
+beyond the single trained model each method's row in Table~1 represents.
 
 \section{Conclusion}
 
 Comparing four uncertainty-quantification methods' own cheapest native
 confidence signals on a backbone with a documented real domain-shift
 failure shows that method ranking inverts between moderate and severe
-shift: deep ensembles win under moderate shift, MC Dropout wins under
-severe shift, and neither method's advantage transfers to the other
-condition. No method reaches a reliable abstention operating point under
-the severe shift condition that matters most. The practical conclusion is
-that a single fixed uncertainty-quantification method, chosen and
-validated once, cannot be assumed to remain the right choice as shift
-severity varies -- this itself needs to be tested, not assumed, for any
-deployed system relying on model confidence to decide when to abstain.
+shift in our original run: deep ensembles win under moderate shift, MC
+Dropout wins under severe shift, and neither method's advantage transfers
+to the other condition. A follow-up significance test then complicated
+this result rather than confirming it: retraining MC Dropout under an
+identical seed and recipe did not reproduce its reported severe-shift
+advantage at all, and the retrained run is statistically indistinguishable
+from the deep ensemble. No method reaches a reliable abstention operating
+point under the severe shift condition that matters most, in either run.
+The practical conclusion now has two layers rather than one: a single
+fixed uncertainty-quantification method, chosen and validated once, cannot
+be assumed to remain the right choice as shift severity varies; and, more
+sharply, a single trained instance of that method, evaluated once under
+one severe-shift condition, cannot be assumed to represent that method's
+behavior even under an identical seed and recipe. Both need to be tested,
+not assumed, for any deployed system relying on model confidence to
+decide when to abstain -- and any single-run method comparison, including
+this paper's own headline numbers, should be read with that caveat
+attached.
 
 \begin{thebibliography}{99}
 
