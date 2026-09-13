@@ -1,0 +1,33 @@
+{
+  "model": "mobilevitv2_100",
+  "seed": 29,
+  "in_distribution": {
+    "balanced_accuracy": 0.9521589646712956,
+    "macro_precision": 0.954362949772704,
+    "macro_recall_sensitivity": 0.9521589646712956,
+    "macro_f1": 0.9527510310307565,
+    "macro_specificity": 0.9880180540961563,
+    "macro_auroc": 0.9959327083580563,
+    "macro_auprc": 0.9880378603243971
+  },
+  "shift_results": {
+    "herlev": {
+      "balanced_accuracy": 0.7128007346189165,
+      "macro_precision": 0.682221826149862,
+      "macro_recall_sensitivity": 0.7128007346189165,
+      "macro_f1": 0.6905467035775248,
+      "macro_specificity": 0.7128007346189165,
+      "macro_auroc": 0.7586654423018059,
+      "macro_auprc": 0.7731477999919383
+    },
+    "mendeley_lbc": {
+      "balanced_accuracy": 0.6225816993464052,
+      "macro_precision": 0.6460084968192534,
+      "macro_recall_sensitivity": 0.6225816993464052,
+      "macro_f1": 0.6259532410194661,
+      "macro_specificity": 0.6225816993464052,
+      "macro_auroc": 0.765233426704015,
+      "macro_auprc": 0.6992668282449503
+    }
+  }
+}
