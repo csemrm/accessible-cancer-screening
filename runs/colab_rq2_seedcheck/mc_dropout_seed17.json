@@ -1,0 +1,17 @@
+{
+  "seed": 17,
+  "mendeley_lbc_rc_auc": 0.3576151294144234,
+  "mendeley_lbc_full_coverage_acc": 0.5519750519750519,
+  "full_report": {
+    "method": "mc_dropout_seed17",
+    "in_distribution": {
+      "calibration": {"ece": 0.01887254699254551, "brier": 0.0634941216080647, "nll": 0.13229195773601532},
+      "selective": {"risk_coverage_auc": 0.003997731191312957, "selective_accuracy_at_0.80": 0.9938271604938271, "selective_accuracy_at_0.90": 0.9871794871794872, "full_coverage_accuracy": 0.957166392092257},
+      "conformal": {"target_coverage": 0.9, "naive": {"threshold": 0.16959702968597412, "realized_coverage": 0.9225700164744646, "avg_set_size": 0.9406919275123559}, "stable": {"threshold": 0.17316533505916595, "realized_coverage": 0.9225700164744646, "avg_set_size": 0.9406919275123559}}
+    },
+    "shift": {
+      "herlev": {"calibration": {"ece": 0.11660768239552737, "brier": 0.3205803735977474, "nll": 0.6125909090042114}, "selective": {"risk_coverage_auc": 0.10282337156059865, "selective_accuracy_at_0.80": 0.8446866485013624, "selective_accuracy_at_0.90": 0.8266666666666667, "full_coverage_accuracy": 0.8047982551799345}, "n_samples": 917},
+      "mendeley_lbc": {"calibration": {"ece": 0.2759756867206518, "brier": 0.6556269287254308, "nll": 1.0061039924621582}, "selective": {"risk_coverage_auc": 0.3576151294144234, "selective_accuracy_at_0.80": 0.5675324675324676, "selective_accuracy_at_0.90": 0.5554272517321016, "full_coverage_accuracy": 0.5519750519750519}, "n_samples": 962}
+    }
+  }
+}
