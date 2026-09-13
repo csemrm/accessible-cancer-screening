@@ -281,11 +281,21 @@ failure to reach significance: a fixed random seed did not reproduce a
 result on this specific severe-shift metric, and the gap between the two
 training runs of the identical MC Dropout recipe (0.285 vs.\ 0.503) is
 larger than the sampling uncertainty the bootstrap places around either
-individual run. Read together, the two runs mean the reported
-severe-shift rank inversion is a property of the one specific trained
-model in Table~1, not a property of ``MC Dropout'' as a method on this
-backbone -- retraining alone, with no change to data, architecture, or
-hyperparameters, was sufficient to erase the reported advantage entirely.
+individual run. To see whether these two runs were themselves a
+coincidence, we retrained MC Dropout twice more at genuinely different
+seeds (17, 29, otherwise identical recipe): Mendeley LBC risk-coverage AUC
+came out at 0.358 and 0.359 -- both landing squarely inside the
+0.285--0.503 range the first two runs staked out, rather than clustering
+near either endpoint. Four independent training runs of one fixed method
+on one fixed backbone now span 0.285 to 0.503, with a spread (0.218) far
+larger than the 0.147--0.203 gap that separated any two \emph{different}
+methods in Table~1's Herlev column. Read together, the four runs mean the
+reported severe-shift rank inversion is a property of the one specific
+trained model in Table~1, not a property of ``MC Dropout'' as a method on
+this backbone -- retraining alone, with no change to data, architecture,
+or hyperparameters, was sufficient to erase the reported advantage
+entirely, and the method's severe-shift behavior is not concentrated
+near any single value at all.
 
 \begin{figure}[htbp]
 \centering
@@ -346,23 +356,27 @@ comparison has itself been replicated.
 \section{Threats to Validity}
 
 \textbf{Internal validity.} This threat is no longer hypothetical for this
-paper: we tested it directly by retraining MC Dropout once more under the
-identical seed (13), dropout rate, epoch budget, and manifest used for
-Table~1, and its Mendeley LBC risk-coverage AUC came out at 0.503 instead
-of 0.285 -- a large enough swing to erase the reported severe-shift
-advantage entirely and to make the retrained run statistically
-indistinguishable from the deep ensemble (paired bootstrap 95\% CI for the
-difference $[-0.066, 0.010]$, one-sided $p=0.929$; Section~4). The deep
-ensemble's 5 members use one fixed set of seeds, reused unchanged for this
-significance test; seed-to-seed ensemble variance was not separately
-measured, so its risk-coverage AUC at each condition (Table~1) is a point
-estimate from one specific ensemble composition, not an average over
-repeated ensemble constructions. Table~1's headline Mendeley LBC ranking
-(MC Dropout 0.285, evidential 0.476, ensemble 0.473) should accordingly be
-read as the result observed for one specific trained instance of each
-method, not as a stable per-method property -- the retraining check shows
-this is not a theoretical caveat but an empirically demonstrated failure
-mode for at least one of the four methods on this exact condition.
+paper: we tested it directly by retraining MC Dropout three more times
+(seed 13 again, then genuinely different seeds 17 and 29), all under the
+identical dropout rate, epoch budget, and manifest used for Table~1. The
+four Mendeley LBC risk-coverage AUC values -- 0.285 (Table~1), 0.503, 0.358,
+0.359 -- span 0.218, with the two seed-17/29 runs landing in between the
+two nominally-seed-13 runs rather than clustering near either. This large
+enough swing erases the reported severe-shift advantage entirely and
+makes at least one retrained run statistically indistinguishable from the
+deep ensemble (paired bootstrap 95\% CI for the difference $[-0.066,
+0.010]$, one-sided $p=0.929$; Section~4). The deep ensemble's 5 members
+use one fixed set of seeds, reused unchanged for this significance test;
+seed-to-seed ensemble variance was not separately measured, so its
+risk-coverage AUC at each condition (Table~1) is a point estimate from one
+specific ensemble composition, not an average over repeated ensemble
+constructions. Table~1's headline Mendeley LBC ranking (MC Dropout 0.285,
+evidential 0.476, ensemble 0.473) should accordingly be read as the
+result observed for one specific trained instance of each method, not as
+a stable per-method property -- four independent MC Dropout training runs
+show this is not a theoretical caveat but an empirically demonstrated
+failure mode for at least one of the four methods on this exact
+condition.
 
 \textbf{External validity.} Single backbone (EfficientViT-M0) and two
 shift conditions (Herlev, Mendeley LBC); the paper's central claim --

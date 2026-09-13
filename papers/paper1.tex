@@ -327,12 +327,13 @@ MobileViT-S (eff.\ ViT, 4.94M) & 0.9520 & 0.7104 & \textbf{0.2927} (AUROC 0.215)
 \end{table}
 
 A near-clean CNN-vs-transformer split emerges on Mendeley LBC, with one
-honest exception: all three CNNs land at 0.539--0.667; eight of nine
+exception: all three CNNs land at 0.539--0.667; eight of nine
 transformer-family models land at 0.293--0.523; the ninth (MobileViTv2)
-scores 0.5418, narrowly \emph{above} the lowest CNN (0.5391) by 0.003 -- a
-real overlap, reported as such rather than rounded away. This split does
-not hold at all on Herlev, where transformer models occupy both the best
-(MobileViTv2, TinyViT-5M) and among the weaker (LeViT-128) positions.
+scores 0.5418, above the lowest CNN (0.5391) by 0.003 -- a gap
+seed-variance testing (Section~5, Internal validity) shows is noise, not
+a real difference. This split does not hold on Herlev, where transformer
+models occupy both the best (MobileViTv2, TinyViT-5M) and weaker
+(LeViT-128) positions.
 
 MobileViT-S is a severe, singular outlier: its Mendeley LBC AUROC (0.215)
 is not merely below chance but actively anti-correlated with ground
@@ -445,16 +446,25 @@ has entered a regime where its predictions should not be trusted?
 
 \section{Threats to Validity}
 
-\textbf{Internal validity.} Each model was trained once (seed 13) rather
-than averaged over multiple runs, so any single balanced-accuracy figure
-carries unquantified seed-to-seed variance; this threat is sharpest for
-closely-ranked models, such as the 0.003 gap between MobileViTv2 and
-MobileNetV2 on Mendeley LBC (Table~3), which could plausibly change
-under a different seed. No trained-weight checkpoints persist across
-sessions, so results could not be re-verified from the original weights
-without full retraining; the reported numbers are the direct, unedited
-output of the training and evaluation code released alongside this paper,
-which mitigates but does not eliminate this threat.
+\textbf{Internal validity.} Each headline model was trained once (seed
+13); we measured seed-to-seed variance directly for this paper's two
+closest-ranked pairs rather than leaving it as a caveat, at two more
+seeds (17, 29). On Mendeley LBC, MobileViTv2's 0.003 edge over
+MobileNetV2 (0.5418 vs.\ 0.5391, Table~3) does \emph{not} survive:
+MobileNetV2 ranges 0.493--0.604 and MobileViTv2 ranges 0.494--0.623
+across the three seeds, the ranges overlap almost completely, and the
+ranking flips under seed 17. That gap is sampling noise, not a real
+difference. On APCEM, EfficientViT-B0's 0.001 edge over DeiT-Tiny
+(0.4481 vs.\ 0.4469, Table~4) \emph{does} survive: EfficientViT-B0 ranges
+0.421--0.448, DeiT-Tiny ranges 0.367--0.447, EfficientViT-B0 wins all
+three seeds, and its margin widens (to 0.027, then 0.067) rather than
+shrinking. The same close-call caveat produced opposite outcomes once
+tested -- a direct caution against assuming either direction from a
+single seed. No trained-weight checkpoints persist across sessions, so
+results could not be re-verified from the original weights without full
+retraining; the reported numbers are the direct, unedited output of the
+released training and evaluation code, which mitigates but does not
+eliminate this threat.
 
 \textbf{External validity.} All four datasets are drawn from a small
 number of source institutions (SIPaKMeD, Herlev, Mendeley LBC, and APCEM
