@@ -1,0 +1,15 @@
+{
+  "n_samples": 962,
+  "n_bootstrap": 2000,
+  "method_a_rc_auc": 0.5026057895184668,
+  "method_b_rc_auc": 0.47376607687380895,
+  "observed_diff_b_minus_a": -0.028839712644657844,
+  "bootstrap_ci_95": [
+    -0.06574243838604674,
+    0.009727217622021328
+  ],
+  "p_value_a_better_one_sided": 0.929,
+  "method_a": "mc_dropout",
+  "method_b": "deep_ensemble",
+  "condition": "mendeley_lbc"
+}
