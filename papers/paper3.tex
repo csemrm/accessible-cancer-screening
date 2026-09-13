@@ -30,7 +30,8 @@ for vision transformers) against both behavioral faithfulness
 (deletion/insertion) and a real, expert-annotated localization ground
 truth (nucleus boundaries from the SIPaKMeD dataset); relevancy
 propagation wins cleanly on all three metrics, with no method-ranking
-flip across conditions. Second, we test whether composing two
+flip across conditions, and this ranking replicates exactly on a second,
+independently-trained backbone (ViT-Small). Second, we test whether composing two
 independently-useful uncertainty signals -- temperature-scaled confidence
 and conformal prediction-set size -- into one abstention rule helps: the
 answer is conditional, helping exactly where the better individual signal
@@ -303,6 +304,49 @@ class-discriminative faithfulness test, while relevancy propagation is
 both class-discriminative \emph{and} integrates the gradient-weighted
 signal across all twelve transformer blocks.
 
+\subsection{A second backbone: does the ranking generalize?}
+
+Relevancy propagation's clean, unconditional win is the one result in
+this paper that looked, on its face, like it might not need
+condition-by-condition re-testing (Section~2, contribution 1) -- but that
+claim rests on a single backbone (DeiT-Tiny), so we re-ran the identical
+comparison on ViT-Small, a structurally identical
+\texttt{VisionTransformer} (same \texttt{global\_pool="token"},
+\texttt{num\_prefix\_tokens=1}, 12 blocks -- verified directly, not
+assumed) trained fresh with the same recipe and seed.
+
+\begin{table}[htbp]
+\centering
+\caption{Explainability ranking on a second backbone (ViT-Small) vs.\ the original (DeiT-Tiny).}
+\label{tab:rq3-vit-small}
+\begin{tabular}{lrrrrrr}
+\toprule
+ & \multicolumn{3}{c}{DeiT-Tiny (original)} & \multicolumn{3}{c}{ViT-Small (2nd backbone)} \\
+Method & Del.\ AUC$\downarrow$ & Ins.\ AUC$\uparrow$ & Conc.$\uparrow$ & Del.\ AUC$\downarrow$ & Ins.\ AUC$\uparrow$ & Conc.$\uparrow$ \\
+\midrule
+\textbf{Relevancy prop.} & \textbf{0.734} & \textbf{0.970} & \textbf{2.71} & \textbf{0.816} & \textbf{0.965} & \textbf{4.20} \\
+Grad-CAM & 0.818 & 0.877 & 1.47 & 0.888 & 0.895 & 1.35 \\
+Attn.\ rollout & 0.825 & 0.936 & 1.18 & 0.888 & 0.927 & 0.97 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The ranking replicates exactly: relevancy propagation wins all three
+metrics on ViT-Small too, with an even wider nucleus-concentration margin
+(4.20$\times$ chance vs.\ its closest competitor's 1.35$\times$) than on
+DeiT-Tiny. This is the one property in this paper's three-way comparison
+that generalizes cleanly across a backbone change without qualification --
+in contrast to Section~4.2's uncertainty-composition result, which flips
+direction depending on shift severity, and Section~4.4's efficiency
+claims, which required direct measurement precisely because they did
+\emph{not} generalize from architectural reasoning. The generalization
+claim is scoped deliberately: both backbones are pure multi-head
+self-attention \texttt{VisionTransformer} instances of different widths
+and depths, not different architecture families -- whether the ranking
+survives a hybrid conv+attention backbone remains untested, since
+relevancy propagation is not defined for EfficientViT-M0's architecture
+(Section~5, External validity).
+
 \subsection{System-integration results}
 
 Two proposed sub-claims about safe composition hold by construction given
@@ -407,13 +451,17 @@ $\sim$30\% run-to-run swing was observed for the same model, so the exact
 3.3$\times$ explanation-cost multiplier should be read as approximate, not
 a precise constant.
 
-\textbf{External validity.} All results use a single backbone (DeiT-Tiny)
-chosen specifically because relevancy propagation is defined for standard
-multi-head self-attention transformers and not for EfficientViT-M0's
-hybrid design; whether the explainability ranking, the selective-
-prediction composition result, or the degradation/OOD findings transfer
-to a hybrid conv+attention backbone, or to a different medical imaging
-task entirely, is untested. Single-institution data (SIPaKMeD,
+\textbf{External validity.} The explainability ranking (Section~4.1) was
+re-tested on a second backbone, ViT-Small, and replicated exactly
+(Section~4.1.1) -- but both DeiT-Tiny and ViT-Small are standard
+multi-head self-attention transformers of the same architectural family,
+chosen specifically because relevancy propagation is defined for them and
+not for EfficientViT-M0's hybrid design; this closes the single-backbone
+gap only within that family. The selective-prediction composition result
+and the degradation/OOD findings were not re-tested on ViT-Small and
+still use DeiT-Tiny alone. Whether any of these three results transfer to
+a hybrid conv+attention backbone, or to a different medical imaging task
+entirely, remains untested. Single-institution data (SIPaKMeD,
 $\sim$4{,}000 images) throughout.
 
 \textbf{Construct validity.} Deletion/insertion AUC and nucleus
@@ -432,9 +480,11 @@ distinction stated explicitly rather than implied away.
 
 Backbone mismatch: the explainability and system-integration results use
 DeiT-Tiny, not the efficiency benchmark's overall winner, EfficientViT-M0,
-since relevancy propagation is not defined for the latter; whether these
-results transfer to a hybrid conv+attention backbone is untested.
-Single-institution, small-scale data (SIPaKMeD, $\sim$4{,}000 images). CPU
+since relevancy propagation is not defined for the latter; the
+explainability ranking specifically was confirmed on one additional
+same-family backbone (ViT-Small, Section~4.1.1), but whether any of this
+paper's results transfer to a hybrid conv+attention backbone remains
+untested. Single-institution, small-scale data (SIPaKMeD, $\sim$4{,}000 images). CPU
 latency measured on one shared consumer laptop, not dedicated hardware;
 a $\sim$30\% run-to-run swing was observed for the same model, though
 relative ordering across models was stable. OOD sanity check uses a
@@ -449,7 +499,8 @@ not resolve alike. Relevancy propagation is a clearly better
 explainability method than attention rollout or Grad-CAM for this
 cervical cytology classifier, on both behavioral faithfulness and real
 expert-annotated localization ground truth -- a clean, condition-
-independent result. Composing two uncertainty signals for selective
+independent result that we further confirmed replicates on a second,
+independently-trained backbone rather than resting on one lucky model. Composing two uncertainty signals for selective
 prediction, by contrast, helps only under the specific condition where
 the better individual signal was already failing -- a conditional result
 that would have been reported backwards by an evaluation run under only
