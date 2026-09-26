@@ -37,6 +37,19 @@ single-blind instead.
 
 ## Open items before actually submitting
 
-- Verify the EfficientViT-B0/M0 citation (flagged in `papers/paper1.tex`).
-- Verify Herlev and Mendeley LBC dataset citations (flagged in all three papers).
+- ~~Verify the EfficientViT-B0/M0 citation (flagged in `papers/paper1.tex`).~~ Verified:
+  B0 is Cai et al., "EfficientViT: Multi-Scale Linear Attention for
+  High-Resolution Dense Prediction" (MIT, ICCV 2023, `cai2023efficientvit`);
+  M0 is Liu et al., "EfficientViT: Memory Efficient Vision Transformer with
+  Cascaded Group Attention" (Microsoft, CVPR 2023, `liu2023efficientvit`) --
+  matches the paper's lineage attribution and citation mapping exactly.
+- ~~Verify Herlev and Mendeley LBC dataset citations (flagged in all three
+  papers).~~ Verified against independent search: Herlev
+  (`jantzen2005herlev`) author list, venue, and page range match exactly
+  (Jantzen, Norup, Dounias, Bjerregaard, NiSIS 2005, pp. 1--9); Mendeley LBC
+  (`hussain2020mendeley`) author list, journal, volume, and article number
+  match exactly (Hussain, Mahanta, Borah, Das, Data in Brief 30, 105589,
+  2020). Also verified the new APCEM citation added for paper 1's 3rd shift
+  dataset (`aswini2026apcem`): author name and DOI match Mendeley Data's own
+  metadata for doi:10.17632/snzb5g6ddy.2 exactly.
 - Confirm TEHI's blind-review policy directly with organizers if that venue is actually used.
