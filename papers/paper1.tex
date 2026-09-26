@@ -466,6 +466,35 @@ retraining; the reported numbers are the direct, unedited output of the
 released training and evaluation code, which mitigates but does not
 eliminate this threat.
 
+We extended this check from the 2 closest-ranked pairs to all 12 models,
+at the same 2 extra seeds, evaluated zero-shot on all three external
+datasets from a single checkpoint per model per seed
+(\texttt{docs/rq1\_seedcheck\_full\_results.md}). Two further findings
+sharpen, rather than soften, the paper's central claim. First, the
+``near-clean'' CNN-vs-transformer split reported for Mendeley LBC
+(Section~4.2, Stage~4) is itself a property of seed 13, not of the
+dataset: only 1 of 9 transformer-family models exceeds the weakest CNN at
+seed 13 (by 0.003, already flagged above as noise), but 3 of 9 do at seed
+17 and 4 of 9 do at seed 29, by margins up to 0.11 -- an order of
+magnitude past the single close call this section already discounts.
+Second, EfficientViT-M0 -- this paper's running illustration of ``the
+in-distribution winner is the shift-robustness loser''
+(Section~4.1, Conclusion) -- does not reliably occupy either role: it is
+the (near-)in-distribution winner and one of the two worst shift
+performers on Herlev and Mendeley LBC at seed 13, but at seed 29 it is the
+outright in-distribution winner \emph{and} mid-pack under shift on both
+datasets (rank 4--5 of 12), and at seed 17 it is not even the
+in-distribution winner (rank 10 of 12). The general claim this example
+illustrates -- that no static property predicts shift robustness -- is
+unaffected, and if anything reinforced (a poster-child example that
+itself varies by seed is one more demonstration of that unreliability);
+what changes is that this specific model should be read as a
+seed-13-specific illustration rather than a reproducible property of
+EfficientViT-M0. Not every seed-checked finding is this fragile: Herlev's
+inverse pattern (most transformer models outscoring the CNNs) and
+MobileNetV2's status as the strongest model on APCEM both replicate
+cleanly across all three seeds.
+
 \textbf{External validity.} All four datasets are drawn from a small
 number of source institutions (SIPaKMeD, Herlev, Mendeley LBC, and APCEM
 together represent four geographic/clinical sources), and generalization
@@ -501,13 +530,19 @@ exhaustive of the shift a deployed system might encounter, and the
 architecture-family pattern found stable across the first two shift
 datasets (Section~4.2, Stages 3--4) did not survive the third (Stage~5),
 so any single-dataset robustness ranking reported here should be read as
-specific to that dataset rather than as a general robustness ordering. One
-train/val/calibration/test split (seed 13) per model; results are not
-averaged over multiple seeds, so small differences between closely-ranked
-models (e.g., the 0.003 MobileViTv2/MobileNetV2 gap on Mendeley LBC)
-should be read with appropriate caution about seed-to-seed variance, which
-was not separately measured. No trained-weight checkpoints persist;
-reproducing any single row of these tables means retraining from scratch.
+specific to that dataset rather than as a general robustness ordering. Each
+headline result is a single train/val/calibration/test split (seed 13);
+results are not averaged over multiple seeds, though seed-to-seed variance
+was measured directly (Threats to Validity, Internal validity) across all
+12 models at 2 further seeds rather than left unmeasured. That check found
+some single-model and single-dataset claims are seed-specific rather than
+general (the Mendeley LBC CNN-vs-transformer split, and EfficientViT-M0
+specifically as the in-distribution-winner-becomes-shift-loser example),
+so individual rows and close-ranked comparisons in these tables should be
+read with that caution; the paper's higher-level conclusions do not rest
+on any single seed-fragile comparison. No trained-weight checkpoints
+persist; reproducing any single row of these tables means retraining from
+scratch.
 
 \section{Conclusion}
 
