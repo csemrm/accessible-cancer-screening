@@ -1,24 +1,23 @@
 # Submission tracker
 
-Plan: submit all three papers to TCCE 2026 first; TEHI 2026 is the backup
-venue for any paper rejected at TCCE (sequential, not simultaneous --
-submitting the same paper to both at once would be dual submission, which
-both venues' "original and unpublished" policies prohibit).
+Original plan was to submit all three papers to TCCE 2026 first, with
+TEHI 2026 as the sequential backup for any paper rejected at TCCE. **TCCE
+2026's deadline passed before any paper was submitted**, so TEHI 2026 is
+now the primary (and only currently-open) target for all three.
 
 Both venues use the identical Springer LNCS/LNNS template and 12-page
-limit, so no reformatting is needed between them -- only re-submit via the
-other venue's portal if/when a paper is rejected at the first.
+limit, so no reformatting was needed when switching primary targets.
 
-| Paper | File | Primary target | Status | Backup target (if rejected) |
-|---|---|---|---|---|
-| Paper 1 | `papers/paper1.tex` (efficiency benchmark + cross-dataset shift) | TCCE 2026 | Not yet submitted | TEHI 2026 |
-| Paper 2 | `papers/paper2.tex` (uncertainty method comparison) | TCCE 2026 | Not yet submitted | TEHI 2026 |
-| Paper 3 | `papers/paper3.tex` (explainability + system integration) | TCCE 2026 | Not yet submitted | TEHI 2026 |
+| Paper | File | Primary target | Status |
+|---|---|---|---|
+| Paper 1 | `papers/paper1.tex` (efficiency benchmark + cross-dataset shift) | TEHI 2026 | Not yet submitted (TCCE 2026 deadline missed) |
+| Paper 2 | `papers/paper2.tex` (uncertainty method comparison) | TEHI 2026 | Not yet submitted (TCCE 2026 deadline missed) |
+| Paper 3 | `papers/paper3.tex` (explainability + system integration) | TEHI 2026 | Not yet submitted (TCCE 2026 deadline missed) |
 
 ## Venue details
 
-- **TCCE 2026** (8th Int'l Conf. on Trends in Computational and Cognitive Engineering, Samarkand State University, Uzbekistan, 12–13 Nov 2026). Submission portal: `myproconf.com/events/index.php?url=tcce-2026`. 12 pages, Springer LNAI/LNNS style, PDF/DOC.
-- **TEHI 2026** (6th Int'l Conf. on Trends in Electronics and Health Informatics, University of Creative Technology Chittagong, Bangladesh). Submission portal: `myproconf.com/events/index.php?url=tehi-2026`. 12 pages, Springer LNCS/LNAI style, PDF/DOC. Its own page disagrees with itself on blind review (one section says double-blind, the submission-instructions section says single-blind with author names included) -- confirm with organizers before submitting.
+- **TCCE 2026** (8th Int'l Conf. on Trends in Computational and Cognitive Engineering, Samarkand State University, Uzbekistan, 12–13 Nov 2026). Submission portal: `myproconf.com/events/index.php?url=tcce-2026`. 12 pages, Springer LNAI/LNNS style, PDF/DOC. **Deadline passed before any paper was submitted -- no longer usable as a target.**
+- **TEHI 2026** (6th Int'l Conf. on Trends in Electronics and Health Informatics, University of Creative Technology Chittagong, Bangladesh). Submission portal: `myproconf.com/events/index.php?url=tehi-2026`. 12 pages, Springer LNCS/LNAI style, PDF/DOC. Its own page disagrees with itself on blind review (one section says double-blind, the submission-instructions section says single-blind with author names included) -- confirm with organizers before submitting. **Now the primary target for all three papers** -- check its deadline directly before relying on it.
 
 ## Blind review
 
@@ -52,4 +51,8 @@ single-blind instead.
   2020). Also verified the new APCEM citation added for paper 1's 3rd shift
   dataset (`aswini2026apcem`): author name and DOI match Mendeley Data's own
   metadata for doi:10.17632/snzb5g6ddy.2 exactly.
-- Confirm TEHI's blind-review policy directly with organizers if that venue is actually used.
+- Confirm TEHI's blind-review policy directly with organizers -- now the
+  primary target, not just a contingency, so this needs resolving before
+  submitting rather than only if TCCE rejects.
+- Confirm TEHI 2026's own submission deadline hasn't also passed, given
+  TCCE's already has.
