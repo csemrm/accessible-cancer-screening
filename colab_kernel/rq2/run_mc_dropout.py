@@ -4,7 +4,7 @@ import json
 
 from cervical_screening.uncertainty.train_variants import predict_mc_dropout, train_mc_dropout
 
-MODEL = "efficientvit_m0"
+MODEL = globals().get("MODEL", "efficientvit_m0")
 N_PASSES = 20
 
 result = train_mc_dropout(MODEL, manifest_csv, device, dropout_rate=0.3, epochs=30, batch_size=32,

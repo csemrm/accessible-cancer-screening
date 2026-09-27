@@ -5,7 +5,7 @@ import json
 from cervical_screening.uncertainty import calibration
 from cervical_screening.uncertainty.train_variants import predict_baseline, train_baseline
 
-MODEL = "efficientvit_m0"
+MODEL = globals().get("MODEL", "efficientvit_m0")
 
 result = train_baseline(MODEL, manifest_csv, device, epochs=30, batch_size=32, patience=7, seed=13)
 baseline_model = result["model"]

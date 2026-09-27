@@ -5,7 +5,7 @@ import json
 
 from cervical_screening.uncertainty.train_variants import predict_evidential, train_evidential
 
-MODEL = "efficientvit_m0"
+MODEL = globals().get("MODEL", "efficientvit_m0")
 NUM_CLASSES = 5
 
 result = train_evidential(MODEL, manifest_csv, device, num_classes=NUM_CLASSES, annealing_epochs=10,

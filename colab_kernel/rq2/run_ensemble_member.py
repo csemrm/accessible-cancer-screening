@@ -8,7 +8,7 @@ times with 5 different seeds, then run run_ensemble_eval.py once.
 
 from cervical_screening.uncertainty.train_variants import train_baseline
 
-MODEL = "efficientvit_m0"
+MODEL = globals().get("MODEL", "efficientvit_m0")
 seed = globals().get("ENSEMBLE_SEED", 13)
 
 if "ensemble_models" not in globals():
