@@ -86,8 +86,11 @@ manuscript.
 
 `requirements.txt` gives minimum versions only. The exact versions used by the
 original Colab runs were not recorded. The cluster-grouped Kaggle run writes
-its exact Python, PyTorch, timm, CUDA and GPU versions to `out/env.json`;
-copy that file into `runs/kaggle_cluster_split/` when you download it.
+its exact Python, PyTorch, timm, CUDA and GPU versions to `out/env.json`; the
+copy for the reported run is `runs/kaggle_cluster_split/env.json` (Python 3.13.15,
+torch 2.11.0+cu128, timm 1.0.29, numpy 2.1.3, CUDA 12.8, Tesla T4). That folder also
+holds the per-image predictions, results, split manifest and `cluster_analysis.json`;
+re-create the analysis with `kaggle_kernel/cluster_split_rerun/analyze.py`.
 
 ## Layout
 
