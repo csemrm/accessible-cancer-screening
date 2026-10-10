@@ -19,11 +19,16 @@ from pathlib import Path
 import numpy as np
 import torch
 
-# --- import the project package from the attached private dataset
-pkg = glob.glob("/kaggle/input/*/cervical_screening/__init__.py") or glob.glob(
-    "/kaggle/input/**/cervical_screening/__init__.py", recursive=True)
-assert pkg, "cervical_screening package not found under /kaggle/input"
-sys.path.insert(0, str(Path(pkg[0]).parent.parent))
+# --- import the project package from the attached private dataset. Kaggle extracts the zipped package folder to the
+# dataset root, so the package files sit directly under /kaggle/input/<slug>/ ; link that root as `cervical_screening`.
+hits = glob.glob("/kaggle/input/**/explainability/relevancy_propagation.py", recursive=True)
+assert hits, "cervical_screening package files not found under /kaggle/input"
+pkg_root = Path(hits[0]).parent.parent
+link_dir = Path("/kaggle/working/pkg")
+link_dir.mkdir(parents=True, exist_ok=True)
+if not (link_dir / "cervical_screening").exists():
+    (link_dir / "cervical_screening").symlink_to(pkg_root, target_is_directory=True)
+sys.path.insert(0, str(link_dir))
 
 from PIL import Image  # noqa: E402
 
@@ -59,7 +64,11 @@ def main() -> None:
     (OUT / "env.json").write_text(json.dumps(env, indent=2))
 
     # --- re-crop with nucleus polygons (same cropping code as the training run)
-    raw_root = find("im_Dyskeratotic").parent
+    # the earlier kernel's output also has crops/im_Dyskeratotic, so require the raw layout <root>/<class>/<class>/*.bmp
+    cands = [Path(h).parent for h in glob.glob("/kaggle/input/**/im_Dyskeratotic", recursive=True)]
+    cands = [c for c in cands if (c / "im_Dyskeratotic" / "im_Dyskeratotic").exists()]
+    assert cands, "raw SIPaKMeD layout not found"
+    raw_root = cands[0]
     crops_root = WORK / "crops"
     nucleus_rows: list[dict] = []
     counts = {c: crop_class(raw_root, crops_root, c, margin=4.0, nucleus_rows=nucleus_rows) for c in CLASSES}
