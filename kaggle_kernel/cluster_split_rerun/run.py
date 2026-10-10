@@ -20,14 +20,11 @@ from __future__ import annotations
 
 import csv
 import glob
-import hashlib
 import json
 import platform
 import random
 import sys
 import time
-import urllib.request
-import zipfile
 from collections import defaultdict
 from pathlib import Path
 
@@ -65,11 +62,12 @@ MENDELEY_LBC_TO_BINARY = {"Negative for Intraepithelial malignancy": NORMAL,
                           "Low squamous intra-epithelial lesion": ABNORMAL,
                           "High squamous intra-epithelial lesion": ABNORMAL,
                           "Squamous cell carcinoma": ABNORMAL}
+# APCEM v2 (Mendeley Data, DOI 10.17632/snzb5g6ddy.2). The Mendeley file host returns HTTP 403 to Kaggle
+# kernels, so an unchanged CC BY copy is attached as the private dataset csemrm/apcem-cervical-cytology
+# (original archive SHA-256 0e6a049c830dc094e944a01bff70c447832f2b3e3f79f5b8f3f7104c4fede154).
+# The squamous cell carcinoma folder in this archive is named SCC.
 APCEM_TO_BINARY = {"NILM": NORMAL, "ASCUS": ABNORMAL, "ASCH": ABNORMAL, "LSIL": ABNORMAL, "HSIL": ABNORMAL,
-                   "SSC": ABNORMAL}
-APCEM_URL = ("https://data.mendeley.com/public-files/datasets/snzb5g6ddy/files/"
-             "3ce39216-8d7f-4016-817f-a3a773180e98/file_downloaded")
-APCEM_SHA256 = "0e6a049c830dc094e944a01bff70c447832f2b3e3f79f5b8f3f7104c4fede154"
+                   "SCC": ABNORMAL}
 EXPECTED_N = {"sipakmed": 4049, "herlev": 917, "mendeley_lbc": 962, "apcem": 4253}
 
 NUM_CLASSES = 5
@@ -99,18 +97,6 @@ def find_dir(pattern: str) -> Path:
     if not hits:
         raise FileNotFoundError(f"{pattern} not found under /kaggle/input (is the dataset attached?)")
     return Path(hits[0])
-
-
-def download_apcem(dest: Path) -> Path:
-    dest.mkdir(parents=True, exist_ok=True)
-    zip_path = dest / "apcem.zip"
-    if not zip_path.exists():
-        urllib.request.urlretrieve(APCEM_URL, zip_path)
-    digest = hashlib.sha256(zip_path.read_bytes()).hexdigest()
-    assert digest == APCEM_SHA256, f"APCEM zip hash mismatch: {digest}"
-    with zipfile.ZipFile(zip_path) as z:
-        z.extractall(dest / "extracted")
-    return dest / "extracted"
 
 
 def scan_binary_manifest(root: Path, class_to_binary: dict, extensions=(".jpg", ".jpeg", ".png", ".bmp")):
@@ -431,7 +417,7 @@ def main() -> None:
         "herlev": scan_binary_manifest(find_dir("normal_columnar").parents[1], HERLEV_TO_BINARY),
         "mendeley_lbc": scan_binary_manifest(find_dir("Negative for Intraepithelial malignancy").parent,
                                               MENDELEY_LBC_TO_BINARY),
-        "apcem": scan_binary_manifest(download_apcem(WORK / "apcem"), APCEM_TO_BINARY),
+        "apcem": scan_binary_manifest(find_dir("NILM").parent, APCEM_TO_BINARY),
     }
     for k, rows in ext_sets.items():
         print(k, len(rows), flush=True)

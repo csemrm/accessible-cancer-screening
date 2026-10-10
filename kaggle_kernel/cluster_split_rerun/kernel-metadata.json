@@ -10,7 +10,8 @@
   "dataset_sources": [
     "marinaeplissiti/sipakmed",
     "yuvrajsinhachowdhury/herlev-dataset",
-    "blank1508/mendeley-lbc-cervical-cancer"
+    "blank1508/mendeley-lbc-cervical-cancer",
+    "csemrm/apcem-cervical-cytology"
   ],
   "competition_sources": [],
   "kernel_sources": []
