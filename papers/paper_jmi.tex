@@ -76,19 +76,25 @@ The properties resolve differently: explainability method choice resolves cleanl
 \label{sec:related}
 
 \subsection{Efficient Vision Transformers}
-Efficiency-oriented transformer variants fall into several loose lineages. Hybrid local--global designs (MobileViT\cite{mehta2022mobilevit}, MobileViTv2\cite{mehta2022mobilevitv2}) interleave convolutional stages with transformer blocks. Distillation-oriented designs (DeiT\cite{touvron2021deit}) keep a standard ViT backbone\cite{dosovitskiy2021vit} but reach competitive accuracy with far less pretraining data. Hardware-aware designs (LeViT\cite{graham2021levit}, TinyViT\cite{wu2022tinyvit}) reintroduce convolutional stages to improve real-device latency rather than FLOP count alone. EfficientViT-M0 and EfficientViT-B0, the two smallest models in our registry, are often assumed to share a lineage because \texttt{timm} groups their tags; verified directly, they do not. EfficientViT-M0 uses cascaded group attention\cite{liu2023efficientvit}, whereas EfficientViT-B0 belongs to an unrelated lineage built on multi-scale linear attention for dense prediction\cite{cai2023efficientvit}. These design papers do not evaluate cross-institution domain shift as part of their efficiency claims, so efficiency and robustness are treated as unrelated properties. Parameter count, FLOPs, and measured speed are also known to disagree as cost indicators.\cite{dehghani2022}
+Efficiency-oriented transformer variants fall into several loose lineages. Hybrid local--global designs (MobileViT\cite{mehta2022mobilevit}, MobileViTv2\cite{mehta2022mobilevitv2}) interleave convolutional stages with transformer blocks. Distillation-oriented designs (DeiT\cite{touvron2021deit}) keep a standard ViT backbone\cite{dosovitskiy2021vit} but reach competitive accuracy with far less pretraining data. Hardware-aware designs (LeViT\cite{graham2021levit}, TinyViT\cite{wu2022tinyvit}) reintroduce convolutional stages to improve real-device latency rather than FLOP count alone. EfficientViT-M0 and EfficientViT-B0, the two smallest models in our registry, are often assumed to share a lineage because \texttt{timm} groups their tags; verified directly, they do not. EfficientViT-M0 uses cascaded group attention\cite{liu2023efficientvit}, whereas EfficientViT-B0 belongs to an unrelated lineage built on multi-scale linear attention for dense prediction\cite{cai2023efficientvit}. These design papers do not evaluate cross-institution domain shift as part of their efficiency claims, so efficiency and robustness are treated as unrelated properties. Parameter count, FLOPs, and measured speed are also known to disagree as cost indicators in mobile and efficient network design,\cite{dehghani2022,mehta2022mobilevit,vasu2023mobileone} although we found no study of this disagreement for cytology models.
 
 \subsection{Domain Shift and Model Selection in Medical Imaging}
-A general medical-imaging literature documents that models selected on held-out in-distribution data can degrade under real distribution shift across scanners, sites, and populations,\cite{zech2018,guan2022} motivating external validation. Benchmarks of real-world distribution shift,\cite{koh2021} work on shortcut learning,\cite{geirhos2020} and work on underspecification\cite{damour2020} show why in-distribution accuracy can be a poor guide: models that perform equivalently on held-out data can behave differently once the data change. Predictive uncertainty also degrades under shift.\cite{ovadia2019} That literature typically evaluates one or a few architectures. We instead sweep CNN, full-size transformer, and efficient transformer families at matched task and data scale and ask whether any measurable static model property predicts which model degrades least.
+A general medical-imaging literature documents that models selected on held-out in-distribution data can degrade under real distribution shift across scanners, sites, and populations,\cite{zech2018,guan2022} motivating external validation. Benchmarks of real-world distribution shift,\cite{koh2021} work on shortcut learning,\cite{geirhos2020} and work on underspecification\cite{damour2020} show why in-distribution accuracy can be a poor guide: models that perform equivalently on held-out data can behave differently once the data change. Predictive uncertainty also degrades under shift.\cite{ovadia2019} In cervical cytology, recent studies have examined classifier behavior on real-world and multi-scanner data,\cite{ferreira2026,coskun2026} and external validation across independent cervical cytology datasets has been described as rare.\cite{albzour2026hybrid} That literature typically evaluates one or a few architectures. We instead sweep CNN, full-size transformer, and efficient transformer families at matched task and data scale and ask whether any measurable static model property predicts which model degrades least.
+
+\subsection{Data Splitting and Source-Image Overlap}
+Splitting at the level of images, tiles, or records when several samples come from the same subject can inflate accuracy relative to subject-level splitting, as described in digital pathology,\cite{bussola2021} clinical machine learning,\cite{saeb2017} and brain MRI.\cite{rumala2023} For SIPaKMeD, Albzour and Lam note that the cropped-cell filenames encode the parent cluster image and that parent-level grouping was not enforced in their cross-validation, and they treat this as a limitation without measuring it.\cite{albzour2026hybrid} We measure the overlap under the split used here (Sec.~\ref{sec:split}) but do not estimate its effect on accuracy.
 
 \subsection{Transformer Explainability and Faithfulness}
-Attention rollout\cite{abnar2020quantifying} chains attention weights across layers as a relevance signal, a premise contested in the literature on whether attention is an explanation.\cite{jain2019,wiegreffe2019} Relevancy propagation\cite{chefer2021transformer} weights each block's attention by its gradient with respect to the target class, making the map class-discriminative. Grad-CAM\cite{selvaraju2017gradcam} was designed for convolutional feature maps and is commonly adapted to transformers by targeting a block's token activations. Deletion/insertion faithfulness\cite{petsiuk2018rise} measures the effect of removing or revealing the regions an explanation marks as important on the model's own prediction. Evaluating localization against SIPaKMeD's expert-marked nucleus polygons avoids compounding the evaluation with a second model's errors.
+Attention rollout\cite{abnar2020quantifying} chains attention weights across layers as a relevance signal, a premise contested in the literature on whether attention is an explanation.\cite{jain2019,wiegreffe2019} Relevancy propagation\cite{chefer2021transformer} weights each block's attention by its gradient with respect to the target class, making the map class-discriminative. Grad-CAM\cite{selvaraju2017gradcam} was designed for convolutional feature maps and is commonly adapted to transformers by targeting a block's token activations. Deletion/insertion faithfulness\cite{petsiuk2018rise} measures the effect of removing or revealing the regions an explanation marks as important on the model's own prediction. Evaluating localization against SIPaKMeD's expert-marked nucleus polygons avoids compounding the evaluation with a second model's errors. Prior studies have evaluated explanation methods for medical vision transformers, including Grad-CAM and attention-based methods;\cite{barekatain2026,chung2025,komorowski2023} we did not find prior work in our search that scores explanations against expert nucleus masks in cervical cytology.
 
 \subsection{Selective Prediction and Calibration}
-Temperature scaling\cite{guo2017calibration} calibrates confidence on a held-out split. Split conformal prediction gives a distribution-free coverage guarantee from a single calibration split,\cite{angelopoulos2023} and its prediction-set size is a model-agnostic but coarse uncertainty proxy. MC Dropout\cite{gal2016dropout}, deep ensembles\cite{lakshminarayanan2017ensembles}, and evidential deep learning\cite{sensoy2018evidential} are alternative uncertainty signals that we do not evaluate here. To our knowledge, whether composing temperature-scaled confidence with conformal set size improves an abstention rule is not directly addressed by work that proposes either signal independently.
+Temperature scaling\cite{guo2017calibration} calibrates confidence on a held-out split. Split conformal prediction gives a distribution-free coverage guarantee from a single calibration split,\cite{angelopoulos2023} and its prediction-set size is a model-agnostic but coarse uncertainty proxy. MC Dropout\cite{gal2016dropout}, deep ensembles\cite{lakshminarayanan2017ensembles}, and evidential deep learning\cite{sensoy2018evidential} are alternative uncertainty signals that we do not evaluate here. Conformal prediction has been applied to cervical atypia classification,\cite{hagos2026} and calibration with selective prediction has been studied for Pap smear classification.\cite{albzour2026selective} In our search we did not find work that combines confidence with conformal set size for abstention under cross-dataset shift in cytology, which is the question we examine.
 
 \subsection{Adjacent Cervical and Clinical-AI Work}
+Comparisons of many convolutional and transformer architectures on cytology images,\cite{liu2021aspect} ensembles that include EfficientViT on SIPaKMeD and Herlev,\cite{lima2025} and systematic evaluations of vision transformers for cervical classification\cite{albzour2026cancers} exist; among them we did not identify an evaluation of zero-shot transfer across independent datasets, judging from their titles and abstracts. % TODO(author): read these three papers to confirm before submission
 Adjacent work includes hybrid deep feature fusion for cervical cell classification\cite{rahaman2021} and a stacking-ensemble approach with explainable AI for cervical cancer diagnosis,\cite{mohiuddin2025} which we differ from by evaluating explainability against expert-annotated localization and behavioral faithfulness and by jointly evaluating efficiency and real cross-institution shift. A lightweight transformer with cross-scale attention and explainability for plant disease diagnosis\cite{rahman2026maizeformerx} motivates our treatment of efficiency and explainability as joint design goals, and two further papers address explainable clinical AI in other domains\cite{gony2026retinal,ahmed2026postsurgical}.
+
+These statements reflect a non-exhaustive literature search conducted in October 2026 (Crossref, arXiv, and web search); the absence of a prior study in our search does not establish that none exists.
 
 \section{Materials and Methods}
 \label{sec:methods}
@@ -525,7 +531,7 @@ For deployment, the practical implications are direct. A backbone should not be 
 
 \textbf{Data.} All four datasets come from a small number of source institutions, and the three external shifts are real cross-dataset differences, not a systematic sweep of shift types (scanner resolution, stain intensity, or demographics varied independently). Because the datasets also differ in what an image contains (single cells versus fields of view), in preprocessing (APCEM enhancement), and in label definitions, the experiments do not separate institutional differences from scale, content, preprocessing, and annotation differences. The findings are demonstrated for twelve models and three external datasets; the observation that the tested static properties were not consistent predictors across datasets is the one most likely to generalize, whereas specific rankings, including which model is most robust, should not be assumed to transfer to a fourth dataset. Label harmonization to a binary task discards clinically important granularity and rests on category correspondences that the dataset documentation does not establish. SIPaKMeD (about 4,000 images) is a single-institution training source.
 
-\textbf{Source-image overlap.} The in-distribution split is at the cell level, 87.8\% of test cells share a source cluster image with a training cell, and no patient or slide identifiers are available (Sec.~\ref{sec:split}). In-distribution accuracy, calibration, abstention, and degradation results are therefore likely optimistic. A cluster-level or patient-level re-split would be needed to estimate in-distribution performance on new patients, and it could change the in-distribution rankings reported here. The external-dataset results do not depend on this split. We have not quantified how much the overlap inflates in-distribution accuracy: an unpaired comparison against a different split would confound the effect with test-set differences, and a valid estimate needs a paired design (for example, repeated cell-level and cluster-grouped cross-validation on the same cells, with variability across which clusters fall in the test set). Earlier work has compared record-wise and subject-wise splitting on other medical datasets. % TODO(author): cite prior record-wise vs subject-wise studies
+\textbf{Source-image overlap.} The in-distribution split is at the cell level, 87.8\% of test cells share a source cluster image with a training cell, and no patient or slide identifiers are available (Sec.~\ref{sec:split}). In-distribution accuracy, calibration, abstention, and degradation results are therefore likely optimistic. A cluster-level or patient-level re-split would be needed to estimate in-distribution performance on new patients, and it could change the in-distribution rankings reported here. The external-dataset results do not depend on this split. We have not quantified how much the overlap inflates in-distribution accuracy: an unpaired comparison against a different split would confound the effect with test-set differences, and a valid estimate needs a paired design (for example, repeated cell-level and cluster-grouped cross-validation on the same cells, with variability across which clusters fall in the test set). Earlier work has compared record-wise and subject-wise splitting on other medical datasets.\cite{saeb2017,rumala2023}
 
 \textbf{Seeds, runs, and statistics.} Each headline result is a single run at seed 13 on one data split. Seed variance was measured for all 12 models at two further seeds, and it showed that several single-model and single-dataset claims are seed-specific (the Mendeley LBC family split and EfficientViT-M0 as the in-distribution winner that fails under shift), so individual rows and close-ranked comparisons should be read with caution. Different tables come from separate runs of unidentified run-to-run variation (Sec.~\ref{sec:runvar}), and same-seed repeatability was not measured. Per-image predictions and trained checkpoints were not retained, so bootstrap confidence intervals, per-class sensitivity and specificity, and confusion matrices could not be computed; we report seed statistics, rank correlations, and conservative sampling bounds instead (Sec.~\ref{sec:stats}). Reproducing a row means retraining from scratch, and exact software versions were not recorded (Table~\ref{tab:repro}).
 
@@ -581,6 +587,9 @@ H. Cai, J. Li, M. Hu, C. Gan, and S. Han, ``EfficientViT: lightweight multi-scal
 \bibitem{dehghani2022}
 M. Dehghani et al., ``The efficiency misnomer,'' in \textit{Int. Conf. Learn. Represent. (ICLR)} (2022), arXiv:2110.12894.
 
+\bibitem{vasu2023mobileone}
+P. K. A. Vasu et al., ``MobileOne: an improved one millisecond mobile backbone,'' in \textit{Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recognit. (CVPR)}, 7907--7917 (2023) [doi:10.1109/CVPR52729.2023.00764].
+
 \bibitem{zech2018}
 J. R. Zech et al., ``Variable generalization performance of a deep learning model to detect pneumonia in chest radiographs: a cross-sectional study,'' \textit{PLoS Med.} \textbf{15}(11), e1002683 (2018) [doi:10.1371/journal.pmed.1002683].
 
@@ -598,6 +607,24 @@ A. D'Amour et al., ``Underspecification presents challenges for credibility in m
 
 \bibitem{ovadia2019}
 Y. Ovadia et al., ``Can you trust your model's uncertainty? Evaluating predictive uncertainty under dataset shift,'' in \textit{Adv. Neural Inf. Process. Syst. (NeurIPS)} (2019), arXiv:1906.02530.
+
+\bibitem{ferreira2026}
+S. C. B. Ferreira et al., ``Assessing the efficacy of convolutional neural networks for Pap smear classification: a real world analysis,'' \textit{PeerJ Comput. Sci.} \textbf{12}, e3708 (2026) [doi:10.7717/peerj-cs.3708].
+
+\bibitem{coskun2026}
+G. Coskun, M. C. Akuner, and E. Kaplanoglu, ``Robust cell-level classification for liquid-based cervical cytology using deep transfer learning: a multi-source study addressing scanner-induced domain shifts,'' \textit{Bioengineering} \textbf{13}(3), 289 (2026) [doi:10.3390/bioengineering13030289].
+
+\bibitem{albzour2026hybrid}
+N. Albzour and S. S. Lam, ``Reliability-aware Hybrid-K ensemble selection for cervical cytology classification: integrating discrimination, calibration, and selective prediction,'' arXiv:2609.09189 (2026).
+
+\bibitem{bussola2021}
+N. Bussola et al., ``AI slipping on tiles: data leakage in digital pathology,'' in \textit{Pattern Recognition. ICPR International Workshops and Challenges, Lecture Notes in Computer Science}, 167--182 (2021) [doi:10.1007/978-3-030-68763-2\_13].
+
+\bibitem{saeb2017}
+S. Saeb et al., ``The need to approximate the use-case in clinical machine learning,'' \textit{GigaScience} \textbf{6}(5), gix019 (2017) [doi:10.1093/gigascience/gix019].
+
+\bibitem{rumala2023}
+D. J. Rumala, ``How you split matters: data leakage and subject characteristics studies in longitudinal brain MRI analysis,'' in \textit{Lecture Notes in Computer Science}, 235--245 (2023) [doi:10.1007/978-3-031-45249-9\_23].
 
 \bibitem{abnar2020quantifying}
 S. Abnar and W. Zuidema, ``Quantifying attention flow in transformers,'' in \textit{Proc. 58th Annu. Meet. Assoc. Comput. Linguist. (ACL)}, 4190--4197 (2020) [doi:10.18653/v1/2020.acl-main.385].
@@ -617,6 +644,15 @@ R. R. Selvaraju, M. Cogswell, A. Das, R. Vedantam, D. Parikh, and D. Batra, ``Gr
 \bibitem{petsiuk2018rise}
 V. Petsiuk, A. Das, and K. Saenko, ``RISE: randomized input sampling for explanation of black-box models,'' in \textit{Br. Mach. Vis. Conf. (BMVC)} (2018).
 
+\bibitem{barekatain2026}
+L. Barekatain and B. Glocker, ``Evaluating the explainability of vision transformers in medical imaging,'' in \textit{Lecture Notes in Computer Science}, 96--105 (2026) [doi:10.1007/978-3-032-17611-0\_10].
+
+\bibitem{chung2025}
+M. Chung et al., ``Evaluating visual explanations of attention maps for transformer-based medical imaging,'' in \textit{Lecture Notes in Computer Science}, 110--120 (2025) [doi:10.1007/978-3-031-77610-6\_11].
+
+\bibitem{komorowski2023}
+P. Komorowski, H. Baniecki, and P. Biecek, ``Towards evaluating explanations of vision transformers for medical imaging,'' in \textit{Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recognit. Workshops (CVPRW)}, 3726--3732 (2023) [doi:10.1109/CVPRW59228.2023.00383].
+
 \bibitem{guo2017calibration}
 C. Guo, G. Pleiss, Y. Sun, and K. Q. Weinberger, ``On calibration of modern neural networks,'' in \textit{Int. Conf. Mach. Learn. (ICML)} (2017).
 
@@ -631,6 +667,21 @@ B. Lakshminarayanan, A. Pritzel, and C. Blundell, ``Simple and scalable predicti
 
 \bibitem{sensoy2018evidential}
 M. Sensoy, L. Kaplan, and M. Kandemir, ``Evidential deep learning to quantify classification uncertainty,'' in \textit{Adv. Neural Inf. Process. Syst. (NeurIPS)} (2018).
+
+\bibitem{hagos2026}
+M. T. Hagos et al., ``Validation of conformal prediction in cervical atypia classification,'' \textit{Sci. Rep.} \textbf{16}(1), 9649 (2026) [doi:10.1038/s41598-026-44850-5].
+
+\bibitem{albzour2026selective}
+N. Albzour and S. S. Lam, ``Selective prediction and uncertainty-aware referral for Pap smear classification,'' arXiv:2609.17545 (2026).
+
+\bibitem{liu2021aspect}
+W. Liu et al., ``Is the aspect ratio of cells important in deep learning? A robust comparison of deep learning methods for multi-scale cytopathology cell image classification: from convolutional neural networks to visual transformers,'' arXiv:2105.07402 (2021).
+
+\bibitem{lima2025}
+M. V. Lima, M. H. M. Britto, and L. Britto Neto, ``Classifica\c{c}\~ao de c\'elulas cervicais cancer\'igenas com CNNs e ViTs em ensemble para aux\'ilio ao diagn\'ostico m\'edico,'' in \textit{Anais do XXV Simp\'osio Brasileiro de Computa\c{c}\~ao Aplicada \`a Sa\'ude (SBCAS)}, 497--508 (2025) [doi:10.5753/sbcas.2025.7467].
+
+\bibitem{albzour2026cancers}
+N. Albzour and S. S. Lam, ``Systematic evaluation of vision transformers for automated cervical cancer classification: optimization, statistical validation, and clinical interpretability,'' \textit{Cancers} \textbf{18}(13), 2178 (2026) [doi:10.3390/cancers18132178].
 
 \bibitem{rahaman2021}
 M. M. Rahaman et al., ``DeepCervix: a deep learning-based framework for the classification of cervical cells using hybrid deep feature fusion techniques,'' \textit{Comput. Biol. Med.} \textbf{136}, 104649 (2021) [doi:10.1016/j.compbiomed.2021.104649].
