@@ -1,131 +1,140 @@
-% Merged manuscript (paper1 + paper3) prepared for submission to the Journal of Medical Imaging (SPIE).
-% DRAFT FOR AUTHOR REVIEW. Items marked TODO(author) must be resolved before submission.
+% Merged manuscript (paper1 + paper3) prepared for the Journal of Medical Imaging (SPIE), following the
+% SPIE journal manuscript guidelines (structured abstract, 3-6 keywords, Times 12 pt, US letter, 1 in margins,
+% superscript numbered citations in order of first citation, DOIs in brackets).
+% The official class spieman.cls is not installed locally, so the specified formatting is reproduced with
+% standard packages; swap in spieman.cls at submission time if the journal portal requires it.
 %
-% TODO(author): 1. Convert to the official SPIE journal LaTeX template (spiejour); this file uses the
-%                  generic article class so it compiles anywhere.
-% TODO(author): 2. Confirm JMI's abstract format (structured Purpose/Approach/Results/Conclusions assumed),
-%                  length limit, and blind/non-blind review policy from the JMI author guidelines.
-% TODO(author): 3. Add co-authors/supervisor (if any), email, funding, conflict-of-interest, ethics and
-%                  data/code-availability statements.
-% TODO(author): 4. The reference list (28 items) is thin for a journal article; add recent medical-imaging
-%                  domain-shift, uncertainty and explainability literature. No references were invented here.
-% TODO(author): 5. Confirm each table's source run (see Section "Note on run-to-run variation").
-\documentclass[11pt]{article}
-\usepackage[margin=1in]{geometry}
+% TODO(author): confirm the abstract word limit and any JMI-specific items on the journal's author guidelines page.
+% TODO(author): add co-authors/supervisor, the department in the affiliation, funding, and any other AI tools used
+%               in the study (code, figures) to the Materials and Methods / Acknowledgments sections.
+% TODO(author): confirm the Disclosures wording and the code-availability choice (repository is currently private).
+\documentclass[12pt,letterpaper]{article}
+\usepackage[letterpaper,margin=1in]{geometry}
+\usepackage{mathptmx}
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{amsmath}
 \usepackage{url}
 \usepackage{setspace}
+\usepackage[super,comma,sort&compress]{natbib}
+\usepackage{titlesec}
+\titleformat{\section}{\fontsize{12}{14}\selectfont\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}{\fontsize{12}{14}\selectfont\itshape}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}{\fontsize{11}{13}\selectfont\itshape}{\thesubsubsection}{1em}{}
+\setlength{\parindent}{0.2in}
 \onehalfspacing
-
-\title{Trustworthiness Is Not One Property: Accuracy, Domain-Shift Robustness, Explainability, Abstention, and Deployment Cost in a Lightweight Cervical Cytology Screening Pipeline}
-\author{Md Mostafizur Rahman\\
-San Francisco Bay University, Fremont, California, USA\\
-ORCID: 0009-0007-2022-8677}
-\date{}
+\renewcommand{\bibnumfmt}[1]{#1.}
+\setlength{\bibsep}{2pt}
 
 \begin{document}
-\maketitle
 
-\begin{abstract}
-\noindent\textbf{Purpose.}
-Lightweight vision transformers are proposed for automated cervical cytology screening, but ``trustworthy AI'' is usually evaluated as one property that a pipeline has or lacks. We test whether accuracy, domain-shift robustness, explainability, selective prediction, and deployment cost agree with each other on one cervical cytology pipeline.
+\begin{flushleft}
+{\fontsize{16}{19}\selectfont\bfseries Trustworthiness is not one property: accuracy, domain-shift robustness, explainability, abstention, and deployment cost in a lightweight cervical cytology screening pipeline\par}
+\vspace{18pt}
+{\fontsize{12}{14}\selectfont\bfseries Md Mostafizur Rahman$^{*}$\par}
+\vspace{4pt}
+{\fontsize{10}{12}\selectfont San Francisco Bay University, Fremont, California, United States\par} % TODO(author): add department and street address
+\end{flushleft}
 
-\noindent\textbf{Approach.}
-We benchmarked 12 CNN, full-size vision transformer, and efficient vision transformer models on SIPaKMeD, then evaluated all 12 zero-shot on three external cytology datasets (Herlev, Mendeley LBC, APCEM) harmonized to a binary normal/abnormal label. On a standard vision transformer, we compared three explainability methods against deletion/insertion faithfulness and expert-annotated nucleus boundaries, tested a combined confidence and conformal-set-size abstention rule, and measured parameters, FLOPs, CPU latency, and explanation cost.
-
-\noindent\textbf{Results.}
-The two smallest models (about 2.1M parameters) were the most accurate in distribution, but in-distribution accuracy did not predict robustness: the in-distribution leader ranked 10th of 12 on both Herlev and Mendeley LBC in the primary run, and on APCEM 9 of 12 models fell below chance AUROC. No measured static property predicted which model failed safely, and rankings changed across training seeds and datasets. Relevancy propagation was the most faithful explainability method on all three metrics and on a second backbone (nucleus concentration 2.71$\times$ chance versus 1.18$\times$ for attention rollout). Combining confidence with conformal set size helped only under severe shift (risk-coverage AUC 0.286 versus 0.324) and hurt in distribution and under mild shift. FLOPs did not predict CPU latency, and an explanation cost about 3.3$\times$ a bare prediction.
-
-\noindent\textbf{Conclusions.}
+{\fontsize{10}{12}\selectfont
+\noindent\textbf{Abstract.}\ \textbf{Purpose:}
+Lightweight vision transformers are proposed for automated cervical cytology screening, but ``trustworthy AI'' is usually evaluated as one property that a pipeline has or lacks. We tested whether accuracy, domain-shift robustness, explainability, selective prediction, and deployment cost agree with one another on one cervical cytology pipeline.
+\textbf{Approach:}
+We benchmarked 12 convolutional, full-size transformer, and efficient transformer models on SIPaKMeD and evaluated all 12 zero-shot on three external cytology datasets (Herlev, Mendeley LBC, APCEM) harmonized to a binary normal/abnormal label. On a standard vision transformer, we compared three explainability methods against deletion/insertion faithfulness and expert-annotated nucleus boundaries, tested a combined confidence and conformal-set-size abstention rule, and measured parameters, floating-point operations (FLOPs), central processing unit (CPU) latency, and explanation cost.
+\textbf{Results:}
+The two smallest models (about 2.1M parameters) were the most accurate in distribution, but in-distribution accuracy did not predict robustness: the in-distribution leader ranked 10th of 12 on both Herlev and Mendeley LBC in the primary run, and on APCEM 9 of 12 models fell below chance on the area under the receiver operating characteristic curve. No measured static property predicted which model failed safely, and rankings changed across training seeds and datasets. Relevancy propagation was the most faithful explainability method on all three metrics and on a second backbone (nucleus concentration 2.71 times chance versus 1.18 times for attention rollout). Combining confidence with conformal set size helped only under severe shift (risk-coverage area under the curve 0.286 versus 0.324) and hurt in distribution and under mild shift. FLOPs did not predict CPU latency, and an explanation cost about 3.3 times a bare prediction.
+\textbf{Conclusions:}
 Accuracy, robustness, explainability, abstention, and efficiency resolved differently on the same pipeline, so each needs its own test under the conditions of intended deployment.
 
 \medskip
-\noindent\textbf{Keywords:} cervical cytology, vision transformers, domain shift, explainability, selective prediction, conformal prediction, model efficiency
-\end{abstract}
+\noindent\textbf{Keywords:} cervical cytology, vision transformers, domain shift, explainability, selective prediction, model efficiency.
+
+\medskip
+\noindent$^{*}$Md Mostafizur Rahman, csemrm@gmail.com
+}
+
 
 \section{Introduction}
 \label{sec:intro}
 
-Cervical cancer is substantially more curable when detected at a localized stage, yet access to screening is uneven across rural and urban U.S. counties, and specialist cytology capacity is limited in many settings. A growing literature proposes vision transformers, often marketed as efficient or lightweight variants, as classification backbones for automated cytology screening. Such a tool is only useful if it fails visibly rather than silently: a model that misclassifies confidently under conditions its training data did not cover is more dangerous than one that abstains.
+Cervical cancer remains a significant cause of cancer morbidity and mortality worldwide\cite{sung2021} and is substantially more curable when detected at a localized stage, yet access to screening is uneven across rural and urban U.S. counties, and specialist cytology capacity is limited in many settings. A growing literature proposes vision transformers (ViTs), often marketed as efficient or lightweight variants, as classification backbones for automated cytology screening. Such a tool is only useful if it fails visibly rather than silently: a model that misclassifies confidently under conditions its training data did not cover is more dangerous than one that abstains.
 
 ``Trustworthy AI'' is usually evaluated as if it were a single property. In practice a screening pipeline makes at least five separable claims: (i) a lightweight model gives up little accuracy; (ii) its accuracy transfers across institutions, scanners, and staining protocols; (iii) its explanations are faithful; (iv) its confidence supports a reliable abstention rule; and (v) its efficiency claim holds under real measurement. A reader might reasonably assume that these resolve alike, so that testing one is enough. We test them side by side on one cervical cytology pipeline and ask whether they do.
 
 We make four contributions.
 \begin{enumerate}
-\item \textbf{Efficiency--accuracy benchmark.} A 12-model benchmark on SIPaKMeD spanning CNN, full-size vision transformer, and efficient vision transformer families, in which the two most parameter-efficient models are also the most accurate in distribution.
-\item \textbf{Domain-shift evaluation.} A zero-shot evaluation of all 12 models on three independently sourced external datasets (Herlev, Mendeley LBC, APCEM), together with a three-seed sensitivity check, showing that in-distribution accuracy, parameter count, FLOPs, and architecture family do not reliably predict which model fails safely, and that even apparent family-level patterns do not survive a third dataset or a change of seed.
+\item \textbf{Efficiency--accuracy benchmark.} A 12-model benchmark on SIPaKMeD spanning convolutional neural network (CNN), full-size vision transformer, and efficient vision transformer families, in which the two most parameter-efficient models are also the most accurate in distribution.
+\item \textbf{Domain-shift evaluation.} A zero-shot evaluation of all 12 models on three independently sourced external datasets (Herlev, Mendeley LBC, APCEM), together with a three-seed sensitivity check, showing that in-distribution accuracy, parameter count, floating-point operations (FLOPs), and architecture family do not reliably predict which model fails safely, and that even apparent family-level patterns do not survive a third dataset or a change of seed.
 \item \textbf{Explainability and abstention.} A comparison of relevancy propagation, attention rollout, and Grad-CAM against behavioral faithfulness and expert-annotated nucleus boundaries, replicated on a second backbone, and a test of whether combining temperature-scaled confidence with conformal prediction-set size improves selective prediction.
-\item \textbf{Measured deployment cost.} A measurement of parameters, FLOPs, CPU latency, and explanation cost, showing that FLOPs do not predict latency and that returning an explanation costs roughly 3.3 times a bare prediction.
+\item \textbf{Measured deployment cost.} A measurement of parameters, FLOPs, central processing unit (CPU) latency, and explanation cost, showing that FLOPs do not predict latency and that returning an explanation costs roughly 3.3 times a bare prediction.
 \end{enumerate}
 The properties resolve differently: explainability method choice resolves cleanly, abstention composition resolves conditionally on shift severity, and robustness and efficiency resolve only under direct measurement. This divergence, rather than any single result, is the central finding, and it is visible only because the properties are tested jointly on one fixed pipeline.
 
 \section{Related Work}
 \label{sec:related}
 
-\subsection{Efficient vision transformers}
-Efficiency-oriented transformer variants fall into several loose lineages. Hybrid local--global designs (MobileViT \cite{mehta2022mobilevit}, MobileViTv2 \cite{mehta2022mobilevitv2}) interleave convolutional stages with transformer blocks. Distillation-oriented designs (DeiT \cite{touvron2021deit}) keep a standard ViT backbone \cite{dosovitskiy2021vit} but reach competitive accuracy with far less pretraining data. Hardware-aware designs (LeViT \cite{graham2021levit}, TinyViT \cite{wu2022tinyvit}) reintroduce convolutional stages to improve real-device latency rather than FLOP count alone. EfficientViT-M0 and EfficientViT-B0, the two smallest models in our registry, are often assumed to share a lineage because \texttt{timm} groups their tags; verified directly, they do not. EfficientViT-M0 uses cascaded group attention \cite{liu2023efficientvit}, whereas EfficientViT-B0 belongs to an unrelated lineage built on multi-scale linear attention for dense prediction \cite{cai2023efficientvit}. These design papers do not evaluate cross-institution domain shift as part of their efficiency claims, so efficiency and robustness are treated as unrelated properties.
+\subsection{Efficient Vision Transformers}
+Efficiency-oriented transformer variants fall into several loose lineages. Hybrid local--global designs (MobileViT\cite{mehta2022mobilevit}, MobileViTv2\cite{mehta2022mobilevitv2}) interleave convolutional stages with transformer blocks. Distillation-oriented designs (DeiT\cite{touvron2021deit}) keep a standard ViT backbone\cite{dosovitskiy2021vit} but reach competitive accuracy with far less pretraining data. Hardware-aware designs (LeViT\cite{graham2021levit}, TinyViT\cite{wu2022tinyvit}) reintroduce convolutional stages to improve real-device latency rather than FLOP count alone. EfficientViT-M0 and EfficientViT-B0, the two smallest models in our registry, are often assumed to share a lineage because \texttt{timm} groups their tags; verified directly, they do not. EfficientViT-M0 uses cascaded group attention\cite{liu2023efficientvit}, whereas EfficientViT-B0 belongs to an unrelated lineage built on multi-scale linear attention for dense prediction\cite{cai2023efficientvit}. These design papers do not evaluate cross-institution domain shift as part of their efficiency claims, so efficiency and robustness are treated as unrelated properties. Parameter count, FLOPs, and measured speed are also known to disagree as cost indicators.\cite{dehghani2022}
 
-\subsection{Domain shift and model selection in medical imaging}
-A general medical-imaging literature documents that models selected on held-out in-distribution data can degrade under real distribution shift across scanners, sites, and populations, motivating external validation. That literature typically evaluates one or a few architectures. We instead sweep CNN, full-size transformer, and efficient transformer families at matched task and data scale and ask whether any measurable static model property predicts which model degrades least.
+\subsection{Domain Shift and Model Selection in Medical Imaging}
+A general medical-imaging literature documents that models selected on held-out in-distribution data can degrade under real distribution shift across scanners, sites, and populations,\cite{zech2018,guan2022} motivating external validation. Benchmarks of real-world distribution shift,\cite{koh2021} work on shortcut learning,\cite{geirhos2020} and work on underspecification\cite{damour2020} show why in-distribution accuracy can be a poor guide: models that perform equivalently on held-out data can behave differently once the data change. Predictive uncertainty also degrades under shift.\cite{ovadia2019} That literature typically evaluates one or a few architectures. We instead sweep CNN, full-size transformer, and efficient transformer families at matched task and data scale and ask whether any measurable static model property predicts which model degrades least.
 
-\subsection{Transformer explainability and faithfulness}
-Attention rollout \cite{abnar2020quantifying} chains attention weights across layers as a relevance signal, a premise contested in the literature on whether attention is a faithful explanation. Relevancy propagation \cite{chefer2021transformer} weights each block's attention by its gradient with respect to the target class, making the map class-discriminative. Grad-CAM \cite{selvaraju2017gradcam} was designed for convolutional feature maps and is commonly adapted to transformers by targeting a block's token activations. Deletion/insertion faithfulness \cite{petsiuk2018rise} measures the effect of removing or revealing the regions an explanation marks as important on the model's own prediction. Evaluating localization against SIPaKMeD's expert-marked nucleus polygons avoids compounding the evaluation with a second model's errors.
+\subsection{Transformer Explainability and Faithfulness}
+Attention rollout\cite{abnar2020quantifying} chains attention weights across layers as a relevance signal, a premise contested in the literature on whether attention is an explanation.\cite{jain2019,wiegreffe2019} Relevancy propagation\cite{chefer2021transformer} weights each block's attention by its gradient with respect to the target class, making the map class-discriminative. Grad-CAM\cite{selvaraju2017gradcam} was designed for convolutional feature maps and is commonly adapted to transformers by targeting a block's token activations. Deletion/insertion faithfulness\cite{petsiuk2018rise} measures the effect of removing or revealing the regions an explanation marks as important on the model's own prediction. Evaluating localization against SIPaKMeD's expert-marked nucleus polygons avoids compounding the evaluation with a second model's errors.
 
-\subsection{Selective prediction and calibration}
-Temperature scaling \cite{guo2017calibration} calibrates confidence on a held-out split. Split conformal prediction gives a distribution-free coverage guarantee from a single calibration split, and its prediction-set size is a model-agnostic but coarse uncertainty proxy. MC Dropout \cite{gal2016dropout}, deep ensembles \cite{lakshminarayanan2017ensembles}, and evidential deep learning \cite{sensoy2018evidential} are alternative uncertainty signals that we do not evaluate here. To our knowledge, whether composing temperature-scaled confidence with conformal set size improves an abstention rule is not directly addressed by work that proposes either signal independently.
+\subsection{Selective Prediction and Calibration}
+Temperature scaling\cite{guo2017calibration} calibrates confidence on a held-out split. Split conformal prediction gives a distribution-free coverage guarantee from a single calibration split,\cite{angelopoulos2023} and its prediction-set size is a model-agnostic but coarse uncertainty proxy. MC Dropout\cite{gal2016dropout}, deep ensembles\cite{lakshminarayanan2017ensembles}, and evidential deep learning\cite{sensoy2018evidential} are alternative uncertainty signals that we do not evaluate here. To our knowledge, whether composing temperature-scaled confidence with conformal set size improves an abstention rule is not directly addressed by work that proposes either signal independently.
 
-\subsection{Adjacent cervical and clinical-AI work}
-Adjacent work includes a stacking-ensemble approach with explainable AI for cervical cancer diagnosis \cite{mohiuddin2025}, which we differ from by evaluating explainability against expert-annotated localization and behavioral faithfulness and by jointly evaluating efficiency and real cross-institution shift. A lightweight transformer with cross-scale attention and explainability for plant disease diagnosis \cite{rahman2026maizeformerx} motivates our treatment of efficiency and explainability as joint design goals, and two further papers address explainable clinical AI in other domains \cite{gony2026retinal,ahmed2026postsurgical}.
+\subsection{Adjacent Cervical and Clinical-AI Work}
+Adjacent work includes hybrid deep feature fusion for cervical cell classification\cite{rahaman2021} and a stacking-ensemble approach with explainable AI for cervical cancer diagnosis,\cite{mohiuddin2025} which we differ from by evaluating explainability against expert-annotated localization and behavioral faithfulness and by jointly evaluating efficiency and real cross-institution shift. A lightweight transformer with cross-scale attention and explainability for plant disease diagnosis\cite{rahman2026maizeformerx} motivates our treatment of efficiency and explainability as joint design goals, and two further papers address explainable clinical AI in other domains\cite{gony2026retinal,ahmed2026postsurgical}.
 
 \section{Materials and Methods}
 \label{sec:methods}
 
 \subsection{Datasets}
 \label{sec:datasets}
-All models were trained on SIPaKMeD \cite{plissiti2018sipakmed}: 4,049 native-resolution single-cell crops derived from the dataset's own cytoplasm-polygon annotations, in five cytomorphology classes. External evaluation used Herlev \cite{jantzen2005herlev}, Mendeley LBC \cite{hussain2020mendeley}, and the APCEM-Enhanced Cervical Cytology Pap Smear Image Dataset \cite{aswini2026apcem} (4,253 images in the six-class Bethesda taxonomy: NILM, ASC-US, ASC-H, LSIL, HSIL, SSC). Because the four datasets use different label taxonomies, all were harmonized to one shared binary normal/abnormal label (for APCEM, NILM normal and all five atypical or dysplastic classes abnormal). The three external datasets differ from SIPaKMeD and from each other in acquisition pipeline, institution, and label granularity, so each is an independent test of generalization rather than a synthetic corruption of the same source images.
+All data are from publicly available, previously published image datasets, and no new patient data were collected. All models were trained on SIPaKMeD\cite{plissiti2018sipakmed}: 4,049 native-resolution single-cell crops derived from the dataset's own cytoplasm-polygon annotations, in five cytomorphology classes. External evaluation used Herlev\cite{jantzen2005herlev}, Mendeley LBC\cite{hussain2020mendeley}, and the APCEM-Enhanced Cervical Cytology Pap Smear Image Dataset\cite{aswini2026apcem} (4,253 images in the six-class Bethesda taxonomy, with dataset class labels NILM, ASC-US, ASC-H, LSIL, HSIL, and SSC). Because the four datasets use different label taxonomies, all were harmonized to one shared binary normal/abnormal label (for APCEM, NILM normal and all five atypical or dysplastic classes abnormal). The three external datasets differ from SIPaKMeD and from each other in acquisition pipeline, institution, and label granularity, so each is an independent test of generalization rather than a synthetic corruption of the same source images.
 
-\subsection{Model registry}
+\subsection{Model Registry}
 \label{sec:registry}
-Twelve models spanning three families were evaluated: CNN baselines (ResNet-50 \cite{he2016resnet}, MobileNetV2 \cite{sandler2018mobilenetv2}, EfficientNet-Lite0 \cite{tan2019efficientnet}); full-size vision transformers (ViT-Small \cite{dosovitskiy2021vit}, Swin-Tiny \cite{liu2021swin}); and efficient or mobile-oriented vision transformers (DeiT-Tiny \cite{touvron2021deit}, LeViT-128 \cite{graham2021levit}, TinyViT-5M \cite{wu2022tinyvit}, MobileViT-S \cite{mehta2022mobilevit}, MobileViTv2 \cite{mehta2022mobilevitv2}, EfficientViT-B0 \cite{cai2023efficientvit}, EfficientViT-M0 \cite{liu2023efficientvit}). All \texttt{timm} tags were verified against the pinned \texttt{timm} version, and the two EfficientViT variants' source papers were confirmed against \texttt{timm}'s model cards rather than inferred from the shared tag prefix.
+Twelve models spanning three families were evaluated: CNN baselines (ResNet-50\cite{he2016resnet}, MobileNetV2\cite{sandler2018mobilenetv2}, EfficientNet-Lite0\cite{tan2019efficientnet}); full-size vision transformers (ViT-Small\cite{dosovitskiy2021vit}, Swin-Tiny\cite{liu2021swin}); and efficient or mobile-oriented vision transformers (DeiT-Tiny\cite{touvron2021deit}, LeViT-128\cite{graham2021levit}, TinyViT-5M\cite{wu2022tinyvit}, MobileViT-S\cite{mehta2022mobilevit}, MobileViTv2\cite{mehta2022mobilevitv2}, EfficientViT-B0\cite{cai2023efficientvit}, EfficientViT-M0\cite{liu2023efficientvit}). All \texttt{timm} tags were verified against the pinned \texttt{timm} version, and the two EfficientViT variants' source papers were confirmed against \texttt{timm}'s model cards rather than inferred from the shared tag prefix.
 
-\subsection{Training and in-distribution evaluation}
+\subsection{Training and In-Distribution Evaluation}
 \label{sec:training}
-Models were trained on SIPaKMeD with a 60/15/10/15 train/validation/calibration/test split, seed 13, a 30-epoch budget with early stopping (patience 7), on a single GPU. We report balanced accuracy, macro F1, AUROC, and parameter count. Evaluation stages were run as separate training and evaluation runs (see Section~\ref{sec:runvar}).
+Models were trained on SIPaKMeD with a 60/15/10/15 train/validation/calibration/test split, seed 13, a 30-epoch budget with early stopping (patience 7), on a single graphics processing unit (GPU). We report balanced accuracy, macro F1, the area under the receiver operating characteristic curve (AUROC), and parameter count. Evaluation stages were run as separate training and evaluation runs (see Sec.~\ref{sec:runvar}).
 
-\subsection{Cross-dataset domain-shift evaluation}
+\subsection{Cross-Dataset Domain-Shift Evaluation}
 \label{sec:shift}
 Each model was evaluated zero-shot on Herlev, Mendeley LBC, and APCEM, with no retraining or recalibration, after label harmonization. To measure how much individual rankings depend on the training run, all 12 models were additionally retrained at two further seeds (17 and 29) and evaluated zero-shot on all three external datasets from a single checkpoint per model per seed.
 
-\subsection{Explainability backbone and methods}
+\subsection{Explainability Backbone and Methods}
 \label{sec:xai-methods}
-Relevancy propagation and attention rollout are defined for standard multi-head self-attention blocks, and EfficientViT-M0 has no established propagation rule for either. Rather than force an ad hoc extension, the explainability and abstention experiments use \textbf{DeiT-Tiny}, a standard \texttt{timm} \texttt{VisionTransformer} that reached 0.9606 balanced accuracy in the benchmark (Section~\ref{sec:bench}), retrained for these experiments. All three methods produce a relevance map over the 14$\times$14 patch grid (224-pixel input, 16-pixel patches), upsampled to image resolution.
+Relevancy propagation and attention rollout are defined for standard multi-head self-attention blocks, and EfficientViT-M0 has no established propagation rule for either. Rather than force an ad hoc extension, the explainability and abstention experiments use \textbf{DeiT-Tiny}, a standard \texttt{timm} \texttt{VisionTransformer} that reached 0.9606 balanced accuracy in the benchmark (Sec.~\ref{sec:bench}), retrained for these experiments. All three methods produce a relevance map over the 14$\times$14 patch grid (224-pixel input, 16-pixel patches), upsampled to image resolution.
 \emph{Attention rollout}: raw softmax attention averaged over heads and chained across all 12 blocks; class-agnostic.
 \emph{Relevancy propagation}: the same rollout recurrence, with each block's contribution equal to $\mathrm{ReLU}(\nabla_{\text{attn}} \odot \text{attn})$ averaged over heads, where the gradient is taken with respect to the model's predicted-class logit; class-discriminative.
-\emph{Grad-CAM (ViT-adapted)}: gradient-weighted channel importance applied to a transformer block's token activations. The target layer must be the \emph{second-to-last} block: DeiT-Tiny pools only the CLS token, so no layer after the final block mixes information back into patch positions. We verified this directly: every patch token's gradient at the last block's output was exactly zero, whereas the second-to-last block's patch-token gradients vary normally. Targeting the wrong block therefore yields an all-zero heatmap silently, not an error.
+\emph{Grad-CAM (ViT-adapted)}: gradient-weighted channel importance applied to a transformer block's token activations. The target layer must be the \emph{second-to-last} block: DeiT-Tiny pools only the classification (CLS) token, so no layer after the final block mixes information back into patch positions. We verified this directly: every patch token's gradient at the last block's output was exactly zero, whereas the second-to-last block's patch-token gradients vary normally. Targeting the wrong block therefore yields an all-zero heatmap silently, not an error.
 
-\subsection{Faithfulness and localization metrics}
+\subsection{Faithfulness and Localization Metrics}
 \label{sec:xai-metrics}
-\emph{Deletion/insertion AUC} \cite{petsiuk2018rise}: patches are ranked by a method's own relevance score and progressively replaced with (deletion) or revealed from (insertion) a heavily Gaussian-blurred copy of the image, tracking the predicted-class probability; we report the area under the probability-versus-fraction curve (lower is better for deletion, higher for insertion).
+\emph{Deletion/insertion area under the curve (AUC)}\cite{petsiuk2018rise}: patches are ranked by a method's own relevance score and progressively replaced with (deletion) or revealed from (insertion) a heavily Gaussian-blurred copy of the image, tracking the predicted-class probability; we report the area under the probability-versus-fraction curve (lower is better for deletion, higher for insertion).
 \emph{Nucleus concentration ratio}: SIPaKMeD provides expert-marked nucleus boundary polygons per cell, which we persist in crop-local pixel coordinates. The ratio is the fraction of a heatmap's total relevance mass inside the nucleus divided by the nucleus's share of image area. A ratio of 1.0 is exactly chance, and higher values mean relevance concentrates in the nucleus more than chance would predict, which is clinically the correct place to concentrate.
 
-\subsection{Calibration, conformal prediction, and the combined abstention signal}
+\subsection{Calibration, Conformal Prediction, and the Combined Abstention Signal}
 \label{sec:selective-methods}
-Temperature scaling \cite{guo2017calibration} was fit on a calibration split disjoint from training and test data. Conformal prediction sets were built with a resampling-averaged split-conformal threshold. The combined selective-prediction signal rank-normalizes temperature-scaled max-softmax confidence and (inverted) conformal prediction-set size independently, then averages the ranks. Selective prediction was scored by risk-coverage AUC (lower is better) in distribution, on Herlev (moderate shift), and on Mendeley LBC (severe shift). The shift labels reflect the observed degradation of DeiT-Tiny on these datasets (Table~\ref{tab:shift12}).
+Temperature scaling\cite{guo2017calibration} was fit on a calibration split disjoint from training and test data. Conformal prediction sets were built with a resampling-averaged split-conformal threshold. The combined selective-prediction signal rank-normalizes temperature-scaled max-softmax confidence and (inverted) conformal prediction-set size independently, then averages the ranks. Selective prediction was scored by risk-coverage AUC (lower is better) in distribution, on Herlev (moderate shift), and on Mendeley LBC (severe shift). The shift labels reflect the observed degradation of DeiT-Tiny on these datasets (Table~\ref{tab:shift12}).
 
-\subsection{Efficiency and latency measurement}
+\subsection{Efficiency and Latency Measurement}
 \label{sec:eff-methods}
 Parameters and FLOPs (via \texttt{torch.utils.flop\_counter.FlopCounterMode}, counting a multiply-add as two FLOPs) are architecture properties independent of trained weights, so they were measured without training. CPU latency (single-image batch, median of 30 iterations after 5 warm-up iterations) and memory (isolated per model in its own subprocess) were likewise measured with untrained weights, on one shared consumer laptop. The cost of an explanation was measured as a full forward, backward, and rollout pass for relevancy propagation's own predicted-class explanation against a bare forward pass, both on CPU. Robustness to synthetic degradation (JPEG compression, Gaussian blur, brightness/contrast shift at five severities each) and a synthetic out-of-distribution (OOD) sanity check (25 images of noise, solid colors, and checkerboards) were run on a freshly trained EfficientViT-M0.
 
-\subsection{Note on run-to-run variation}
+\subsection{Note on Run-to-Run Variation}
 \label{sec:runvar}
-In-distribution accuracy of the same model differs slightly between tables (for example, EfficientViT-M0: 0.9654 in Table~\ref{tab:bench}, 0.9737 in Table~\ref{tab:shift12}, 0.9621 in Table~\ref{tab:apcem}, and about 0.975 in the degradation experiment) because the evaluation stages were run as separate training and evaluation runs; at least the degradation experiment used a different random train/validation split. Comparisons are therefore valid within a table, not across tables. % TODO(author): confirm the cause for Tables 1, 2 and 3.
+In-distribution accuracy of the same model differs slightly between tables (for example, EfficientViT-M0: 0.9654 in Table~\ref{tab:bench}, 0.9737 in Table~\ref{tab:shift12}, 0.9621 in Table~\ref{tab:apcem}, and about 0.975 in the degradation experiment). The benchmark, the Herlev and Mendeley LBC evaluation, and the APCEM evaluation each used the identical recipe and seed (13), but each model was trained afresh in a separate session for each stage, and GPU training is not bit-reproducible; we attribute the differences to ordinary retraining variance. For example, ViT-Small's Herlev score was 0.7194 in a partially lost earlier run and 0.7049 in the retrained run. The degradation experiment additionally used a different random train/validation split. Comparisons are therefore valid within a table, not across tables.
 
 \section{Results}
 \label{sec:results}
 
-\subsection{Efficiency--accuracy benchmark}
+\subsection{Efficiency--Accuracy Benchmark}
 \label{sec:bench}
 
 \begin{table}[htbp]
@@ -152,7 +161,7 @@ MobileNetV2 & 0.9357 & 0.9365 & 0.9952 & 2{,}230{,}277 \\
 \end{tabular}
 \end{table}
 
-The two smallest models in the registry were also the two most accurate (Table~\ref{tab:bench}, Fig.~\ref{fig:params-vs-acc}). EfficientViT-M0 exceeded the three large baselines, Swin-Tiny (27.5M parameters), ResNet-50 (23.5M), and ViT-Small (21.7M), by 0.5, 1.1, and 2.8 points of balanced accuracy respectively. On this task, at this data scale, the efficiency--accuracy trade-off does not appear in distribution. This is a single-seed result: the seed check in Section~\ref{sec:seeds} shows that the specific ordering at the top of Table~\ref{tab:bench} is not stable across seeds.
+The two smallest models in the registry were also the two most accurate (Table~\ref{tab:bench}, Fig.~\ref{fig:params-vs-acc}). EfficientViT-M0 exceeded the three large baselines, Swin-Tiny (27.5M parameters), ResNet-50 (23.5M), and ViT-Small (21.7M), by 0.5, 1.1, and 2.8 points of balanced accuracy respectively. On this task, at this data scale, the efficiency--accuracy trade-off does not appear in distribution. This is a single-seed result: the seed check in Sec.~\ref{sec:seeds} shows that the specific ordering at the top of Table~\ref{tab:bench} is not stable across seeds.
 
 \begin{figure}[htbp]
 \centering
@@ -161,7 +170,7 @@ The two smallest models in the registry were also the two most accurate (Table~\
 \label{fig:params-vs-acc}
 \end{figure}
 
-\subsection{Cross-dataset domain shift}
+\subsection{Cross-Dataset Domain Shift}
 \label{sec:shiftresults}
 
 \begin{table}[htbp]
@@ -189,13 +198,13 @@ MobileViT-S (eff.\ ViT, 4.94M) & 0.9520 & 0.7104 & \textbf{0.2927} (AUROC 0.215)
 \end{tabular}
 \end{table}
 
-\paragraph{In-distribution accuracy does not predict robustness.}
+\subsubsection{In-distribution accuracy does not predict robustness}
 The two most accurate models in distribution in this run (EfficientViT-B0, 0.9738, and EfficientViT-M0, 0.9737) ranked 9th and 10th of 12 on Herlev and 6th and 10th of 12 on Mendeley LBC (Table~\ref{tab:shift12}). The comparison of EfficientViT-M0 with DeiT-Tiny is the sharpest case: the better in-distribution model (0.9737 versus 0.9504) was worse under both shifts (Herlev 0.6716 versus 0.7151; Mendeley LBC 0.4731 versus 0.5230, below the 0.50 chance floor). The same reversal appeared on APCEM (Table~\ref{tab:apcem}), where EfficientViT-M0 again scored lower under shift than DeiT-Tiny (0.3730 versus 0.4469) despite higher in-distribution accuracy (0.9621 versus 0.9589).
 
-\paragraph{A family-level pattern appears on Mendeley LBC.}
-All three CNNs scored 0.539--0.667, and eight of the nine transformer-family models scored 0.293--0.523. The ninth, MobileViTv2, scored 0.5418, above the lowest CNN (0.5391) by 0.003, a gap the seed check shows is noise (Section~\ref{sec:seeds}). The split does not hold on Herlev, where transformer models occupy both the best (MobileViTv2, TinyViT-5M) and the weakest (LeViT-128) positions.
+\subsubsection{A family-level pattern appears on Mendeley LBC}
+All three CNNs scored 0.539--0.667, and eight of the nine transformer-family models scored 0.293--0.523. The ninth, MobileViTv2, scored 0.5418, above the lowest CNN (0.5391) by 0.003, a gap the seed check shows is noise (Sec.~\ref{sec:seeds}). The split does not hold on Herlev, where transformer models occupy both the best (MobileViTv2, TinyViT-5M) and the weakest (LeViT-128) positions.
 
-\paragraph{Architecture lineage does not predict robustness.}
+\subsubsection{Architecture lineage does not predict robustness}
 MobileViT-S collapsed on Mendeley LBC (balanced accuracy 0.2927, AUROC 0.215), meaning its predictions were anti-correlated with the ground truth, not merely uninformative. Its direct successor MobileViTv2 shows no such failure and was the strongest model in the registry on Herlev (0.7501).
 
 \begin{figure}[htbp]
@@ -230,7 +239,7 @@ ResNet-50 (CNN, 23.5M) & 0.9639 & \textbf{0.3339} & 0.2929 \\
 \end{tabular}
 \end{table}
 
-\paragraph{A third dataset overturns the family-level pattern.}
+\subsubsection{A third dataset overturns the family-level pattern}
 On APCEM, 9 of 12 models fell below 0.50 on both balanced accuracy and AUROC (Table~\ref{tab:apcem}). Only MobileNetV2 (0.6158 balanced accuracy, AUROC 0.6528), EfficientNet-Lite0 (0.5393, 0.5701), and LeViT-128 (0.5263, 0.5376) scored above chance, and MobileNetV2 was the clear best. The CNN family spans both the best model (MobileNetV2) and the model with the lowest balanced accuracy (ResNet-50, 0.3339; AUROC 0.2929, second-lowest of the 12). The CNN-family robustness seen on Mendeley LBC therefore does not survive a third, independently sourced dataset.
 
 \begin{figure}[htbp]
@@ -240,23 +249,23 @@ On APCEM, 9 of 12 models fell below 0.50 on both balanced accuracy and AUROC (Ta
 \label{fig:apcem-shift}
 \end{figure}
 
-\subsection{Seed sensitivity}
+\subsection{Seed Sensitivity}
 \label{sec:seeds}
-Each headline model was trained once at seed 13. We measured seed-to-seed variance directly for two close-ranked pairs at two further seeds (17 and 29), and then extended the check to all 12 models on all three external datasets.
+Variance across random seeds is a known threat to benchmark conclusions.\cite{picard2021,bouthillier2021} Each headline model was trained once at seed 13. We measured seed-to-seed variance directly for two close-ranked pairs at two further seeds (17 and 29), and then extended the check to all 12 models on all three external datasets.
 
-\paragraph{Close calls can go either way.}
+\subsubsection{Close calls can go either way}
 On Mendeley LBC, MobileViTv2's 0.003 edge over MobileNetV2 (0.5418 versus 0.5391) does not survive: MobileNetV2 ranges 0.493--0.604 and MobileViTv2 ranges 0.494--0.623 across the three seeds, the ranges overlap almost completely, and the ranking flips at seed 17. On APCEM, EfficientViT-B0's 0.001 edge over DeiT-Tiny (0.4481 versus 0.4469) does survive: EfficientViT-B0 ranges 0.421--0.448, DeiT-Tiny ranges 0.367--0.447, EfficientViT-B0 wins at all three seeds, and its margin widens (to 0.027, then 0.067). The same kind of close call produced opposite outcomes once tested.
 
-\paragraph{The Mendeley LBC family split is seed-specific.}
+\subsubsection{The Mendeley LBC family split is seed-specific}
 At seed 13 only 1 of 9 transformer-family models exceeds the weakest CNN (by 0.003). At seed 17, 3 of 9 do, and at seed 29, 4 of 9 do, by margins up to 0.11.
 
-\paragraph{The in-distribution leader is not reliably the robustness loser.}
+\subsubsection{The in-distribution leader is not reliably the robustness loser}
 EfficientViT-M0 is the (near-)in-distribution leader and ranks 10th of 12 on both Herlev and Mendeley LBC at seed 13. At seed 29 it is the outright in-distribution winner and mid-pack under shift on both datasets (rank 4--5 of 12), and at seed 17 it is not even the in-distribution winner (rank 10 of 12). It should be read as a seed-13 illustration rather than a reproducible property of that model. The general claim it illustrates, that no static property predicts shift robustness, is unaffected, and a poster-child example that itself varies by seed is one more demonstration of that unreliability.
 
-\paragraph{Some findings replicate cleanly.}
+\subsubsection{Some findings replicate cleanly}
 Herlev's inverse pattern (most transformer models outscoring the CNNs) and MobileNetV2's status as the strongest model on APCEM both replicate across all three seeds.
 
-\subsection{Explainability fidelity}
+\subsection{Explainability Fidelity}
 \label{sec:xai-results}
 
 \begin{table}[htbp]
@@ -283,7 +292,7 @@ Attention rollout & 0.825 & 0.936 & 1.177 \\
 
 Relevancy propagation won every comparison (Table~\ref{tab:xai}), by a wide margin on nucleus concentration (2.71 times chance versus attention rollout's 1.18 times, barely above chance). We attribute this to a mechanistic difference rather than noise: attention rollout is class-agnostic, a disadvantage on an inherently class-discriminative test, whereas relevancy propagation is class-discriminative and integrates the gradient-weighted signal across all twelve blocks.
 
-\paragraph{Second backbone.}
+\subsubsection{Second backbone}
 This single-backbone result rested on DeiT-Tiny, so we repeated the comparison on ViT-Small, a structurally identical \texttt{VisionTransformer} (same \texttt{global\_pool="token"}, \texttt{num\_prefix\_tokens=1}, 12 blocks, verified directly), trained fresh with the same recipe and seed.
 
 \begin{table}[htbp]
@@ -305,7 +314,7 @@ Attn.\ rollout & 0.825 & 0.936 & 1.18 & 0.888 & 0.927 & 0.97 \\
 
 The ranking replicated exactly (Table~\ref{tab:xai-vits}): relevancy propagation wins all three metrics on ViT-Small, with an even wider nucleus-concentration margin (4.20 times chance versus its closest competitor's 1.35 times). The claim is scoped deliberately. Both backbones are pure multi-head self-attention transformers of different widths and depths, not different architecture families, and whether the ranking survives a hybrid convolution--attention backbone remains untested because relevancy propagation is not defined for EfficientViT-M0's architecture.
 
-\subsection{Selective prediction}
+\subsection{Selective Prediction}
 \label{sec:selective-results}
 Two proposed sub-claims about safe composition hold by construction in our post-hoc-attachment architecture and were verified rather than assumed: temperature scaling changed zero argmax predictions on the calibration split, and explanation computation is a read-only analysis that cannot alter model weights.
 
@@ -333,7 +342,7 @@ Mendeley LBC (severe shift) & 0.3244 & 0.4395 & \textbf{0.2855} \\
 
 Composition is not a uniform win (Table~\ref{tab:selective}). In distribution and under moderate shift, confidence alone is already the best individual signal, and combining it with the noisier, discrete conformal-set-size signal dilutes it. Under severe shift the combined signal is the best of the three, beating confidence alone (0.2855 versus 0.3244). Combining therefore helps exactly where the better individual signal was already struggling and hurts elsewhere, so an evaluation at one shift severity would report the result backwards. Even the best signal remains far from a safe abstention rule under severe shift. This conclusion rests on one backbone (DeiT-Tiny).
 
-\subsection{Resource efficiency and deployment cost}
+\subsection{Resource Efficiency and Deployment Cost}
 \label{sec:eff-results}
 
 \begin{table}[htbp]
@@ -363,10 +372,10 @@ Swin-Tiny & 27{,}523{,}199 & 8.980 & 54.0 \\
 
 Neither parameter count nor FLOPs reliably predicted CPU latency (Table~\ref{tab:eff}). EfficientNet-Lite0 (3.38M parameters, 0.77 GFLOPs) had more than four times ResNet-50's latency (137.7 ms versus 32.0 ms) despite ResNet-50 having roughly ten times the FLOPs. The two ``Mobile''-branded transformers had the highest transformer-family latency (66.3 and 65.2 ms) despite 3.6 GFLOPs, well below Swin-Tiny's 9.0 GFLOPs at 54.0 ms. EfficientViT-M0, the leader on parameters and FLOPs, was not the fastest model in wall-clock terms: DeiT-Tiny (15.4 ms) and LeViT-128 (17.5 ms) were both faster despite having about 14 and 5 times more FLOPs respectively. Repeating the EfficientViT-M0 measurement in isolation three times gave 27.4, 28.4, and 27.9 ms, against 28.3 and 36.2 ms in two full sweeps, so individual latencies carry roughly a 30\% run-to-run swing from background load. The relative ordering (EfficientNet-Lite0 far slower than all others, DeiT-Tiny and LeViT-128 fastest) was stable across repeated runs.
 
-\paragraph{Cost of an explanation.}
-On CPU, a bare DeiT-Tiny forward pass had a median latency of 49.6 ms, and a prediction that also returned a relevancy-propagation explanation cost 164.1 ms, about 3.3 times the bare-prediction cost. This pair was measured in the explanation-cost experiment and is not directly comparable with the 15.4 ms in Table~\ref{tab:eff}, which came from a separate full-registry sweep. % TODO(author): confirm why the two DeiT-Tiny CPU latencies (15.4 ms and 49.6 ms) differ (batch, load, trained vs untrained, or a different measurement protocol).
+\subsubsection{Cost of an explanation}
+On CPU, a bare DeiT-Tiny forward pass had a median latency of 49.6 ms, and a prediction that also returned a relevancy-propagation explanation cost 164.1 ms, about 3.3 times the bare-prediction cost. Both numbers use the same protocol (single-image batch, 5 warm-up iterations, median of 30), but the bare-forward and explanation pair (49.6 ms and 164.1 ms) was measured on the CPU of a cloud virtual machine during the abstention experiment, whereas Table~\ref{tab:eff} comes from the consumer laptop. The two figures are therefore not comparable in absolute terms; the 3.3 times ratio is a within-machine comparison.
 
-\paragraph{Synthetic degradation and OOD check.}
+\subsubsection{Synthetic degradation and OOD check}
 EfficientViT-M0 degraded gradually, not catastrophically, under all three corruptions (Fig.~\ref{fig:degradation}). Gaussian blur was by far the most damaging, costing 32.8 points of balanced accuracy at its most severe level (radius 8), roughly double JPEG compression's worst case (15.5 points) and nearly double brightness/contrast's (18.1 points). A plausible reason is that Bethesda-system diagnosis depends on fine nuclear texture, which blur removes directly. On the 25-image synthetic OOD sample, mean max-softmax confidence fell from 0.985 (real in-distribution images) to 0.743, a real drop but far above the 0.20 chance level for this five-class task, so confidence thresholding alone gives only a weak OOD signal.
 
 \begin{figure}[htbp]
@@ -379,7 +388,7 @@ EfficientViT-M0 degraded gradually, not catastrophically, under all three corrup
 \section{Discussion}
 \label{sec:discussion}
 
-Read together, the results argue against several intuitive heuristics for selecting and verifying a deployment pipeline from a single evaluation. \emph{``Smaller is worse''} is falsified in distribution (Section~\ref{sec:bench}). \emph{``The in-distribution leader is the safe choice''} is falsified by the leader's poor ranks under shift in the primary run, and by the fact that even this ranking varies with the training seed (Section~\ref{sec:seeds}). \emph{``Architecture lineage predicts robustness''} is falsified by MobileViT-S and MobileViTv2, which share a lineage and produced a catastrophic failure and a top result on the same evaluation. \emph{``CNNs are the robust family''} looked stable on Herlev and Mendeley LBC, but a third, independently sourced dataset (APCEM) overturned it, and a seed check showed that the Mendeley LBC split was itself seed-specific. The sharpest methodological point is that a robustness pattern that survives two external datasets is not guaranteed to survive a third, so ``tested under two external shifts'' is not a licence to stop testing.
+Read together, the results argue against several intuitive heuristics for selecting and verifying a deployment pipeline from a single evaluation. \emph{``Smaller is worse''} is falsified in distribution (Sec.~\ref{sec:bench}). \emph{``The in-distribution leader is the safe choice''} is falsified by the leader's poor ranks under shift in the primary run, and by the fact that even this ranking varies with the training seed (Sec.~\ref{sec:seeds}). \emph{``Architecture lineage predicts robustness''} is falsified by MobileViT-S and MobileViTv2, which share a lineage and produced a catastrophic failure and a top result on the same evaluation. \emph{``CNNs are the robust family''} looked stable on Herlev and Mendeley LBC, but a third, independently sourced dataset (APCEM) overturned it, and a seed check showed that the Mendeley LBC split was itself seed-specific. The sharpest methodological point is that a robustness pattern that survives two external datasets is not guaranteed to survive a third, so ``tested under two external shifts'' is not a licence to stop testing.
 
 The other three properties behaved differently from robustness and from each other. Explainability method choice produced the cleanest result, a single winner on every metric and on a second backbone, so that choosing the method is a reliably beneficial engineering decision in this setting. Abstention composition was conditional on shift severity. Efficiency claims required direct measurement: FLOPs did not predict latency, an explanation cost about 3.3 times a bare prediction, and OOD confidence dropped only partially. No single verification strategy (pick the best method once, assume composition helps, trust an architectural efficiency claim) would have characterized all five properties correctly.
 
@@ -390,13 +399,13 @@ For deployment, the practical implications are direct. A backbone should not be 
 
 \textbf{Data.} All four datasets come from a small number of source institutions, and the three external shifts are real cross-institution shifts, not a systematic sweep of shift types (scanner resolution, stain intensity, or demographics varied independently). The findings are demonstrated for these three shifts, and only the higher-level conclusion, that no static property reliably predicts robustness, is expected to generalize; specific rankings, including which model is most robust, should not be assumed to transfer to a fourth dataset. Label harmonization to a binary task discards clinically important granularity. SIPaKMeD (about 4,000 images) is a single-institution training source.
 
-\textbf{Seeds and runs.} Each headline result is a single train/validation/calibration/test split at seed 13. Seed variance was measured for all 12 models at two further seeds, and it showed that several single-model and single-dataset claims are seed-specific (the Mendeley LBC family split and EfficientViT-M0 as the in-distribution winner that fails under shift), so individual rows and close-ranked comparisons should be read with caution. The higher-level conclusions do not rest on any single seed-fragile comparison. Different tables come from separate runs (Section~\ref{sec:runvar}). No trained-weight checkpoints persisted, so reproducing a row means retraining from scratch with the released code.
+\textbf{Seeds and runs.} Each headline result is a single train/validation/calibration/test split at seed 13. Seed variance was measured for all 12 models at two further seeds, and it showed that several single-model and single-dataset claims are seed-specific (the Mendeley LBC family split and EfficientViT-M0 as the in-distribution winner that fails under shift), so individual rows and close-ranked comparisons should be read with caution. The higher-level conclusions do not rest on any single seed-fragile comparison. Different tables come from separate runs (Sec.~\ref{sec:runvar}). No trained-weight checkpoints persisted, so reproducing a row means retraining from scratch with the released code.
 
 \textbf{Backbone mismatch.} The explainability and abstention experiments use DeiT-Tiny, not the benchmark's in-distribution leader, because relevancy propagation is not defined for EfficientViT-M0. The explainability ranking was confirmed on one additional same-family backbone (ViT-Small), but the abstention-composition result and the degradation and OOD findings were not re-tested on it. Whether any of these results transfer to a hybrid convolution--attention backbone, or to a different imaging task, is untested.
 
 \textbf{Measurement.} The explainability comparison uses 50 test images from one fixed stratified sample; a different sample could shift the exact values, although the winning margins are large. The OOD check uses a small synthetic sample (25 images) rather than a natural out-of-domain dataset. CPU latency was measured on one shared consumer laptop (about 30\% run-to-run swing) rather than dedicated or clinic-grade hardware, so the 3.3 times explanation-cost multiplier should be read as approximate. Accuracy, macro F1, and AUROC are standard metrics, which reduces the risk that the findings are artifacts of an unusual metric.
 
-\textbf{Clinical validity.} No clinical or expert-review validation of explanation fidelity was performed. Agreement with a nucleus boundary is not equivalent to a cytotechnologist judging an explanation clinically meaningful. No prospective or reader-study evaluation of the full pipeline was performed.
+\textbf{Clinical validity.} No clinical or expert-review validation of explanation fidelity was performed. Post hoc explanations offer limited assurance about a model's reasoning unless they are validated,\cite{ghassemi2021} and agreement with a nucleus boundary is not equivalent to a cytotechnologist judging an explanation clinically meaningful. No prospective or reader-study evaluation of the full pipeline was performed.
 
 \section{Conclusion}
 \label{sec:conclusion}
@@ -404,94 +413,147 @@ For deployment, the practical implications are direct. A backbone should not be 
 Five properties of one cervical cytology screening pipeline, tested together, did not resolve alike. Parameter-efficient vision transformers did not trade accuracy for efficiency in distribution, yet the in-distribution leaderboard misled about robustness: no static property we measured predicted which model fails safely, and even apparent family-level patterns did not survive a third external dataset or a change of training seed. Relevancy propagation was a clearly better explainability method than attention rollout or Grad-CAM, on behavioral faithfulness and on expert-annotated localization, and the ranking replicated on a second backbone. Combining two uncertainty signals for abstention helped only under the severe shift where the better individual signal was already failing. Efficiency claims held only under direct measurement, since FLOPs did not predict latency and an explanation cost roughly 3.3 times a bare prediction. Each property needed its own test, on its own terms, under the conditions of intended deployment.
 
 \section*{Disclosures}
-% TODO(author): add conflict-of-interest, funding, ethics, data availability and code availability statements.
-The authors declare no conflicts of interest. % TODO(author): confirm.
+The authors declare that there are no financial interests, commercial affiliations, or other potential conflicts of interest that could have influenced the objectivity of this research or the writing of this paper. % TODO(author): confirm
 
-\begin{thebibliography}{99}
+\section*{Code, Data, and Materials Availability}
+All datasets analyzed are publicly available: SIPaKMeD,\cite{plissiti2018sipakmed} Herlev,\cite{jantzen2005herlev} Mendeley LBC,\cite{hussain2020mendeley} and APCEM (\url{https://doi.org/10.17632/snzb5g6ddy.2}).\cite{aswini2026apcem} The training and evaluation code and the per-model result files are available from the corresponding author upon reasonable request. % TODO(author): replace with a public repository link if the code is released (the repository is currently private)
 
-\bibitem{plissiti2018sipakmed}
-Plissiti, M.E., Dimitrakopoulos, P., Sfikas, G., Nikou, C., Krikoni, O., Charchanti, A.: SIPAKMED: A new dataset for feature and image based classification of normal and pathological cervical cells in Pap smear images. In: 2018 IEEE International Conference on Image Processing (ICIP), pp.\ 3144--3148 (2018)
+\section*{Acknowledgments}
+% TODO(author): add funding information (full funding body names and grant numbers) or state that there was none.
+An artificial intelligence language model (Claude, Anthropic) was used to merge, restructure, and edit text from the authors' two earlier manuscripts into this manuscript and to cross-check reported numbers against the source tables. The authors reviewed the result and take responsibility for its content. % TODO(author): confirm, and list any other AI tools used in the study (code, figures)
 
-\bibitem{he2016resnet}
-He, K., Zhang, X., Ren, S., Sun, J.: Deep residual learning for image recognition. In: CVPR (2016)
+\section*{References}
+\begin{thebibliography}{99}\setlength{\itemsep}{0pt}
 
-\bibitem{sandler2018mobilenetv2}
-Sandler, M., Howard, A., Zhu, M., Zhmoginov, A., Chen, L.C.: MobileNetV2: Inverted residuals and linear bottlenecks. In: CVPR (2018)
-
-\bibitem{tan2019efficientnet}
-Tan, M., Le, Q.: EfficientNet: Rethinking model scaling for convolutional neural networks. In: ICML (2019)
-
-\bibitem{dosovitskiy2021vit}
-Dosovitskiy, A., et al.: An image is worth 16x16 words: Transformers for image recognition at scale. In: ICLR (2021)
-
-\bibitem{liu2021swin}
-Liu, Z., Lin, Y., Cao, Y., Hu, H., Wei, Y., Zhang, Z., Lin, S., Guo, B.: Swin Transformer: Hierarchical vision transformer using shifted windows. In: ICCV (2021)
-
-\bibitem{touvron2021deit}
-Touvron, H., Cord, M., Douze, M., Massa, F., Sablayrolles, A., J\'egou, H.: Training data-efficient image transformers \& distillation through attention. In: ICML (2021)
-
-\bibitem{graham2021levit}
-Graham, B., El-Nouby, A., Touvron, H., Stock, P., Joulin, A., J\'egou, H., Douze, M.: LeViT: a vision transformer in ConvNet's clothing for faster inference. In: ICCV (2021)
-
-\bibitem{wu2022tinyvit}
-Wu, K., et al.: TinyViT: Fast pretraining distillation for small vision transformers. In: ECCV (2022)
+\bibitem{sung2021}
+H. Sung et al., ``Global cancer statistics 2020: GLOBOCAN estimates of incidence and mortality worldwide for 36 cancers in 185 countries,'' \textit{CA Cancer J. Clin.} \textbf{71}(3), 209--249 (2021) [doi:10.3322/caac.21660].
 
 \bibitem{mehta2022mobilevit}
-Mehta, S., Rastegari, M.: MobileViT: Light-weight, general-purpose, and mobile-friendly vision transformer. In: ICLR (2022)
+S. Mehta and M. Rastegari, ``MobileViT: light-weight, general-purpose, and mobile-friendly vision transformer,'' in \textit{Int. Conf. Learn. Represent. (ICLR)} (2022).
 
 \bibitem{mehta2022mobilevitv2}
-Mehta, S., Rastegari, M.: Separable self-attention for mobile vision transformers. arXiv preprint (2022)
+S. Mehta and M. Rastegari, ``Separable self-attention for mobile vision transformers,'' arXiv preprint (2022).
 
-\bibitem{cai2023efficientvit}
-Cai, H., Li, J., Hu, M., Gan, C., Han, S.: EfficientViT: Multi-scale linear attention for high-resolution dense prediction. In: ICCV (2023)
+\bibitem{touvron2021deit}
+H. Touvron, M. Cord, M. Douze, F. Massa, A. Sablayrolles, and H. J\'egou, ``Training data-efficient image transformers \& distillation through attention,'' in \textit{Int. Conf. Mach. Learn. (ICML)} (2021).
+
+\bibitem{dosovitskiy2021vit}
+A. Dosovitskiy et al., ``An image is worth 16x16 words: transformers for image recognition at scale,'' in \textit{Int. Conf. Learn. Represent. (ICLR)} (2021).
+
+\bibitem{graham2021levit}
+B. Graham, A. El-Nouby, H. Touvron, P. Stock, A. Joulin, H. J\'egou, and M. Douze, ``LeViT: a vision transformer in ConvNet's clothing for faster inference,'' in \textit{Proc. IEEE/CVF Int. Conf. Comput. Vis. (ICCV)}, 12239--12249 (2021) [doi:10.1109/ICCV48922.2021.01204].
+
+\bibitem{wu2022tinyvit}
+K. Wu et al., ``TinyViT: fast pretraining distillation for small vision transformers,'' in \textit{Eur. Conf. Comput. Vis. (ECCV)} (2022).
 
 \bibitem{liu2023efficientvit}
-Liu, X., Peng, H., Zheng, N., Yang, Y., Hu, H., Yuan, Y.: EfficientViT: Memory efficient vision transformer with cascaded group attention. In: CVPR (2023)
+X. Liu, H. Peng, N. Zheng, Y. Yang, H. Hu, and Y. Yuan, ``EfficientViT: memory efficient vision transformer with cascaded group attention,'' in \textit{Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recognit. (CVPR)}, 14420--14430 (2023) [doi:10.1109/CVPR52729.2023.01386].
 
-\bibitem{jantzen2005herlev}
-Jantzen, J., Norup, J., Dounias, G., Bjerregaard, B.: Pap-smear benchmark data for pattern classification. In: Proceedings of Nature Inspired Smart Information Systems (NiSIS), pp.\ 1--9 (2005)
+\bibitem{cai2023efficientvit}
+H. Cai, J. Li, M. Hu, C. Gan, and S. Han, ``EfficientViT: lightweight multi-scale attention for high-resolution dense prediction,'' in \textit{Proc. IEEE/CVF Int. Conf. Comput. Vis. (ICCV)}, 17256--17267 (2023) [doi:10.1109/ICCV51070.2023.01587].
 
-\bibitem{hussain2020mendeley}
-Hussain, E., Mahanta, L.B., Borah, H., Das, C.R.: Liquid based-cytology Pap smear dataset for automated multi-class diagnosis of pre-cancerous and cervical cancer lesions. Data in Brief 30, 105589 (2020)
+\bibitem{dehghani2022}
+M. Dehghani et al., ``The efficiency misnomer,'' in \textit{Int. Conf. Learn. Represent. (ICLR)} (2022), arXiv:2110.12894.
 
-\bibitem{aswini2026apcem}
-Aswini, H.: APCEM-Enhanced Cervical Cytology Image Dataset (Version 2) [Data set]. Mendeley Data (2026). \url{https://doi.org/10.17632/snzb5g6ddy.2}
+\bibitem{zech2018}
+J. R. Zech et al., ``Variable generalization performance of a deep learning model to detect pneumonia in chest radiographs: a cross-sectional study,'' \textit{PLoS Med.} \textbf{15}(11), e1002683 (2018) [doi:10.1371/journal.pmed.1002683].
 
-\bibitem{chefer2021transformer}
-Chefer, H., Gur, S., Wolf, L.: Transformer interpretability beyond attention visualization. In: CVPR (2021)
+\bibitem{guan2022}
+H. Guan and M. Liu, ``Domain adaptation for medical image analysis: a survey,'' \textit{IEEE Trans. Biomed. Eng.} \textbf{69}(3), 1173--1185 (2022) [doi:10.1109/TBME.2021.3117407].
+
+\bibitem{koh2021}
+P. W. Koh et al., ``WILDS: a benchmark of in-the-wild distribution shifts,'' in \textit{Int. Conf. Mach. Learn. (ICML)} (2021), arXiv:2012.07421.
+
+\bibitem{geirhos2020}
+R. Geirhos et al., ``Shortcut learning in deep neural networks,'' \textit{Nat. Mach. Intell.} \textbf{2}(11), 665--673 (2020) [doi:10.1038/s42256-020-00257-z].
+
+\bibitem{damour2020}
+A. D'Amour et al., ``Underspecification presents challenges for credibility in modern machine learning,'' arXiv:2011.03395 (2020).
+
+\bibitem{ovadia2019}
+Y. Ovadia et al., ``Can you trust your model's uncertainty? Evaluating predictive uncertainty under dataset shift,'' in \textit{Adv. Neural Inf. Process. Syst. (NeurIPS)} (2019), arXiv:1906.02530.
 
 \bibitem{abnar2020quantifying}
-Abnar, S., Zuidema, W.: Quantifying attention flow in transformers. In: ACL (2020)
+S. Abnar and W. Zuidema, ``Quantifying attention flow in transformers,'' in \textit{Proc. 58th Annu. Meet. Assoc. Comput. Linguist. (ACL)}, 4190--4197 (2020) [doi:10.18653/v1/2020.acl-main.385].
+
+\bibitem{jain2019}
+S. Jain and B. C. Wallace, ``Attention is not explanation,'' in \textit{Proc. 2019 Conf. North Am. Chapter Assoc. Comput. Linguist. (NAACL)}, 3543--3556 (2019) [doi:10.18653/v1/N19-1357].
+
+\bibitem{wiegreffe2019}
+S. Wiegreffe and Y. Pinter, ``Attention is not not explanation,'' in \textit{Proc. 2019 Conf. Empir. Methods Nat. Lang. Process. (EMNLP)}, 11--20 (2019) [doi:10.18653/v1/D19-1002].
+
+\bibitem{chefer2021transformer}
+H. Chefer, S. Gur, and L. Wolf, ``Transformer interpretability beyond attention visualization,'' in \textit{Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recognit. (CVPR)}, 782--791 (2021) [doi:10.1109/CVPR46437.2021.00084].
 
 \bibitem{selvaraju2017gradcam}
-Selvaraju, R.R., Cogswell, M., Das, A., Vedantam, R., Parikh, D., Batra, D.: Grad-CAM: Visual explanations from deep networks via gradient-based localization. In: ICCV (2017)
-
-\bibitem{gal2016dropout}
-Gal, Y., Ghahramani, Z.: Dropout as a Bayesian approximation: Representing model uncertainty in deep learning. In: ICML (2016)
-
-\bibitem{lakshminarayanan2017ensembles}
-Lakshminarayanan, B., Pritzel, A., Blundell, C.: Simple and scalable predictive uncertainty estimation using deep ensembles. In: NeurIPS (2017)
-
-\bibitem{sensoy2018evidential}
-Sensoy, M., Kaplan, L., Kandemir, M.: Evidential deep learning to quantify classification uncertainty. In: NeurIPS (2018)
+R. R. Selvaraju, M. Cogswell, A. Das, R. Vedantam, D. Parikh, and D. Batra, ``Grad-CAM: visual explanations from deep networks via gradient-based localization,'' in \textit{Proc. IEEE Int. Conf. Comput. Vis. (ICCV)}, 618--626 (2017) [doi:10.1109/ICCV.2017.74].
 
 \bibitem{petsiuk2018rise}
-Petsiuk, V., Das, A., Saenko, K.: RISE: Randomized input sampling for explanation of black-box models. In: BMVC (2018)
+V. Petsiuk, A. Das, and K. Saenko, ``RISE: randomized input sampling for explanation of black-box models,'' in \textit{Br. Mach. Vis. Conf. (BMVC)} (2018).
 
 \bibitem{guo2017calibration}
-Guo, C., Pleiss, G., Sun, Y., Weinberger, K.Q.: On calibration of modern neural networks. In: ICML (2017)
+C. Guo, G. Pleiss, Y. Sun, and K. Q. Weinberger, ``On calibration of modern neural networks,'' in \textit{Int. Conf. Mach. Learn. (ICML)} (2017).
+
+\bibitem{angelopoulos2023}
+A. N. Angelopoulos and S. Bates, ``Conformal prediction: a gentle introduction,'' \textit{Found. Trends Mach. Learn.} \textbf{16}(4), 494--591 (2023) [doi:10.1561/2200000101].
+
+\bibitem{gal2016dropout}
+Y. Gal and Z. Ghahramani, ``Dropout as a Bayesian approximation: representing model uncertainty in deep learning,'' in \textit{Int. Conf. Mach. Learn. (ICML)} (2016).
+
+\bibitem{lakshminarayanan2017ensembles}
+B. Lakshminarayanan, A. Pritzel, and C. Blundell, ``Simple and scalable predictive uncertainty estimation using deep ensembles,'' in \textit{Adv. Neural Inf. Process. Syst. (NeurIPS)} (2017).
+
+\bibitem{sensoy2018evidential}
+M. Sensoy, L. Kaplan, and M. Kandemir, ``Evidential deep learning to quantify classification uncertainty,'' in \textit{Adv. Neural Inf. Process. Syst. (NeurIPS)} (2018).
+
+\bibitem{rahaman2021}
+M. M. Rahaman et al., ``DeepCervix: a deep learning-based framework for the classification of cervical cells using hybrid deep feature fusion techniques,'' \textit{Comput. Biol. Med.} \textbf{136}, 104649 (2021) [doi:10.1016/j.compbiomed.2021.104649].
 
 \bibitem{mohiuddin2025}
-Mohiuddin, A.B., Rahman, M.M., et al.: Accelerated and accurate cervical cancer diagnosis using a novel stacking ensemble method with explainable AI. In: International Conference on Quantum Photonics, Artificial Intelligence (2025)
+A. B. Mohiuddin, M. M. Rahman, M. N. Gony, S. M. K. Shuvra, A. Rafy, M. R. Ahmed, and S. Rahman, ``Accelerated and accurate cervical cancer diagnosis using a novel stacking ensemble method with explainable AI,'' in \textit{2025 Int. Conf. Quantum Photonics, Artif. Intell., Networking (QPAIN)}, 1--6 (2025) [doi:10.1109/QPAIN66474.2025.11171850].
 
 \bibitem{rahman2026maizeformerx}
-Rahman, M.M., et al.: MaizeFormerX: a lightweight vision transformer with cross-scale attention for explainable maize leaf disease diagnosis. Scientific Reports (2026)
+M. M. Rahman et al., ``MaizeFormerX: a lightweight vision transformer with cross-scale attention for explainable maize leaf disease diagnosis,'' \textit{Sci. Rep.} \textbf{16}, 15160 (2026) [doi:10.1038/s41598-026-44550-0].
 
 \bibitem{gony2026retinal}
-Gony, M.N., Shuvra, S.M.K., Poudel, R., Dhakal, K., Rahman, M.M., et al.: Dual-view semi-supervised retinal disease recognition via chromatic structural decomposition and cross-view contrastive learning. In: International Conference on Power, Electronics, Communications (2026)
+M. N. Gony, S. M. K. Shuvra, R. Poudel, K. Dhakal, M. M. Rahman, A. Rafy, M. R. Ahmed, and F. M. Alamgir, ``Dual-view semi-supervised retinal disease recognition via chromatic structural decomposition and cross-view contrastive learning,'' in \textit{2026 Int. Conf. Power, Electron., Commun., Comput., Intell. Infrastruct. (PECCII)}, 1--6 (2026) [doi:10.1109/PECCII70991.2026.11661813].
 
 \bibitem{ahmed2026postsurgical}
-Ahmed, M., Ahmed, F., Mow, S.M., Taha, P.A., Barua, S., Rahman, M.M., et al.: An explainable multimodal AI framework with reinforcement learning for post-surgical clinical decision support. medRxiv (2026)
+M. Ahmed, F. Ahmed, S. M. Mow, P. A. Taha, S. Barua, M. M. Rahman, A. Rafy, S. M. Mondol, and M. I. Faisal, ``An explainable multimodal AI framework with reinforcement learning for post-surgical clinical decision support,'' medRxiv 2026.06.08.26355217 (2026).
+
+\bibitem{plissiti2018sipakmed}
+M. E. Plissiti, P. Dimitrakopoulos, G. Sfikas, C. Nikou, O. Krikoni, and A. Charchanti, ``SIPAKMED: a new dataset for feature and image based classification of normal and pathological cervical cells in Pap smear images,'' in \textit{2018 25th IEEE Int. Conf. Image Process. (ICIP)}, 3144--3148 (2018) [doi:10.1109/ICIP.2018.8451588].
+
+\bibitem{jantzen2005herlev}
+J. Jantzen, J. Norup, G. Dounias, and B. Bjerregaard, ``Pap-smear benchmark data for pattern classification,'' in \textit{Proc. Nature Inspired Smart Inf. Syst. (NiSIS)}, 1--9 (2005).
+
+\bibitem{hussain2020mendeley}
+E. Hussain, L. B. Mahanta, H. Borah, and C. R. Das, ``Liquid based-cytology Pap smear dataset for automated multi-class diagnosis of pre-cancerous and cervical cancer lesions,'' \textit{Data Brief} \textbf{30}, 105589 (2020) [doi:10.1016/j.dib.2020.105589].
+
+\bibitem{aswini2026apcem}
+H. Aswini, ``APCEM-Enhanced Cervical Cytology Image Dataset, Version 2,'' Mendeley Data (2026) [doi:10.17632/snzb5g6ddy.2].
+
+\bibitem{he2016resnet}
+K. He, X. Zhang, S. Ren, and J. Sun, ``Deep residual learning for image recognition,'' in \textit{Proc. IEEE Conf. Comput. Vis. Pattern Recognit. (CVPR)}, 770--778 (2016) [doi:10.1109/CVPR.2016.90].
+
+\bibitem{sandler2018mobilenetv2}
+M. Sandler, A. Howard, M. Zhu, A. Zhmoginov, and L.-C. Chen, ``MobileNetV2: inverted residuals and linear bottlenecks,'' in \textit{Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recognit. (CVPR)}, 4510--4520 (2018) [doi:10.1109/CVPR.2018.00474].
+
+\bibitem{tan2019efficientnet}
+M. Tan and Q. Le, ``EfficientNet: rethinking model scaling for convolutional neural networks,'' in \textit{Int. Conf. Mach. Learn. (ICML)} (2019).
+
+\bibitem{liu2021swin}
+Z. Liu, Y. Lin, Y. Cao, H. Hu, Y. Wei, Z. Zhang, S. Lin, and B. Guo, ``Swin Transformer: hierarchical vision transformer using shifted windows,'' in \textit{Proc. IEEE/CVF Int. Conf. Comput. Vis. (ICCV)}, 9992--10002 (2021) [doi:10.1109/ICCV48922.2021.00986].
+
+\bibitem{picard2021}
+D. Picard, ``Torch.manual\_seed(3407) is all you need: on the influence of random seeds in deep learning architectures for computer vision,'' arXiv:2109.08203 (2021).
+
+\bibitem{bouthillier2021}
+X. Bouthillier et al., ``Accounting for variance in machine learning benchmarks,'' in \textit{Mach. Learn. Syst. (MLSys)} (2021), arXiv:2103.03098.
+
+\bibitem{ghassemi2021}
+M. Ghassemi, L. Oakden-Rayner, and A. L. Beam, ``The false hope of current approaches to explainable artificial intelligence in health care,'' \textit{Lancet Digit. Health} \textbf{3}(11), e745--e750 (2021) [doi:10.1016/S2589-7500(21)00208-9].
 
 \end{thebibliography}
+
 \end{document}
