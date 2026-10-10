@@ -36,6 +36,59 @@ limitation in each affected writeup, not hidden.
 Remaining timeline items (Month 12): Paper 3 drafting, code/data release
 preparation, national-importance evidence refresh.
 
+## Manuscripts and the JMI paper
+
+`papers/` holds the three original drafts (`paper1`, `paper2`, `paper3`) and
+the merged Journal of Medical Imaging manuscript (`papers/paper_jmi.tex`,
+build with `latexmk -pdf paper_jmi.tex`). The merged paper combines Papers 1
+and 3 and reports its limitations explicitly, including that the original
+SIPaKMeD split is at the cell level (87.8% of test cells share a source cluster
+image with a training cell) and that two of the three external datasets contain
+multi-cell fields of view and one is algorithmically enhanced (APCEM).
+
+### Cluster-grouped re-run (Kaggle)
+
+`kaggle_kernel/cluster_split_rerun/` re-runs the 12-model benchmark and the
+three external evaluations with every SIPaKMeD cluster image kept inside one
+split, with the same recipe and seed (13), and additionally saves per-image
+probabilities, checkpoints, software/hardware versions and per-epoch timing.
+It attaches these Kaggle datasets: `marinaeplissiti/sipakmed`,
+`yuvrajsinhachowdhury/herlev-dataset`, `blank1508/mendeley-lbc-cervical-cancer`,
+and a private copy of APCEM (`csemrm/apcem-cervical-cytology`, see below).
+
+```
+kaggle kernels push -p kaggle_kernel/cluster_split_rerun --accelerator NvidiaTeslaT4
+```
+
+Outputs are written to `/kaggle/working/out/` on Kaggle. Because the output
+also contains thousands of crop images, download only what you need with a
+larger page size to avoid API rate limits:
+
+```
+kaggle kernels output <owner>/sipakmed-cluster-split-rerun -p out --page-size 200 \
+  --file-pattern "(results\.json|env\.json|split_stats\.json|preds/.*\.npz)"
+```
+
+### Datasets (not redistributed here)
+
+| Dataset | Source | Licence note |
+|---|---|---|
+| SIPaKMeD | Kaggle `marinaeplissiti/sipakmed` (original host blocks scripted download) | Kaggle lists "other"; confirm terms with the dataset authors before redistributing derived data |
+| Herlev | Kaggle `yuvrajsinhachowdhury/herlev-dataset` | Check the source terms |
+| Mendeley LBC | Kaggle `blank1508/mendeley-lbc-cervical-cancer` (Hussain et al., Data in Brief 2020) | Check the source terms |
+| APCEM v2 | Mendeley Data, DOI 10.17632/snzb5g6ddy.2 (CC BY 4.0) | The Mendeley file host returns HTTP 403 to Kaggle kernels, so download it locally and upload your own private dataset |
+
+No dataset files are committed. The image-content differences between the
+datasets (single-cell crops versus fields of view) are described in the JMI
+manuscript.
+
+### Software versions
+
+`requirements.txt` gives minimum versions only. The exact versions used by the
+original Colab runs were not recorded. The cluster-grouped Kaggle run writes
+its exact Python, PyTorch, timm, CUDA and GPU versions to `out/env.json`;
+copy that file into `runs/kaggle_cluster_split/` when you download it.
+
 ## Layout
 
 ```
@@ -48,7 +101,7 @@ src/cervical_screening/
     dataset.py                 # torch Dataset reading the manifest
     transforms.py                # ImageNet-normalized train/eval transforms
   models/
-    registry.py                  # RQ1 baseline registry (CNN / full ViT / efficient ViT), all timm tags verified against the pinned timm version
+    registry.py                  # RQ1 baseline registry (CNN / full ViT / efficient ViT), all timm tags verified to exist with pretrained weights (exact timm version not recorded)
   eval/
     metrics.py                     # sensitivity/specificity/F1/AUROC/AUPRC/balanced accuracy
     efficiency.py                    # measured params/CPU latency/RSS delta (see isolation caveat in the docstring)
@@ -69,7 +122,9 @@ colab_kernel/
   run_pipeline.py       # self-contained RQ1/RQ4 Colab script
   rq2/, rq3/, rq5/, rq_month11/    # per-phase Colab setup + eval scripts (see docs/colab_cli_pipeline.md)
 
-runs/            # saved JSON results per phase (colab_rq1, colab_rq2, colab_rq3, colab_rq5, efficiency, month11_robustness)
+runs/            # saved JSON results per phase (colab_rq1 + apcem + seedchecks, colab_rq2, colab_rq3, colab_rq5, efficiency, month11_robustness)
+papers/          # draft papers 1-3 and the merged JMI manuscript (paper_jmi.tex)
+kaggle_kernel/   # original Kaggle kernel and cluster_split_rerun/ (cluster-grouped re-run)
 docs/            # full writeups, one per phase, plus dataset provenance and Colab-pipeline notes
 ```
 
@@ -135,4 +190,6 @@ architecture properties, not trained-weight properties.
 - Public cytology datasets are small (900–4,000 images) and drawn from a handful of institutions/countries.
 - RQ3/RQ5 use a different backbone (DeiT-Tiny) than RQ1's winner (EfficientViT-M0) — see the table above.
 - CPU latency in the Month 11 benchmark was measured on one shared consumer laptop, not dedicated hardware (`docs/month11_results.md` quantifies the resulting run-to-run noise).
-- No trained-weight checkpoints are persisted anywhere in this repo — every Colab session trains from scratch, since `/content/` is ephemeral. `runs/*.json` files are the durable record of each result.
+- No trained-weight checkpoints or per-image predictions are persisted for the original Colab runs — every Colab session trained from scratch, since `/content/` is ephemeral. `runs/*.json` files are the durable record of each result. The Kaggle cluster-grouped re-run saves both on Kaggle.
+- The original SIPaKMeD split is at the cell level; cells from the same source cluster image can fall in both training and test sets (see the JMI manuscript). The cluster-grouped re-run addresses this for one split.
+- Mendeley LBC and APCEM images are multi-cell fields of view (APCEM is also algorithmically enhanced), unlike the single-cell training data, so they are content-shift stress tests rather than controlled cross-institution tests.
