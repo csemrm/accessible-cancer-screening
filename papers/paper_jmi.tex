@@ -8,6 +8,8 @@
 % TODO(author): add co-authors/supervisor if any (currently sole author), and any other AI tools used in the study
 %               (code, figures) to the Materials and Methods section on generative AI use.
 % TODO(author): confirm the Disclosures wording and the code-availability choice (repository is currently private).
+% TODO(author): fill exact software versions and the latency-laptop CPU model/threads in the reproducibility table (Table 'tab:repro').
+% TODO(author): consider a cluster-level re-split and bootstrap CIs (needs retraining/re-inference); see Limitations.
 \documentclass[12pt,letterpaper]{article}
 \usepackage[letterpaper,margin=1in]{geometry}
 \usepackage{mathptmx}
@@ -40,9 +42,9 @@
 \noindent\textbf{Abstract.}\ \textbf{Purpose:}
 Lightweight vision transformers are proposed for automated cervical cytology screening, but ``trustworthy AI'' is usually evaluated as one property that a pipeline has or lacks. We tested whether accuracy, domain-shift robustness, explainability, selective prediction, and deployment cost agree with one another on one cervical cytology pipeline.
 \textbf{Approach:}
-We benchmarked 12 convolutional, full-size transformer, and efficient transformer models on SIPaKMeD and evaluated all 12 zero-shot on three external cytology datasets (Herlev, Mendeley LBC, APCEM) harmonized to a binary normal/abnormal label. On a standard vision transformer, we compared three explainability methods against deletion/insertion faithfulness and expert-annotated nucleus boundaries, tested a combined confidence and conformal-set-size abstention rule, and measured parameters, floating-point operations (FLOPs), central processing unit (CPU) latency, and explanation cost.
+We benchmarked 12 convolutional, full-size transformer, and efficient transformer models on SIPaKMeD (five classes) and evaluated all 12 zero-shot on three external cytology datasets (Herlev, Mendeley LBC, APCEM) by mapping their outputs to a binary normal/abnormal label. On a standard vision transformer, we compared three explainability methods against deletion/insertion faithfulness and expert-annotated nucleus boundaries, tested a combined confidence and conformal-set-size abstention rule, and measured parameters, floating-point operations (FLOPs), central processing unit (CPU) latency, and explanation cost.
 \textbf{Results:}
-The two smallest models (about 2.1M parameters) were the most accurate in distribution, but in-distribution accuracy did not predict robustness: the in-distribution leader ranked 10th of 12 on both Herlev and Mendeley LBC in the primary run, and on APCEM 9 of 12 models fell below chance on the area under the receiver operating characteristic curve. No measured static property predicted which model failed safely, and rankings changed across training seeds and datasets. Relevancy propagation was the most faithful explainability method on all three metrics and on a second backbone (nucleus concentration 2.71 times chance versus 1.18 times for attention rollout). Combining confidence with conformal set size helped only under severe shift (risk-coverage area under the curve 0.286 versus 0.324) and hurt in distribution and under mild shift. FLOPs did not predict CPU latency, and an explanation cost about 3.3 times a bare prediction.
+The two smallest models (about 2.1M parameters) were the two most accurate in distribution in the primary run and ranked second and third by three-seed mean, on a cell-level split in which most test cells share a source image with training cells, so in-distribution scores are likely optimistic. In-distribution accuracy did not predict robustness consistently: the in-distribution leader ranked 10th of 12 on both Herlev and Mendeley LBC in the primary run, and on APCEM 9 of 12 models fell below chance on the area under the receiver operating characteristic curve. Rank correlations between three-seed mean external accuracy and in-distribution accuracy, parameter count, and FLOPs were weak to moderate and changed sign across datasets, and model rankings changed across training seeds and datasets. Relevancy propagation was the most faithful explainability method on all three metrics and on a second backbone (nucleus concentration 2.71 times chance versus 1.18 times for attention rollout). Combining confidence with conformal set size helped only under severe shift (risk-coverage area under the curve 0.286 versus 0.324) and hurt in distribution and under mild shift. FLOPs did not predict CPU latency, and an explanation cost about 3.3 times a bare prediction.
 \textbf{Conclusions:}
 Accuracy, robustness, explainability, abstention, and efficiency resolved differently on the same pipeline, so each needs its own test under the conditions of intended deployment.
 
@@ -64,7 +66,7 @@ Cervical cancer remains a significant cause of cancer morbidity and mortality wo
 We make four contributions.
 \begin{enumerate}
 \item \textbf{Efficiency--accuracy benchmark.} A 12-model benchmark on SIPaKMeD spanning convolutional neural network (CNN), full-size vision transformer, and efficient vision transformer families, in which the two most parameter-efficient models are also the most accurate in distribution.
-\item \textbf{Domain-shift evaluation.} A zero-shot evaluation of all 12 models on three independently sourced external datasets (Herlev, Mendeley LBC, APCEM), together with a three-seed sensitivity check, showing that in-distribution accuracy, parameter count, floating-point operations (FLOPs), and architecture family do not reliably predict which model fails safely, and that even apparent family-level patterns do not survive a third dataset or a change of seed.
+\item \textbf{Domain-shift evaluation.} A zero-shot evaluation of all 12 models on three independently sourced external datasets (Herlev, Mendeley LBC, APCEM), together with a three-seed sensitivity check, showing that in-distribution accuracy, parameter count, floating-point operations (FLOPs), and architecture family did not predict which model fails safely consistently across datasets (the direction of the association changed), and that even apparent family-level patterns did not survive a third dataset or a change of seed.
 \item \textbf{Explainability and abstention.} A comparison of relevancy propagation, attention rollout, and Grad-CAM against behavioral faithfulness and expert-annotated nucleus boundaries, replicated on a second backbone, and a test of whether combining temperature-scaled confidence with conformal prediction-set size improves selective prediction.
 \item \textbf{Measured deployment cost.} A measurement of parameters, FLOPs, central processing unit (CPU) latency, and explanation cost, showing that FLOPs do not predict latency and that returning an explanation costs roughly 3.3 times a bare prediction.
 \end{enumerate}
@@ -93,7 +95,31 @@ Adjacent work includes hybrid deep feature fusion for cervical cell classificati
 
 \subsection{Datasets}
 \label{sec:datasets}
-All data are from publicly available, previously published image datasets, and no new patient data were collected. All models were trained on SIPaKMeD\cite{plissiti2018sipakmed}: 4,049 native-resolution single-cell crops derived from the dataset's own cytoplasm-polygon annotations, in five cytomorphology classes. External evaluation used Herlev\cite{jantzen2005herlev}, Mendeley LBC\cite{hussain2020mendeley}, and the APCEM-Enhanced Cervical Cytology Pap Smear Image Dataset\cite{aswini2026apcem} (4,253 images in the six-class Bethesda taxonomy, with dataset class labels NILM, ASC-US, ASC-H, LSIL, HSIL, and SSC). Because the four datasets use different label taxonomies, all were harmonized to one shared binary normal/abnormal label (for APCEM, NILM normal and all five atypical or dysplastic classes abnormal). The three external datasets differ from SIPaKMeD and from each other in acquisition pipeline, institution, and label granularity, so each is an independent test of generalization rather than a synthetic corruption of the same source images.
+All data are from publicly available, previously published image datasets, and no new patient data were collected. All models were trained on SIPaKMeD\cite{plissiti2018sipakmed}: 4,049 native-resolution single-cell crops derived from the dataset's own cytoplasm-polygon annotations, in five cytomorphology classes. External evaluation used Herlev\cite{jantzen2005herlev}, Mendeley LBC\cite{hussain2020mendeley}, and the APCEM-Enhanced Cervical Cytology Pap Smear Image Dataset\cite{aswini2026apcem} (4,253 images in the six-class Bethesda taxonomy, with dataset class labels NILM, ASC-US, ASC-H, LSIL, HSIL, and SSC). Because the four datasets use different label taxonomies, external evaluation used one shared binary normal/abnormal label (Table~\ref{tab:labels}). Models were trained on SIPaKMeD's five classes, and each model's five-class softmax output was summed into normal and abnormal probabilities for external evaluation (Sec.~\ref{sec:shift}). The external datasets differ from SIPaKMeD and from each other in acquisition pipeline, institution, and label granularity, and the correspondence between their diagnostic categories is an assumption that the dataset documentation does not establish. We therefore describe the external evaluation as cross-dataset generalization under combined acquisition and annotation differences, and we use ``domain shift'' in this sense throughout; the experiments do not separate acquisition differences from label-definition differences. Each external dataset is an independent test rather than a synthetic corruption of the same source images. The harmonized external sets are imbalanced (Herlev 74\% abnormal, APCEM 82\% abnormal, Mendeley LBC 36\% abnormal, SIPaKMeD 40\% abnormal), which is why balanced accuracy is reported.
+
+\begin{table}[htbp]
+\centering
+\caption{Class-by-class binary label mapping and image counts. NILM: negative for intraepithelial lesion or malignancy; ASC-US: atypical squamous cells of undetermined significance; ASC-H: atypical squamous cells, cannot exclude a high-grade lesion; LSIL and HSIL: low-grade and high-grade squamous intraepithelial lesion; SCC: squamous cell carcinoma (labeled SSC in APCEM). Metaplastic cells in SIPaKMeD are benign and mapped to normal; the equivocal ASC-US and ASC-H categories are grouped with abnormal, a convention that is itself debatable.}
+\label{tab:labels}
+\footnotesize
+\begin{tabular}{@{}p{2.5cm}p{1.9cm}p{9.2cm}@{}}
+\toprule
+Dataset & Binary label & Original classes (images) \\
+\midrule
+SIPaKMeD (4,049) & Normal (2,411) & Superficial-intermediate (831), parabasal (787), metaplastic (793) \\
+ & Abnormal (1,638) & Koilocytotic (825), dyskeratotic (813) \\
+\addlinespace
+Herlev (917) & Normal (242) & Normal columnar (98), normal intermediate (70), normal superficial (74) \\
+ & Abnormal (675) & Light dysplastic (182), moderate dysplastic (146), severe dysplastic (197), carcinoma in situ (150) \\
+\addlinespace
+Mendeley LBC (962) & Normal (612) & NILM (612) \\
+ & Abnormal (350) & LSIL (113), HSIL (163), SCC (74) \\
+\addlinespace
+APCEM (4,253) & Normal (779) & NILM (779) \\
+ & Abnormal (3,474) & ASC-US (340), ASC-H (119), LSIL (1,241), HSIL (1,300), SSC (474) \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \subsection{Model Registry}
 \label{sec:registry}
@@ -101,11 +127,15 @@ Twelve models spanning three families were evaluated: CNN baselines (ResNet-50\c
 
 \subsection{Training and In-Distribution Evaluation}
 \label{sec:training}
-Models were trained on SIPaKMeD with a 60/15/10/15 train/validation/calibration/test split, seed 13, a 30-epoch budget with early stopping (patience 7), on a single graphics processing unit (GPU). We report balanced accuracy, macro F1, the area under the receiver operating characteristic curve (AUROC), and parameter count. Evaluation stages were run as separate training and evaluation runs (see Sec.~\ref{sec:runvar}).
+Models were trained on SIPaKMeD's five classes from ImageNet-pretrained weights with the AdamW optimizer (learning rate $3\times10^{-4}$, weight decay $10^{-4}$), a cosine learning-rate schedule over 30 epochs, cross-entropy loss, batch size 32, and early stopping on validation loss (patience 7); the checkpoint with the lowest validation loss was retained. Input resolution followed each model's \texttt{timm} pretrained configuration, with ImageNet normalization. Training augmentation comprised random horizontal and vertical flips, random rotation of up to 20 degrees, and brightness and contrast jitter of 0.15. Training used a single graphics processing unit (GPU; Table~\ref{tab:repro}). We report balanced accuracy, macro F1, the area under the receiver operating characteristic curve (AUROC), and parameter count. For the five-class in-distribution evaluation, balanced accuracy has a chance level of 0.20, whereas for the binary external evaluation it has a chance level of 0.50, so the two are not on the same scale and are compared only by rank. Evaluation stages were run as separate training and evaluation runs (see Sec.~\ref{sec:runvar}).
+
+\subsubsection{Data split and source-image overlap}
+\label{sec:split}
+SIPaKMeD was split 60/15/10/15 into training, validation, calibration, and test sets. The split is stratified by class (shuffled within each class with seed 13 plus the class index) and is performed at the level of single-cell crops. The 4,049 cells come from 966 cluster images (about 4.2 cells per image), and cells from one cluster image were not kept together. Reproducing the split procedure on the crop filenames shows that 533 of the 607 test cells (87.8\%) share a source cluster image with at least one training cell. Patient and slide identifiers are not available, so even cluster-level separation would not guarantee patient-level independence. In-distribution results, including in-distribution calibration, abstention, and degradation results, are therefore likely optimistic and should not be read as an estimate of performance on new patients. The external-dataset evaluations are not affected by this overlap, because no external image was used for training, validation, or calibration. The same split manifest was used at all training seeds.
 
 \subsection{Cross-Dataset Domain-Shift Evaluation}
 \label{sec:shift}
-Each model was evaluated zero-shot on Herlev, Mendeley LBC, and APCEM, with no retraining or recalibration, after label harmonization. To measure how much individual rankings depend on the training run, all 12 models were additionally retrained at two further seeds (17 and 29) and evaluated zero-shot on all three external datasets from a single checkpoint per model per seed.
+Each model was evaluated zero-shot on Herlev, Mendeley LBC, and APCEM, with no retraining or recalibration, by summing its five-class softmax output into normal and abnormal probabilities according to Table~\ref{tab:labels}. To measure how much individual rankings depend on the training run, all 12 models were additionally retrained at two further seeds (17 and 29) and evaluated zero-shot on all three external datasets from a single checkpoint per model per seed.
 
 \subsection{Explainability Backbone and Methods}
 \label{sec:xai-methods}
@@ -121,11 +151,11 @@ Relevancy propagation and attention rollout are defined for standard multi-head 
 
 \subsection{Calibration, Conformal Prediction, and the Combined Abstention Signal}
 \label{sec:selective-methods}
-Temperature scaling\cite{guo2017calibration} was fit on a calibration split disjoint from training and test data. Conformal prediction sets were built with a resampling-averaged split-conformal threshold. The combined selective-prediction signal rank-normalizes temperature-scaled max-softmax confidence and (inverted) conformal prediction-set size independently, then averages the ranks. Selective prediction was scored by risk-coverage AUC (lower is better) in distribution, on Herlev (moderate shift), and on Mendeley LBC (severe shift). The shift labels reflect the observed degradation of DeiT-Tiny on these datasets (Table~\ref{tab:shift12}).
+Temperature scaling\cite{guo2017calibration} was fit on a calibration split disjoint from training and test data. Conformal prediction sets used the nonconformity score one minus the softmax probability of the true class, a target miscoverage of 0.1, and the calibration split (about 400 images, 10\% of SIPaKMeD, which shares source images with the training split as described in Sec.~\ref{sec:split}). The threshold was the mean, over 200 bootstrap resamples of the calibration scores (each 80\% of the calibration set, drawn with replacement), of the finite-sample-corrected split-conformal quantile at level $\lceil (n+1)(1-\alpha)\rceil/n$, and a set contains every class whose softmax probability is at least one minus the threshold. This averaged threshold is a stabilizing heuristic for the small calibration set and does not carry the finite-sample guarantee of a single split-conformal threshold. Under external shift the exchangeability assumption behind the coverage guarantee does not hold, so we use the prediction-set size only as an uncertainty signal and make no claim about coverage under shift. The combined selective-prediction signal rank-normalizes temperature-scaled max-softmax confidence and (inverted) conformal prediction-set size independently, then averages the ranks. Selective prediction was scored by risk-coverage AUC (lower is better) in distribution, on Herlev (moderate shift), and on Mendeley LBC (severe shift). The shift labels reflect the observed degradation of DeiT-Tiny on these datasets (Table~\ref{tab:shift12}).
 
 \subsection{Efficiency and Latency Measurement}
 \label{sec:eff-methods}
-Parameters and FLOPs (via \texttt{torch.utils.flop\_counter.FlopCounterMode}, counting a multiply-add as two FLOPs) are architecture properties independent of trained weights, so they were measured without training. CPU latency (single-image batch, median of 30 iterations after 5 warm-up iterations) and memory (isolated per model in its own subprocess) were likewise measured with untrained weights, on one shared consumer laptop. The cost of an explanation was measured as a full forward, backward, and rollout pass for relevancy propagation's own predicted-class explanation against a bare forward pass, both on CPU. Robustness to synthetic degradation (JPEG compression, Gaussian blur, brightness/contrast shift at five severities each) and a synthetic out-of-distribution (OOD) sanity check (25 images of noise, solid colors, and checkerboards) were run on a freshly trained EfficientViT-M0.
+Parameters and FLOPs (via \texttt{torch.utils.flop\_counter.FlopCounterMode}, counting a multiply-add as two FLOPs) are architecture properties independent of trained weights, so they were measured without training. CPU latency (single-image batch of random input, PyTorch eager mode, median of 30 iterations after 5 warm-up iterations) and memory (isolated per model in its own subprocess) were likewise measured with untrained weights, on one shared consumer laptop. Untrained weights are appropriate because the latency of dense inference depends on the architecture and tensor shapes rather than on learned weight values. The laptop's CPU model, thread count, and library versions were not recorded (Table~\ref{tab:repro}). % TODO(author): add the laptop CPU model and thread count if known The cost of an explanation was measured as a full forward, backward, and rollout pass for relevancy propagation's own predicted-class explanation against a bare forward pass, both on CPU. Robustness to synthetic degradation (JPEG compression, Gaussian blur, brightness/contrast shift at five severities each) and a synthetic out-of-distribution (OOD) sanity check (25 images of noise, solid colors, and checkerboards) were run on a freshly trained EfficientViT-M0.
 
 \subsection{Use of Generative AI Tools}
 \label{sec:ai}
@@ -133,7 +163,32 @@ Generative AI tools assisted with manuscript drafting and language refinement, u
 
 \subsection{Note on Run-to-Run Variation}
 \label{sec:runvar}
-In-distribution accuracy of the same model differs slightly between tables (for example, EfficientViT-M0: 0.9654 in Table~\ref{tab:bench}, 0.9737 in Table~\ref{tab:shift12}, 0.9621 in Table~\ref{tab:apcem}, and about 0.975 in the degradation experiment). The benchmark, the Herlev and Mendeley LBC evaluation, and the APCEM evaluation each used the identical recipe and seed (13), but each model was trained afresh in a separate session for each stage, and GPU training is not bit-reproducible; we attribute the differences to ordinary retraining variance. For example, ViT-Small's Herlev score was 0.7194 in a partially lost earlier run and 0.7049 in the retrained run. The degradation experiment additionally used a different random train/validation split. Comparisons are therefore valid within a table, not across tables.
+In-distribution accuracy of the same model differs slightly between tables (for example, EfficientViT-M0: 0.9654 in Table~\ref{tab:bench}, 0.9737 in Table~\ref{tab:shift12}, 0.9621 in Table~\ref{tab:apcem}, and about 0.975 in the degradation experiment; all are five-class balanced accuracy). The benchmark, the Herlev and Mendeley LBC evaluation, and the APCEM evaluation each used the same recipe and seed (13), but each model was trained afresh in a separate session for each stage; ViT-Small's Herlev score, for example, was 0.7194 in a partially lost earlier run and 0.7049 in the retrained run. The training script sets only the PyTorch random seed; it does not enable deterministic cuDNN algorithms and does not separately seed NumPy, Python, or the four shuffled data-loader workers, so identically seeded runs are not expected to be bit-identical. We did not isolate which factor accounts for the differences, so we treat them as run-to-run variation of unidentified origin. The three-seed analysis (Sec.~\ref{sec:seeds}) measures sensitivity to the training seed, whereas same-seed repeatability was not measured separately. The degradation experiment additionally used a different random train/validation split. Comparisons are therefore valid within a table, not across tables.
+
+\begin{table}[htbp]
+\centering
+\caption{Reproducibility information. Items marked ``not recorded'' could not be recovered from the repository.}
+\label{tab:repro}
+\footnotesize
+\begin{tabular}{@{}p{3.4cm}p{10.2cm}@{}}
+\toprule
+Component & Information \\
+\midrule
+Software versions & Python $\geq$3.10, torch $\geq$2.2, torchvision $\geq$0.17, timm $\geq$1.0 (minimum versions only; exact versions not recorded) % TODO(author): add exact versions from the Colab logs
+\\
+Training hardware & Google Colab T4 GPU (benchmark); other stages not individually recorded \\
+Latency hardware & One shared consumer laptop (CPU model and thread count not recorded); explanation-cost pair on a cloud virtual-machine CPU \\
+Random seeds & Training seeds 13 (all stages), 17 and 29 (seed check); split seed 13 plus class index \\
+Determinism & Only the PyTorch seed is set; deterministic cuDNN not enabled; NumPy, Python, and data-loader workers not separately seeded \\
+Data split & One stratified cell-level manifest, identical across training seeds (Sec.~\ref{sec:split}) \\
+Checkpoint selection & Lowest validation loss, early stopping (patience 7, at most 30 epochs) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Statistical Analysis}
+\label{sec:stats}
+Per-image predictions were not retained and trained checkpoints did not persist, so bootstrap confidence intervals could not be computed for the reported runs. We instead report three things. First, the mean and standard deviation of balanced accuracy over three training seeds (13, 17, and 29) for every model and dataset (Table~\ref{tab:seeds}). Second, Spearman rank correlations across the 12 models between three-seed mean external balanced accuracy and in-distribution accuracy, parameter count, FLOPs, and architecture family (CNN versus transformer; Table~\ref{tab:rho}). With 12 models, $|\rho|\geq 0.587$ is required for two-sided $p<0.05$ without correction for the twelve comparisons, so we report these correlations descriptively. Third, conservative worst-case 95\% half-widths for test-set sampling error of a single balanced accuracy, $1.96\times 0.5\sqrt{0.25/n_{\text{normal}}+0.25/n_{\text{abnormal}}}$, which assume independent images and the largest possible variance. Image-level sampling uncertainty and training-seed variability are different sources of uncertainty and are reported separately.
 
 \section{Results}
 \label{sec:results}
@@ -165,7 +220,7 @@ MobileNetV2 & 0.9357 & 0.9365 & 0.9952 & 2{,}230{,}277 \\
 \end{tabular}
 \end{table}
 
-The two smallest models in the registry were also the two most accurate (Table~\ref{tab:bench}, Fig.~\ref{fig:params-vs-acc}). EfficientViT-M0 exceeded the three large baselines, Swin-Tiny (27.5M parameters), ResNet-50 (23.5M), and ViT-Small (21.7M), by 0.5, 1.1, and 2.8 points of balanced accuracy respectively. On this task, at this data scale, the efficiency--accuracy trade-off does not appear in distribution. This is a single-seed result: the seed check in Sec.~\ref{sec:seeds} shows that the specific ordering at the top of Table~\ref{tab:bench} is not stable across seeds.
+The two smallest models in the registry were also the two most accurate (Table~\ref{tab:bench}, Fig.~\ref{fig:params-vs-acc}). EfficientViT-M0 exceeded the three large baselines, Swin-Tiny (27.5M parameters), ResNet-50 (23.5M), and ViT-Small (21.7M), by 0.5, 1.1, and 2.8 points of balanced accuracy respectively. On this task, at this data scale, the efficiency--accuracy trade-off does not appear in distribution. This is a single-seed result on a cell-level split with substantial source-image overlap (Sec.~\ref{sec:split}), so differences of a few points among models near 0.96 should not be over-interpreted. Across three seeds (Table~\ref{tab:seeds}), EfficientViT-M0 and EfficientViT-B0 ranked second and third by mean in-distribution accuracy (0.966 each, behind TinyViT-5M at 0.968), with seed standard deviations of 0.008--0.009 that are as large as the gaps among the leaders, so the specific ordering at the top of Table~\ref{tab:bench} is not stable across seeds.
 
 \begin{figure}[htbp]
 \centering
@@ -179,12 +234,12 @@ The two smallest models in the registry were also the two most accurate (Table~\
 
 \begin{table}[htbp]
 \centering
-\caption{Zero-shot balanced accuracy of all 12 models on Herlev and Mendeley LBC (binary normal/abnormal), seed 13, sorted by Mendeley LBC score. The SIPaKMeD column is in-distribution accuracy from the same run.}
+\caption{Balanced accuracy of all 12 models, seed 13, sorted by Mendeley LBC score. The SIPaKMeD column is five-class in-distribution balanced accuracy from the same run (chance 0.20); the Herlev and Mendeley LBC columns are zero-shot binary normal/abnormal balanced accuracy (chance 0.50). The scales are not comparable, so only ranks are compared across columns.}
 \label{tab:shift12}
 \small
 \begin{tabular}{lrrr}
 \toprule
-Model (family, params) & SIPaKMeD & Herlev & Mendeley LBC \\
+Model (family, params) & SIPaKMeD (5-class) & Herlev & Mendeley LBC \\
 \midrule
 EfficientNet-Lite0 (CNN, 3.38M) & 0.9455 & 0.5970 & \textbf{0.6674} \\
 ResNet-50 (CNN, 23.5M) & 0.9556 & 0.6838 & 0.6082 \\
@@ -202,13 +257,13 @@ MobileViT-S (eff.\ ViT, 4.94M) & 0.9520 & 0.7104 & \textbf{0.2927} (AUROC 0.215)
 \end{tabular}
 \end{table}
 
-\subsubsection{In-distribution accuracy does not predict robustness}
+\subsubsection{In-distribution accuracy did not predict robustness consistently}
 The two most accurate models in distribution in this run (EfficientViT-B0, 0.9738, and EfficientViT-M0, 0.9737) ranked 9th and 10th of 12 on Herlev and 6th and 10th of 12 on Mendeley LBC (Table~\ref{tab:shift12}). The comparison of EfficientViT-M0 with DeiT-Tiny is the sharpest case: the better in-distribution model (0.9737 versus 0.9504) was worse under both shifts (Herlev 0.6716 versus 0.7151; Mendeley LBC 0.4731 versus 0.5230, below the 0.50 chance floor). The same reversal appeared on APCEM (Table~\ref{tab:apcem}), where EfficientViT-M0 again scored lower under shift than DeiT-Tiny (0.3730 versus 0.4469) despite higher in-distribution accuracy (0.9621 versus 0.9589).
 
 \subsubsection{A family-level pattern appears on Mendeley LBC}
 All three CNNs scored 0.539--0.667, and eight of the nine transformer-family models scored 0.293--0.523. The ninth, MobileViTv2, scored 0.5418, above the lowest CNN (0.5391) by 0.003, a gap the seed check shows is noise (Sec.~\ref{sec:seeds}). The split does not hold on Herlev, where transformer models occupy both the best (MobileViTv2, TinyViT-5M) and the weakest (LeViT-128) positions.
 
-\subsubsection{Architecture lineage does not predict robustness}
+\subsubsection{Architecture lineage did not predict robustness}
 MobileViT-S collapsed on Mendeley LBC (balanced accuracy 0.2927, AUROC 0.215), meaning its predictions were anti-correlated with the ground truth, not merely uninformative. Its direct successor MobileViTv2 shows no such failure and was the strongest model in the registry on Herlev (0.7501).
 
 \begin{figure}[htbp]
@@ -220,12 +275,12 @@ MobileViT-S collapsed on Mendeley LBC (balanced accuracy 0.2927, AUROC 0.215), m
 
 \begin{table}[htbp]
 \centering
-\caption{Zero-shot evaluation of all 12 models on APCEM, sorted by AUROC (this table comes from a separate training run; in-distribution accuracy differs from Table~\ref{tab:shift12}).}
+\caption{Zero-shot binary evaluation of all 12 models on APCEM, sorted by AUROC. This table comes from a separate training run, so the five-class in-distribution balanced accuracy in the SIPaKMeD column differs from Table~\ref{tab:shift12}.}
 \label{tab:apcem}
 \small
 \begin{tabular}{lrrr}
 \toprule
-Model (family, params) & SIPaKMeD & APCEM bal.\ acc. & APCEM AUROC \\
+Model (family, params) & SIPaKMeD (5-class) & APCEM bal.\ acc. & APCEM AUROC \\
 \midrule
 MobileNetV2 (CNN, 2.23M) & 0.9623 & \textbf{0.6158} & \textbf{0.6528} \\
 EfficientNet-Lite0 (CNN, 3.38M) & 0.9309 & 0.5393 & 0.5701 \\
@@ -264,10 +319,58 @@ On Mendeley LBC, MobileViTv2's 0.003 edge over MobileNetV2 (0.5418 versus 0.5391
 At seed 13 only 1 of 9 transformer-family models exceeds the weakest CNN (by 0.003). At seed 17, 3 of 9 do, and at seed 29, 4 of 9 do, by margins up to 0.11.
 
 \subsubsection{The in-distribution leader is not reliably the robustness loser}
-EfficientViT-M0 is the (near-)in-distribution leader and ranks 10th of 12 on both Herlev and Mendeley LBC at seed 13. At seed 29 it is the outright in-distribution winner and mid-pack under shift on both datasets (rank 4--5 of 12), and at seed 17 it is not even the in-distribution winner (rank 10 of 12). It should be read as a seed-13 illustration rather than a reproducible property of that model. The general claim it illustrates, that no static property predicts shift robustness, is unaffected, and a poster-child example that itself varies by seed is one more demonstration of that unreliability.
+EfficientViT-M0 is the (near-)in-distribution leader and ranks 10th of 12 on both Herlev and Mendeley LBC at seed 13. At seed 29 it is the outright in-distribution winner and mid-pack under shift on both datasets (rank 4--5 of 12), and at seed 17 it is not even the in-distribution winner (rank 10 of 12). By three-seed mean, EfficientViT-M0 ranked second in distribution but 8th, 7th, and 8th of 12 on Herlev, Mendeley LBC, and APCEM. It should be read as a seed-13 illustration rather than a reproducible property of that model.
 
 \subsubsection{Some findings replicate cleanly}
 Herlev's inverse pattern (most transformer models outscoring the CNNs) and MobileNetV2's status as the strongest model on APCEM both replicate across all three seeds.
+
+\begin{table}[htbp]
+\centering
+\caption{Mean $\pm$ standard deviation of balanced accuracy over three training seeds (13, 17, 29), in the row order of Table~\ref{tab:shift12}. The SIPaKMeD column is five-class; the external columns are binary. Seed 13 values are those of Tables~\ref{tab:shift12} and~\ref{tab:apcem}, which come from separate runs.}
+\label{tab:seeds}
+\footnotesize
+\begin{tabular}{lrrrr}
+\toprule
+Model & SIPaKMeD (5-class) & Herlev & Mendeley LBC & APCEM \\
+\midrule
+EfficientNet-Lite0 & 0.951 $\pm$ 0.006 & 0.630 $\pm$ 0.030 & 0.630 $\pm$ 0.106 & 0.544 $\pm$ 0.027 \\
+ResNet-50 & 0.957 $\pm$ 0.002 & 0.689 $\pm$ 0.005 & 0.537 $\pm$ 0.062 & 0.390 $\pm$ 0.072 \\
+MobileViTv2 & 0.964 $\pm$ 0.004 & 0.721 $\pm$ 0.025 & 0.516 $\pm$ 0.064 & 0.466 $\pm$ 0.033 \\
+MobileNetV2 & 0.946 $\pm$ 0.004 & 0.659 $\pm$ 0.030 & 0.563 $\pm$ 0.083 & 0.586 $\pm$ 0.026 \\
+DeiT-Tiny & 0.955 $\pm$ 0.004 & 0.700 $\pm$ 0.015 & 0.484 $\pm$ 0.036 & 0.385 $\pm$ 0.059 \\
+EfficientViT-B0 & 0.966 $\pm$ 0.008 & 0.667 $\pm$ 0.017 & 0.575 $\pm$ 0.047 & 0.442 $\pm$ 0.035 \\
+Swin-Tiny & 0.961 $\pm$ 0.005 & 0.720 $\pm$ 0.009 & 0.481 $\pm$ 0.034 & 0.419 $\pm$ 0.047 \\
+ViT-Small & 0.957 $\pm$ 0.008 & 0.705 $\pm$ 0.048 & 0.477 $\pm$ 0.055 & 0.392 $\pm$ 0.045 \\
+LeViT-128 & 0.900 $\pm$ 0.065 & 0.538 $\pm$ 0.034 & 0.507 $\pm$ 0.031 & 0.518 $\pm$ 0.016 \\
+EfficientViT-M0 & 0.966 $\pm$ 0.009 & 0.681 $\pm$ 0.015 & 0.502 $\pm$ 0.038 & 0.409 $\pm$ 0.043 \\
+TinyViT-5M & 0.968 $\pm$ 0.001 & 0.706 $\pm$ 0.025 & 0.453 $\pm$ 0.010 & 0.422 $\pm$ 0.018 \\
+MobileViT-S & 0.958 $\pm$ 0.005 & 0.689 $\pm$ 0.029 & 0.387 $\pm$ 0.084 & 0.372 $\pm$ 0.024 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Rank correlations with static properties}
+Across the 12 models, the association of three-seed mean external balanced accuracy with the static properties we measured was not consistent across datasets (Table~\ref{tab:rho}). FLOPs correlated positively with Herlev accuracy ($+0.68$) but negatively with Mendeley LBC ($-0.55$) and APCEM ($-0.48$) accuracy. In-distribution accuracy had a moderate positive association on Herlev ($+0.55$) and weak negative associations on the other two datasets. Architecture family mattered most on Mendeley LBC (CNN versus transformer, $+0.64$) and much less on APCEM ($+0.36$) and Herlev ($-0.42$). The two correlations that pass the uncorrected threshold (FLOPs on Herlev and family on Mendeley LBC) would not survive correction for the twelve comparisons, and each weakens or reverses on another dataset. We therefore conclude only that these properties did not predict robustness consistently across these three datasets, not that they are unrelated to robustness on any single dataset.
+
+\begin{table}[htbp]
+\centering
+\caption{Spearman rank correlation ($n=12$ models) between three-seed mean external balanced accuracy and static properties. Family is coded CNN $=1$, transformer $=0$. $|\rho|\geq 0.587$ corresponds to two-sided $p<0.05$ without correction for multiple comparisons.}
+\label{tab:rho}
+\small
+\begin{tabular}{lrrr}
+\toprule
+Property & Herlev & Mendeley LBC & APCEM \\
+\midrule
+In-distribution accuracy (five-class) & $+0.55$ & $-0.31$ & $-0.27$ \\
+Parameters & $+0.43$ & $-0.46$ & $-0.41$ \\
+FLOPs & $+0.68$ & $-0.55$ & $-0.48$ \\
+Family (CNN versus transformer) & $-0.42$ & $+0.64$ & $+0.36$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Sampling uncertainty}
+Conservative worst-case 95\% half-widths for the balanced accuracy of a single model are $\pm 0.037$ on Herlev (242 normal, 675 abnormal images), $\pm 0.033$ on Mendeley LBC (612, 350), and $\pm 0.019$ on APCEM (779, 3,474), before accounting for training-seed variance. Differences smaller than these, such as the 0.003 gap between MobileViTv2 and MobileNetV2 on Mendeley LBC, are not distinguishable from sampling error, and many neighboring ranks in Tables~\ref{tab:shift12} and~\ref{tab:apcem} are not distinguishable either. The seed standard deviations in Table~\ref{tab:seeds} (median 0.025 on Herlev, 0.051 on Mendeley LBC, and 0.034 on APCEM) are of similar or larger size.
 
 \subsection{Explainability Fidelity}
 \label{sec:xai-results}
@@ -294,7 +397,7 @@ Attention rollout & 0.825 & 0.936 & 1.177 \\
 \label{fig:xai-metrics}
 \end{figure}
 
-Relevancy propagation won every comparison (Table~\ref{tab:xai}), by a wide margin on nucleus concentration (2.71 times chance versus attention rollout's 1.18 times, barely above chance). We attribute this to a mechanistic difference rather than noise: attention rollout is class-agnostic, a disadvantage on an inherently class-discriminative test, whereas relevancy propagation is class-discriminative and integrates the gradient-weighted signal across all twelve blocks.
+Relevancy propagation won every comparison (Table~\ref{tab:xai}), by a wide margin on nucleus concentration (2.71 times chance versus attention rollout's 1.18 times, barely above chance). These are means over 50 images, and per-image scores were not retained, so we cannot report confidence intervals or a paired test; the margins are large, but the ranking is supported by consistency across two backbones rather than by a statistical test. We attribute the gap to a plausible mechanistic difference rather than noise: attention rollout is class-agnostic, a disadvantage on an inherently class-discriminative test, whereas relevancy propagation is class-discriminative and integrates the gradient-weighted signal across all twelve blocks.
 
 \subsubsection{Second backbone}
 This single-backbone result rested on DeiT-Tiny, so we repeated the comparison on ViT-Small, a structurally identical \texttt{VisionTransformer} (same \texttt{global\_pool="token"}, \texttt{num\_prefix\_tokens=1}, 12 blocks, verified directly), trained fresh with the same recipe and seed.
@@ -316,7 +419,7 @@ Attn.\ rollout & 0.825 & 0.936 & 1.18 & 0.888 & 0.927 & 0.97 \\
 \end{tabular}
 \end{table}
 
-The ranking replicated exactly (Table~\ref{tab:xai-vits}): relevancy propagation wins all three metrics on ViT-Small, with an even wider nucleus-concentration margin (4.20 times chance versus its closest competitor's 1.35 times). The claim is scoped deliberately. Both backbones are pure multi-head self-attention transformers of different widths and depths, not different architecture families, and whether the ranking survives a hybrid convolution--attention backbone remains untested because relevancy propagation is not defined for EfficientViT-M0's architecture.
+The ranking replicated exactly (Table~\ref{tab:xai-vits}): relevancy propagation was the most faithful of the three methods on all three metrics on both evaluated backbones, with an even wider nucleus-concentration margin (4.20 times chance versus its closest competitor's 1.35 times). The claim is scoped deliberately. Both backbones are pure multi-head self-attention transformers of different widths and depths, not different architecture families, and whether the ranking survives a hybrid convolution--attention backbone remains untested because relevancy propagation is not defined for EfficientViT-M0's architecture.
 
 \subsection{Selective Prediction}
 \label{sec:selective-results}
@@ -344,7 +447,7 @@ Mendeley LBC (severe shift) & 0.3244 & 0.4395 & \textbf{0.2855} \\
 \label{fig:combined-selective}
 \end{figure}
 
-Composition is not a uniform win (Table~\ref{tab:selective}). In distribution and under moderate shift, confidence alone is already the best individual signal, and combining it with the noisier, discrete conformal-set-size signal dilutes it. Under severe shift the combined signal is the best of the three, beating confidence alone (0.2855 versus 0.3244). Combining therefore helps exactly where the better individual signal was already struggling and hurts elsewhere, so an evaluation at one shift severity would report the result backwards. Even the best signal remains far from a safe abstention rule under severe shift. This conclusion rests on one backbone (DeiT-Tiny).
+Composition is not a uniform win (Table~\ref{tab:selective}). In distribution and under moderate shift, confidence alone is already the best individual signal, and combining it with the noisier, discrete conformal-set-size signal dilutes it. Under severe shift the combined signal is the best of the three, beating confidence alone (0.2855 versus 0.3244). Combining therefore helps exactly where the better individual signal was already struggling and hurts elsewhere, so an evaluation at one shift severity would report the result backwards. Even the best signal remains far from a safe abstention rule under severe shift. The in-distribution values are likely optimistic because of the source-image overlap between the calibration, training, and test splits (Sec.~\ref{sec:split}), and the conclusion rests on one backbone (DeiT-Tiny).
 
 \subsection{Resource Efficiency and Deployment Cost}
 \label{sec:eff-results}
@@ -392,29 +495,31 @@ EfficientViT-M0 degraded gradually, not catastrophically, under all three corrup
 \section{Discussion}
 \label{sec:discussion}
 
-Read together, the results argue against several intuitive heuristics for selecting and verifying a deployment pipeline from a single evaluation. \emph{``Smaller is worse''} is falsified in distribution (Sec.~\ref{sec:bench}). \emph{``The in-distribution leader is the safe choice''} is falsified by the leader's poor ranks under shift in the primary run, and by the fact that even this ranking varies with the training seed (Sec.~\ref{sec:seeds}). \emph{``Architecture lineage predicts robustness''} is falsified by MobileViT-S and MobileViTv2, which share a lineage and produced a catastrophic failure and a top result on the same evaluation. \emph{``CNNs are the robust family''} looked stable on Herlev and Mendeley LBC, but a third, independently sourced dataset (APCEM) overturned it, and a seed check showed that the Mendeley LBC split was itself seed-specific. The sharpest methodological point is that a robustness pattern that survives two external datasets is not guaranteed to survive a third, so ``tested under two external shifts'' is not a licence to stop testing.
+Read together, the results argue against several intuitive heuristics for selecting and verifying a deployment pipeline from a single evaluation. \emph{``Smaller is worse''} is not supported in distribution (Sec.~\ref{sec:bench}), although these in-distribution scores come from a split with substantial source-image overlap. \emph{``The in-distribution leader is the safe choice''} is not supported: the leader ranked poorly under shift in the primary run, and even this ranking varies with the training seed (Sec.~\ref{sec:seeds}). \emph{``Architecture lineage predicts robustness''} is contradicted by MobileViT-S and MobileViTv2, which share a lineage and produced a catastrophic failure and a top result on the same evaluation. \emph{``CNNs are the robust family''} looked stable on Herlev and Mendeley LBC, but a third, independently sourced dataset (APCEM) did not support it, and a seed check showed that the Mendeley LBC split was itself seed-specific. Across the three datasets, no static property had an association with robustness that kept its direction (Table~\ref{tab:rho}). The sharpest methodological point is that a robustness pattern that survives two external datasets is not guaranteed to survive a third, so ``tested under two external shifts'' is not a licence to stop testing.
 
-The other three properties behaved differently from robustness and from each other. Explainability method choice produced the cleanest result, a single winner on every metric and on a second backbone, so that choosing the method is a reliably beneficial engineering decision in this setting. Abstention composition was conditional on shift severity. Efficiency claims required direct measurement: FLOPs did not predict latency, an explanation cost about 3.3 times a bare prediction, and OOD confidence dropped only partially. No single verification strategy (pick the best method once, assume composition helps, trust an architectural efficiency claim) would have characterized all five properties correctly.
+The other three properties behaved differently from robustness and from each other. Explainability method choice produced the cleanest result, a single winner on every metric on both evaluated backbones, which suggests that choosing the method matters for these transformer backbones, although the comparison was not tested statistically. Abstention composition was conditional on shift severity. Efficiency claims required direct measurement: FLOPs did not predict latency, an explanation cost about 3.3 times a bare prediction, and OOD confidence dropped only partially. No single verification strategy (pick the best method once, assume composition helps, trust an architectural efficiency claim) would have characterized all five properties correctly.
 
 For deployment, the practical implications are direct. A backbone should not be chosen from an in-distribution leaderboard, however carefully measured, and robustness must be measured under the shift the deployment will actually face, ideally across multiple seeds. Confidence-based abstention, even when combined with conformal set size, did not reach a reliable operating point under severe shift, so a screening tool should expect to route a substantial fraction of shifted-domain cases to specialist review. Blur is the most damaging of the tested corruptions, which makes focus quality in any handheld or low-cost capture setting a first priority for field validation.
 
 \section{Limitations}
 \label{sec:limitations}
 
-\textbf{Data.} All four datasets come from a small number of source institutions, and the three external shifts are real cross-institution shifts, not a systematic sweep of shift types (scanner resolution, stain intensity, or demographics varied independently). The findings are demonstrated for these three shifts, and only the higher-level conclusion, that no static property reliably predicts robustness, is expected to generalize; specific rankings, including which model is most robust, should not be assumed to transfer to a fourth dataset. Label harmonization to a binary task discards clinically important granularity. SIPaKMeD (about 4,000 images) is a single-institution training source.
+\textbf{Data.} All four datasets come from a small number of source institutions, and the three external shifts are real cross-dataset differences, not a systematic sweep of shift types (scanner resolution, stain intensity, or demographics varied independently). Because the datasets also differ in label definitions, the experiments do not separate acquisition differences from annotation differences. The findings are demonstrated for twelve models and three external datasets; the observation that the tested static properties were not consistent predictors across datasets is the one most likely to generalize, whereas specific rankings, including which model is most robust, should not be assumed to transfer to a fourth dataset. Label harmonization to a binary task discards clinically important granularity and rests on category correspondences that the dataset documentation does not establish. SIPaKMeD (about 4,000 images) is a single-institution training source.
 
-\textbf{Seeds and runs.} Each headline result is a single train/validation/calibration/test split at seed 13. Seed variance was measured for all 12 models at two further seeds, and it showed that several single-model and single-dataset claims are seed-specific (the Mendeley LBC family split and EfficientViT-M0 as the in-distribution winner that fails under shift), so individual rows and close-ranked comparisons should be read with caution. The higher-level conclusions do not rest on any single seed-fragile comparison. Different tables come from separate runs (Sec.~\ref{sec:runvar}). No trained-weight checkpoints persisted, so reproducing a row means retraining from scratch with the released code.
+\textbf{Source-image overlap.} The in-distribution split is at the cell level, 87.8\% of test cells share a source cluster image with a training cell, and no patient or slide identifiers are available (Sec.~\ref{sec:split}). In-distribution accuracy, calibration, abstention, and degradation results are therefore likely optimistic. A cluster-level or patient-level re-split would be needed to estimate in-distribution performance on new patients, and it could change the in-distribution rankings reported here. The external-dataset results do not depend on this split.
+
+\textbf{Seeds, runs, and statistics.} Each headline result is a single run at seed 13 on one data split. Seed variance was measured for all 12 models at two further seeds, and it showed that several single-model and single-dataset claims are seed-specific (the Mendeley LBC family split and EfficientViT-M0 as the in-distribution winner that fails under shift), so individual rows and close-ranked comparisons should be read with caution. Different tables come from separate runs of unidentified run-to-run variation (Sec.~\ref{sec:runvar}), and same-seed repeatability was not measured. Per-image predictions and trained checkpoints were not retained, so bootstrap confidence intervals, per-class sensitivity and specificity, and confusion matrices could not be computed; we report seed statistics, rank correlations, and conservative sampling bounds instead (Sec.~\ref{sec:stats}). Reproducing a row means retraining from scratch, and exact software versions were not recorded (Table~\ref{tab:repro}).
 
 \textbf{Backbone mismatch.} The explainability and abstention experiments use DeiT-Tiny, not the benchmark's in-distribution leader, because relevancy propagation is not defined for EfficientViT-M0. The explainability ranking was confirmed on one additional same-family backbone (ViT-Small), but the abstention-composition result and the degradation and OOD findings were not re-tested on it. Whether any of these results transfer to a hybrid convolution--attention backbone, or to a different imaging task, is untested.
 
-\textbf{Measurement.} The explainability comparison uses 50 test images from one fixed stratified sample; a different sample could shift the exact values, although the winning margins are large. The OOD check uses a small synthetic sample (25 images) rather than a natural out-of-domain dataset. CPU latency was measured on one shared consumer laptop (about 30\% run-to-run swing) rather than dedicated or clinic-grade hardware, so the 3.3 times explanation-cost multiplier should be read as approximate. Accuracy, macro F1, and AUROC are standard metrics, which reduces the risk that the findings are artifacts of an unusual metric.
+\textbf{Measurement.} The explainability comparison uses 50 test images from one fixed stratified sample, and no statistical test was possible because per-image scores were not retained; representative heatmaps are not shown. A different sample could shift the exact values, although the winning margins are large. The OOD check uses a small synthetic sample (25 images) rather than a natural out-of-domain dataset. CPU latency was measured on one shared consumer laptop (about 30\% run-to-run swing) rather than dedicated or clinic-grade hardware, so the 3.3 times explanation-cost multiplier should be read as approximate. Accuracy, macro F1, and AUROC are standard metrics, which reduces the risk that the findings are artifacts of an unusual metric.
 
 \textbf{Clinical validity.} No clinical or expert-review validation of explanation fidelity was performed. Post hoc explanations offer limited assurance about a model's reasoning unless they are validated,\cite{ghassemi2021} and agreement with a nucleus boundary is not equivalent to a cytotechnologist judging an explanation clinically meaningful. No prospective or reader-study evaluation of the full pipeline was performed.
 
 \section{Conclusion}
 \label{sec:conclusion}
 
-Five properties of one cervical cytology screening pipeline, tested together, did not resolve alike. Parameter-efficient vision transformers did not trade accuracy for efficiency in distribution, yet the in-distribution leaderboard misled about robustness: no static property we measured predicted which model fails safely, and even apparent family-level patterns did not survive a third external dataset or a change of training seed. Relevancy propagation was a clearly better explainability method than attention rollout or Grad-CAM, on behavioral faithfulness and on expert-annotated localization, and the ranking replicated on a second backbone. Combining two uncertainty signals for abstention helped only under the severe shift where the better individual signal was already failing. Efficiency claims held only under direct measurement, since FLOPs did not predict latency and an explanation cost roughly 3.3 times a bare prediction. Each property needed its own test, on its own terms, under the conditions of intended deployment.
+Five properties of one cervical cytology screening pipeline, tested together, did not resolve alike. Parameter-efficient vision transformers did not trade accuracy for efficiency in distribution, yet the in-distribution leaderboard misled about robustness: none of the static properties we measured predicted robustness consistently across the three external datasets, and even apparent family-level patterns did not survive a third external dataset or a change of training seed. In-distribution scores came from a cell-level split with substantial source-image overlap and are likely optimistic. Relevancy propagation was more faithful than attention rollout or Grad-CAM on behavioral faithfulness and on expert-annotated localization on both evaluated transformer backbones. Combining two uncertainty signals for abstention helped only under the severe shift where the better individual signal was already failing. Efficiency claims held only under direct measurement, since FLOPs did not predict latency and an explanation cost roughly 3.3 times a bare prediction. Each property needed its own test, on its own terms, under the conditions of intended deployment.
 
 \section*{Disclosures}
 The author declares that there are no financial interests, commercial affiliations, or other potential conflicts of interest that could have influenced the objectivity of this research or the writing of this paper.
@@ -425,7 +530,6 @@ All datasets analyzed are publicly available: SIPaKMeD,\cite{plissiti2018sipakme
 \section*{Acknowledgments}
 This research received no external funding. Generative AI tools assisted with manuscript drafting and language refinement, under the author's direction, as described in the Materials and Methods. The author reviewed and verified the content and assumes full responsibility for the work.
 
-\section*{References}
 \begin{thebibliography}{99}\setlength{\itemsep}{0pt}
 
 \bibitem{sung2021}
