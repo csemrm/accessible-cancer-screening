@@ -5,8 +5,8 @@
 % standard packages; swap in spieman.cls at submission time if the journal portal requires it.
 %
 % TODO(author): confirm the abstract word limit and any JMI-specific items on the journal's author guidelines page.
-% TODO(author): add co-authors/supervisor, the department in the affiliation, funding, and any other AI tools used
-%               in the study (code, figures) to the Materials and Methods / Acknowledgments sections.
+% TODO(author): add co-authors/supervisor if any (currently sole author), and any other AI tools used in the study
+%               (code, figures) to the Materials and Methods section on generative AI use.
 % TODO(author): confirm the Disclosures wording and the code-availability choice (repository is currently private).
 \documentclass[12pt,letterpaper]{article}
 \usepackage[letterpaper,margin=1in]{geometry}
@@ -31,9 +31,9 @@
 \begin{flushleft}
 {\fontsize{16}{19}\selectfont\bfseries Trustworthiness is not one property: accuracy, domain-shift robustness, explainability, abstention, and deployment cost in a lightweight cervical cytology screening pipeline\par}
 \vspace{18pt}
-{\fontsize{12}{14}\selectfont\bfseries Md Mostafizur Rahman$^{*}$\par}
+{\fontsize{12}{14}\selectfont\bfseries Md. Mostafizur Rahman$^{*}$\par}
 \vspace{4pt}
-{\fontsize{10}{12}\selectfont San Francisco Bay University, Fremont, California, United States\par} % TODO(author): add department and street address
+{\fontsize{10}{12}\selectfont Department of Electrical and Computer Engineering, San Francisco Bay University, 161 Mission Falls Lane, Fremont, California 94539, United States\par}
 \end{flushleft}
 
 {\fontsize{10}{12}\selectfont
@@ -50,7 +50,7 @@ Accuracy, robustness, explainability, abstention, and efficiency resolved differ
 \noindent\textbf{Keywords:} cervical cytology, vision transformers, domain shift, explainability, selective prediction, model efficiency.
 
 \medskip
-\noindent$^{*}$Md Mostafizur Rahman, csemrm@gmail.com
+\noindent$^{*}$Corresponding author: Md. Mostafizur Rahman, csemrm@gmail.com; ORCID: 0009-0007-2022-8677
 }
 
 
@@ -126,6 +126,10 @@ Temperature scaling\cite{guo2017calibration} was fit on a calibration split disj
 \subsection{Efficiency and Latency Measurement}
 \label{sec:eff-methods}
 Parameters and FLOPs (via \texttt{torch.utils.flop\_counter.FlopCounterMode}, counting a multiply-add as two FLOPs) are architecture properties independent of trained weights, so they were measured without training. CPU latency (single-image batch, median of 30 iterations after 5 warm-up iterations) and memory (isolated per model in its own subprocess) were likewise measured with untrained weights, on one shared consumer laptop. The cost of an explanation was measured as a full forward, backward, and rollout pass for relevancy propagation's own predicted-class explanation against a bare forward pass, both on CPU. Robustness to synthetic degradation (JPEG compression, Gaussian blur, brightness/contrast shift at five severities each) and a synthetic out-of-distribution (OOD) sanity check (25 images of noise, solid colors, and checkerboards) were run on a freshly trained EfficientViT-M0.
+
+\subsection{Use of Generative AI Tools}
+\label{sec:ai}
+Generative AI tools (Claude, Anthropic) assisted with drafting and language refinement of this manuscript, including merging and restructuring text from the author's two earlier manuscripts and cross-checking reported numbers against the source tables. % TODO(author): list any other AI tools used in the study (code, figures, data processing), as SPIE requires
 
 \subsection{Note on Run-to-Run Variation}
 \label{sec:runvar}
@@ -413,14 +417,13 @@ For deployment, the practical implications are direct. A backbone should not be 
 Five properties of one cervical cytology screening pipeline, tested together, did not resolve alike. Parameter-efficient vision transformers did not trade accuracy for efficiency in distribution, yet the in-distribution leaderboard misled about robustness: no static property we measured predicted which model fails safely, and even apparent family-level patterns did not survive a third external dataset or a change of training seed. Relevancy propagation was a clearly better explainability method than attention rollout or Grad-CAM, on behavioral faithfulness and on expert-annotated localization, and the ranking replicated on a second backbone. Combining two uncertainty signals for abstention helped only under the severe shift where the better individual signal was already failing. Efficiency claims held only under direct measurement, since FLOPs did not predict latency and an explanation cost roughly 3.3 times a bare prediction. Each property needed its own test, on its own terms, under the conditions of intended deployment.
 
 \section*{Disclosures}
-The authors declare that there are no financial interests, commercial affiliations, or other potential conflicts of interest that could have influenced the objectivity of this research or the writing of this paper. % TODO(author): confirm
+The author declares that there are no financial interests, commercial affiliations, or other potential conflicts of interest that could have influenced the objectivity of this research or the writing of this paper.
 
 \section*{Code, Data, and Materials Availability}
 All datasets analyzed are publicly available: SIPaKMeD,\cite{plissiti2018sipakmed} Herlev,\cite{jantzen2005herlev} Mendeley LBC,\cite{hussain2020mendeley} and APCEM (\url{https://doi.org/10.17632/snzb5g6ddy.2}).\cite{aswini2026apcem} The training and evaluation code and the per-model result files are available from the corresponding author upon reasonable request. % TODO(author): replace with a public repository link if the code is released (the repository is currently private)
 
 \section*{Acknowledgments}
-% TODO(author): add funding information (full funding body names and grant numbers) or state that there was none.
-An artificial intelligence language model (Claude, Anthropic) was used to merge, restructure, and edit text from the authors' two earlier manuscripts into this manuscript and to cross-check reported numbers against the source tables. The authors reviewed the result and take responsibility for its content. % TODO(author): confirm, and list any other AI tools used in the study (code, figures)
+This research received no external funding. Generative AI tools assisted with manuscript drafting and language refinement, as described in the Materials and Methods. The author reviewed and verified the content and assumes full responsibility for the work.
 
 \section*{References}
 \begin{thebibliography}{99}\setlength{\itemsep}{0pt}
