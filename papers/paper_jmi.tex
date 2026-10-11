@@ -6,12 +6,11 @@
 %
 % CONFIRMED: JMI abstract limit is 250 words, structured, self-contained, no citations in the abstract
 % (spiedigitallibrary.org/journals/journal-of-medical-imaging/author-guidelines). Trimmed to exactly 250.
-% TODO(author): add co-authors/supervisor if any (currently sole author), and any other AI tools used in the study
-%               (code, figures) to the Materials and Methods section on generative AI use.
-% TODO(author): confirm the Disclosures wording and the code-availability choice (repository is currently private).
+% RESOLVED: added second author (Khairul Anam, Pacific State University).
+% RESOLVED: AI-tools disclosure and code-availability/private-repo wording kept as-is per author decision.
 % RESOLVED: software versions were already recorded where recoverable (Table S10); latency hardware
-% corrected from "shared consumer laptop" to the actual Kaggle notebook CPU (4 vCPUs, platform variable
-% per Kaggle's own docs -- Skylake/Broadwell/AMD, no single pinned model).
+% corrected from "shared consumer laptop" to the actual Kaggle GPU T4 x2 notebook's CPU (4 vCPUs, platform
+% variable per Kaggle's own docs -- Skylake/Broadwell/AMD, no single pinned model).
 % TODO(author): consider a cluster-level re-split and bootstrap CIs (needs retraining/re-inference); see Limitations.
 \documentclass[12pt,letterpaper]{article}
 \usepackage[letterpaper,margin=1in]{geometry}
@@ -36,9 +35,10 @@
 \begin{flushleft}
 {\fontsize{16}{19}\selectfont\bfseries Trustworthiness is not one property: accuracy, cross-dataset robustness, explainability, abstention, and deployment cost in single-cell cervical cytology classification\par}
 \vspace{18pt}
-{\fontsize{12}{14}\selectfont\bfseries Md. Mostafizur Rahman$^{*}$\par}
+{\fontsize{12}{14}\selectfont\bfseries Md. Mostafizur Rahman$^{1,*}$ and Khairul Anam$^{2}$\par}
 \vspace{4pt}
-{\fontsize{10}{12}\selectfont Department of Electrical and Computer Engineering, San Francisco Bay University, 161 Mission Falls Lane, Fremont, California 94539, United States\par}
+{\fontsize{10}{12}\selectfont $^1$Department of Electrical and Computer Engineering, San Francisco Bay University, 161 Mission Falls Lane, Fremont, California 94539, United States\par}
+{\fontsize{10}{12}\selectfont $^2$Department of Computer Science and Engineering, Pacific State University, United States\par}
 \end{flushleft}
 
 {\fontsize{10}{12}\selectfont
@@ -56,6 +56,8 @@ Accuracy, robustness, explainability, abstention, and efficiency resolved differ
 
 \medskip
 \noindent$^{*}$Corresponding author: Md. Mostafizur Rahman, csemrm@gmail.com; ORCID: 0009-0007-2022-8677
+
+\noindent Khairul Anam, p26124@psuca.edu; ORCID: 0009-0005-4052-8023
 }
 
 
@@ -132,8 +134,8 @@ Temperature scaling was fit on a calibration split disjoint from training and te
 \subsection{Efficiency, Degradation, and AI Use}
 \label{sec:eff-methods}
 \label{sec:ai}
-Parameters and FLOPs (via \texttt{torch.utils.flop\_counter}, counting a multiply-add as two FLOPs) are architecture properties and were measured without training. CPU latency (single random image, PyTorch eager mode, median of 30 iterations after 5 warm-up iterations) was measured with untrained weights, which is appropriate because dense-inference latency depends on architecture and tensor shapes rather than learned values, on a Kaggle notebook's CPU (4 vCPUs; Kaggle documents the underlying Intel platform as variable across Skylake, Broadwell, and AMD rather than a single pinned model) rather than dedicated benchmark hardware (Table~S10).
-Explanation cost was a forward, backward, and rollout pass against a bare forward pass, both on CPU. Degradation (JPEG compression, Gaussian blur, brightness/contrast shift at five severities) and a synthetic out-of-distribution (OOD) check (25 images of noise, solid colors, and checkerboards) used a freshly trained EfficientViT-M0. Generative AI tools assisted with manuscript drafting and language refinement, under the author's direction, including merging text from the author's two earlier manuscripts and cross-checking reported numbers against source tables. % TODO(author): list any other AI tools used in the study (code, figures, data processing), as SPIE requires
+Parameters and FLOPs (via \texttt{torch.utils.flop\_counter}, counting a multiply-add as two FLOPs) are architecture properties and were measured without training. CPU latency (single random image, PyTorch eager mode, median of 30 iterations after 5 warm-up iterations) was measured with untrained weights, which is appropriate because dense-inference latency depends on architecture and tensor shapes rather than learned values, on the CPU of a Kaggle GPU T4 x2 notebook (4 vCPUs; Kaggle documents the underlying Intel platform as variable across Skylake, Broadwell, and AMD rather than a single pinned model) rather than dedicated benchmark hardware (Table~S10).
+Explanation cost was a forward, backward, and rollout pass against a bare forward pass, both on CPU. Degradation (JPEG compression, Gaussian blur, brightness/contrast shift at five severities) and a synthetic out-of-distribution (OOD) check (25 images of noise, solid colors, and checkerboards) used a freshly trained EfficientViT-M0. Generative AI tools assisted with manuscript drafting and language refinement, under the authors' direction, including merging text from the corresponding author's two earlier manuscripts and cross-checking reported numbers against source tables.
 
 \subsection{Run-to-Run Variation and Statistical Analysis}
 \label{sec:runvar}
@@ -291,7 +293,7 @@ The other properties behaved differently from robustness and from each other. Ex
 
 \textbf{Seeds, runs, and statistics.} The cluster-grouped benchmark and the original headline results are single runs at seed 13, and the three-seed check (original protocol) showed that several claims are seed-specific. Original-run tables come from separate runs of unidentified variation, same-seed repeatability was not measured, and per-image predictions and checkpoints were not retained for the original runs, so intervals and per-class metrics exist only for the cluster-grouped run; bootstrap intervals from one trained model capture test-sample uncertainty, not training variability. Exact software versions were not recorded for the original runs (Table~S10).
 
-\textbf{Backbones and measurement.} The five properties were not measured on one backbone (benchmark and efficiency: 12 models; explainability and abstention: DeiT-Tiny, with ViT-Small for explainability; degradation and OOD: EfficientViT-M0), so we did not test whether a single backbone would change the central observation, and the results may not transfer to hybrid architectures or other imaging tasks. The explainability analysis covers two related plain transformers, one deletion/insertion configuration (20 steps, blurred baseline, which can affect rankings), and one run. The OOD check is a 25-image synthetic sample. CPU latency was measured on a shared, multi-tenant Kaggle notebook CPU with about 30\% run-to-run swing, so the 3.3-times explanation multiplier is approximate.
+\textbf{Backbones and measurement.} The five properties were not measured on one backbone (benchmark and efficiency: 12 models; explainability and abstention: DeiT-Tiny, with ViT-Small for explainability; degradation and OOD: EfficientViT-M0), so we did not test whether a single backbone would change the central observation, and the results may not transfer to hybrid architectures or other imaging tasks. The explainability analysis covers two related plain transformers, one deletion/insertion configuration (20 steps, blurred baseline, which can affect rankings), and one run. The OOD check is a 25-image synthetic sample. CPU latency was measured on a shared, multi-tenant Kaggle GPU T4 x2 notebook's CPU with about 30\% run-to-run swing, so the 3.3-times explanation multiplier is approximate.
 
 \textbf{Clinical validity.} The nucleus concentration ratio measures overlap with an annotated nucleus, not clinical validity or reader agreement, and post hoc explanations offer limited assurance about a model's reasoning unless validated.\cite{ghassemi2021} No expert review, reader study, or prospective evaluation was performed.
 
@@ -301,13 +303,13 @@ The other properties behaved differently from robustness and from each other. Ex
 Across 12 architectures, model selection based on internal accuracy did not consistently identify the models with stronger external performance. Cluster-grouped evaluation altered the architecture ranking relative to the original cell-level split, although the unpaired design does not isolate the effect of source-image overlap, and external performance depended on dataset characteristics and training seeds. Quantitative explainability comparisons favored relevancy propagation on two transformer backbones under the tested protocol, whereas combining confidence with conformal set size improved selective prediction only under the shift conditions where confidence was unreliable and hurt it elsewhere, and efficiency claims held only under direct measurement. Together, these findings support evaluating accuracy, robustness, explanation fidelity, abstention, and computational efficiency separately, on a split that avoids source-image overlap.
 
 \section*{Disclosures}
-The author declares that there are no financial interests, commercial affiliations, or other potential conflicts of interest that could have influenced the objectivity of this research or the writing of this paper.
+The authors declare that there are no financial interests, commercial affiliations, or other potential conflicts of interest that could have influenced the objectivity of this research or the writing of this paper.
 
 \section*{Code, Data, and Materials Availability}
 All datasets analyzed are publicly available: SIPaKMeD,\cite{plissiti2018sipakmed} Herlev,\cite{jantzen2005herlev} Mendeley LBC,\cite{hussain2020mendeley} and APCEM (\url{https://doi.org/10.17632/snzb5g6ddy.2}).\cite{aswini2026apcem} The training and evaluation code and the per-model result files are available from the corresponding author upon reasonable request. % TODO(author): replace with a public repository link if the code is released (the repository is currently private)
 
 \section*{Acknowledgments}
-This research received no external funding. Generative AI tools assisted with manuscript drafting and language refinement, under the author's direction, as described in the Materials and Methods. The author reviewed and verified the content and assumes full responsibility for the work.
+This research received no external funding. Generative AI tools assisted with manuscript drafting and language refinement, under the authors' direction, as described in the Materials and Methods. The authors reviewed and verified the content and assume full responsibility for the work.
 
 {\small
 \begin{thebibliography}{99}\setlength{\itemsep}{0pt}

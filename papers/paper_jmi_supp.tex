@@ -6,12 +6,11 @@
 %
 % CONFIRMED: JMI abstract limit is 250 words, structured, self-contained, no citations in the abstract
 % (spiedigitallibrary.org/journals/journal-of-medical-imaging/author-guidelines). Trimmed to exactly 250.
-% TODO(author): add co-authors/supervisor if any (currently sole author), and any other AI tools used in the study
-%               (code, figures) to the Materials and Methods section on generative AI use.
-% TODO(author): confirm the Disclosures wording and the code-availability choice (repository is currently private).
+% RESOLVED: added second author (Khairul Anam, Pacific State University).
+% RESOLVED: AI-tools disclosure and code-availability/private-repo wording kept as-is per author decision.
 % RESOLVED: software versions were already recorded where recoverable (Table S10); latency hardware
-% corrected from "shared consumer laptop" to the actual Kaggle notebook CPU (4 vCPUs, platform variable
-% per Kaggle's own docs -- Skylake/Broadwell/AMD, no single pinned model).
+% corrected from "shared consumer laptop" to the actual Kaggle GPU T4 x2 notebook's CPU (4 vCPUs, platform
+% variable per Kaggle's own docs -- Skylake/Broadwell/AMD, no single pinned model).
 % TODO(author): consider a cluster-level re-split and bootstrap CIs (needs retraining/re-inference); see Limitations.
 \documentclass[12pt,letterpaper]{article}
 \usepackage[letterpaper,margin=1in]{geometry}
@@ -35,7 +34,7 @@
 \begin{flushleft}
 {\fontsize{14}{17}\selectfont\bfseries Supplementary material: trustworthiness is not one property in single-cell cervical cytology classification\par}
 \vspace{8pt}
-{\fontsize{11}{13}\selectfont Md. Mostafizur Rahman, San Francisco Bay University\par}
+{\fontsize{11}{13}\selectfont Md. Mostafizur Rahman, San Francisco Bay University, and Khairul Anam, Pacific State University\par}
 \end{flushleft}
 
 \renewcommand{\thetable}{S\arabic{table}}
@@ -144,7 +143,7 @@ MobileViT-S & 0.958 $\pm$ 0.005 & 0.689 $\pm$ 0.029 & 0.387 $\pm$ 0.084 & 0.372 
 
 \begin{table}[htbp]
 \centering
-\caption{Parameters, FLOPs (multiply-add counted as 2), and median single-image CPU latency for all 12 models (untrained weights, Kaggle notebook CPU, 4 vCPUs).}
+\caption{Parameters, FLOPs (multiply-add counted as 2), and median single-image CPU latency for all 12 models (untrained weights, Kaggle GPU T4 x2 notebook CPU, 4 vCPUs).}
 \label{tab:eff}
 \small
 \begin{tabular}{lrrr}
@@ -295,8 +294,8 @@ APCEM (4,253) & Normal (779) & NILM (779) \\
 Component & Information \\
 \midrule
 Software versions & Cluster-grouped re-run: Python 3.13.15, torch 2.11.0+cu128, timm 1.0.29, numpy 2.1.3, CUDA 12.8, cuDNN 9.19. Original runs: minimum versions only (torch $\geq$2.2, timm $\geq$1.0); exact versions not recorded \\
-Training hardware & Google Colab T4 GPU (original benchmark; other stages not individually recorded); Kaggle Tesla T4 for the cluster-grouped re-run (12 models in 1.6 GPU hours) \\
-Latency hardware & Kaggle notebook CPU, 4 vCPUs (Kaggle documents the underlying Intel platform as variable across Skylake, Broadwell, and AMD rather than a single pinned model); explanation-cost pair measured on the same platform \\
+Training hardware & Google Colab T4 GPU (original benchmark; other stages not individually recorded); Kaggle GPU T4 x2 notebook for the cluster-grouped re-run (12 models in 1.6 GPU hours) \\
+Latency hardware & Kaggle GPU T4 x2 notebook CPU, 4 vCPUs (Kaggle documents the underlying Intel platform as variable across Skylake, Broadwell, and AMD rather than a single pinned model); explanation-cost pair measured on the same platform \\
 Random seeds & Training seeds 13 (all stages), 17 and 29 (seed check); split seed 13 plus class index \\
 Determinism & Only the PyTorch seed is set; deterministic cuDNN not enabled; NumPy, Python, and data-loader workers not separately seeded \\
 Data split & One stratified cell-level manifest, identical across training seeds (main text, Sec. 3.3) \\
