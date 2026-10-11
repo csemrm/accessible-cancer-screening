@@ -1,0 +1,19 @@
+{
+  "relevancy_propagation": {
+    "deletion": 0.7207132636225999,
+    "insertion": 0.9612608392744267,
+    "concentration": 4.786202975042515
+  },
+  "attention_rollout": {
+    "deletion": 0.7657575767360838,
+    "insertion": 0.9465940667626771,
+    "concentration": 1.9481466477049276
+  },
+  "gradcam": {
+    "deletion": 0.9100012967891822,
+    "insertion": 0.7797438566942139,
+    "concentration": 1.1678658731075446
+  },
+  "n": 596,
+  "accuracy": 0.9345637583892618
+}
