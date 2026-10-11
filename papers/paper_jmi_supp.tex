@@ -11,7 +11,12 @@
 % RESOLVED: software versions were already recorded where recoverable (Table S10); latency hardware
 % corrected from "shared consumer laptop" to the actual Kaggle GPU T4 x2 notebook's CPU (4 vCPUs, platform
 % variable per Kaggle's own docs -- Skylake/Broadwell/AMD, no single pinned model).
-% TODO(author): consider a cluster-level re-split and bootstrap CIs (needs retraining/re-inference); see Limitations.
+% DONE: cluster-grouped benchmark repeated at 2 further training seeds (17, 29; Kaggle kernels
+% sipakmed-cluster-split-rerun-seed17/29, split held fixed at seed 13), reported in Sec. 4.2 and
+% Table S-cluster-seeds -- MobileViTv2's lead and LeViT-128's "training failure" are both seed-specific,
+% external leaders are seed-stable. STILL OPEN (see Limitations, Source-image overlap): the fully
+% controlled design -- train cell-level-split models too, evaluate both split types on one common
+% cluster-disjoint holdout -- was not attempted; that is a larger, separate experiment.
 \documentclass[12pt,letterpaper]{article}
 \usepackage[letterpaper,margin=1in]{geometry}
 \usepackage{mathptmx}
@@ -325,6 +330,31 @@ EfficientViT-M0 & +2.2 [+0.4, +4.0]* & +9.1 [+6.6, +11.9]* & +18.4 [+15.1, +21.6
 ViT-Small & +3.3 [+1.3, +5.5]* & +3.2 [+0.4, +6.1]* & +18.9 [+15.3, +22.2]* & +15.0 [+13.3, +17.0]* \\
 MobileNetV2 & +5.6 [+3.2, +8.1]* & +11.4 [+8.4, +14.6]* & +10.1 [+6.3, +13.9]* & leader \\
 LeViT-128 & +16.2 [+11.8, +21.0]* & +20.9 [+17.5, +24.1]* & +12.8 [+9.4, +16.0]* & +13.9 [+12.2, +15.7]* \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\caption{Cluster-grouped benchmark, mean $\pm$ standard deviation of balanced accuracy over three training seeds (13, 17, 29), identical cluster-grouped split held fixed across seeds. The SIPaKMeD column is five-class; the external columns are binary. Seed 13 values are those of the cluster-grouped benchmark table in the main text; rows are in the same order.}
+\label{tab:cluster-seeds}
+\footnotesize
+\begin{tabular}{lrrrr}
+\toprule
+Model & SIPaKMeD (5-class) & Herlev & Mendeley LBC & APCEM \\
+\midrule
+EfficientNet-Lite0 & 0.943 $\pm$ 0.012 & 0.578 $\pm$ 0.039 & 0.628 $\pm$ 0.062 & 0.511 $\pm$ 0.043 \\
+ResNet-50 & 0.962 $\pm$ 0.008 & 0.683 $\pm$ 0.036 & 0.505 $\pm$ 0.041 & 0.471 $\pm$ 0.042 \\
+MobileViTv2 & 0.962 $\pm$ 0.010 & 0.676 $\pm$ 0.050 & 0.450 $\pm$ 0.058 & 0.419 $\pm$ 0.020 \\
+MobileNetV2 & 0.935 $\pm$ 0.022 & 0.643 $\pm$ 0.020 & 0.539 $\pm$ 0.065 & 0.568 $\pm$ 0.071 \\
+DeiT-Tiny & 0.959 $\pm$ 0.002 & 0.715 $\pm$ 0.026 & 0.432 $\pm$ 0.024 & 0.419 $\pm$ 0.018 \\
+EfficientViT-B0 & 0.956 $\pm$ 0.010 & 0.590 $\pm$ 0.053 & 0.572 $\pm$ 0.011 & 0.394 $\pm$ 0.031 \\
+Swin-Tiny & 0.951 $\pm$ 0.004 & 0.727 $\pm$ 0.038 & 0.447 $\pm$ 0.036 & 0.397 $\pm$ 0.074 \\
+ViT-Small & 0.936 $\pm$ 0.006 & 0.722 $\pm$ 0.023 & 0.448 $\pm$ 0.023 & 0.482 $\pm$ 0.031 \\
+LeViT-128 & 0.890 $\pm$ 0.074 & 0.602 $\pm$ 0.062 & 0.533 $\pm$ 0.038 & 0.491 $\pm$ 0.020 \\
+EfficientViT-M0 & 0.953 $\pm$ 0.010 & 0.654 $\pm$ 0.017 & 0.451 $\pm$ 0.056 & 0.412 $\pm$ 0.031 \\
+TinyViT-5M & 0.961 $\pm$ 0.003 & 0.669 $\pm$ 0.029 & 0.494 $\pm$ 0.068 & 0.457 $\pm$ 0.023 \\
+MobileViT-S & 0.966 $\pm$ 0.005 & 0.662 $\pm$ 0.075 & 0.489 $\pm$ 0.064 & 0.456 $\pm$ 0.021 \\
 \bottomrule
 \end{tabular}
 \end{table}

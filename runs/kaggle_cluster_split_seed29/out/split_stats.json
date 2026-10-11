@@ -1,0 +1,32 @@
+{
+  "im_Dyskeratotic": {
+    "train": 488,
+    "val": 137,
+    "calibration": 68,
+    "test": 120
+  },
+  "im_Koilocytotic": {
+    "train": 499,
+    "val": 122,
+    "calibration": 83,
+    "test": 121
+  },
+  "im_Metaplastic": {
+    "train": 476,
+    "val": 122,
+    "calibration": 79,
+    "test": 116
+  },
+  "im_Parabasal": {
+    "train": 475,
+    "val": 117,
+    "calibration": 78,
+    "test": 117
+  },
+  "im_Superficial-Intermediate": {
+    "train": 501,
+    "val": 132,
+    "calibration": 76,
+    "test": 122
+  }
+}
