@@ -40,7 +40,8 @@ preparation, national-importance evidence refresh.
 
 `papers/` holds the three original drafts (`paper1`, `paper2`, `paper3`) and
 the merged Journal of Medical Imaging manuscript (`papers/paper_jmi.tex`,
-build with `latexmk -pdf paper_jmi.tex`). The merged paper combines Papers 1
+build with `latexmk -pdf paper_jmi.tex`) and its supplementary tables and figures
+(`papers/paper_jmi_supp.tex`, Tables S1-S10 and Figures S1-S6). The merged paper combines Papers 1
 and 3 and reports its limitations explicitly, including that the original
 SIPaKMeD split is at the cell level (87.8% of test cells share a source cluster
 image with a training cell) and that two of the three external datasets contain
