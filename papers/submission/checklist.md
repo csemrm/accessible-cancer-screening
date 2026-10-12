@@ -25,7 +25,7 @@ Generated 2026-10-11 from the current state of `papers/paper_jmi.tex` / `paper_j
 - **Funding:** none (stated in Acknowledgments)
 - **Conflicts of interest:** none declared
 - **AI-tool use disclosure:** present (Methods + Acknowledgments) — generative AI assisted drafting/language only, authors verified all content
-- **Data availability:** all 4 datasets are public with citations/DOIs; training/eval code and per-model result files "available from the corresponding author upon reasonable request" (repo kept private — author's deliberate choice, already revisited by 2 rounds of peer feedback and kept as-is)
+- **Data availability:** all 4 datasets are public with citations/DOIs; training/eval code and per-model result files public in the repo (MIT License); repo made public per JMI corrections letter JMI-260644-1, which disallows "available upon request"
 - **References:** 60, numbered, superscript style
 
 ## Internal verification already done this session (not required again)
@@ -37,7 +37,7 @@ Generated 2026-10-11 from the current state of `papers/paper_jmi.tex` / `paper_j
 
 ## Known, deliberate open items (not blockers, already discussed with the author)
 
-- Public code/data repository: declined in favor of "available upon reasonable request" — raised by reviewers twice, author decision stands.
+- Public code/data repository: DONE — repo made public (MIT) per JMI corrections letter JMI-260644-1; "upon request" wording removed.
 - A second explainability perturbation baseline (beyond deletion/insertion AUC): flagged as a possible follow-up experiment, not done — would need a new Kaggle run, not a text fix.
 - Patient-level external validation: out of scope, noted as a limitation in the manuscript itself.
 
