@@ -38,8 +38,7 @@ preparation, national-importance evidence refresh.
 
 ## Manuscripts and the JMI paper
 
-`papers/` holds the three original drafts (`paper1`, `paper2`, `paper3`) and
-the merged Journal of Medical Imaging manuscript (`papers/paper_jmi.tex`,
+`papers/` holds the merged Journal of Medical Imaging manuscript (`papers/paper_jmi.tex`,
 build with `latexmk -pdf paper_jmi.tex`) and its supplementary tables and figures
 (`papers/paper_jmi_supp.tex`, Tables S1-S10 and Figures S1-S6). The merged paper combines Papers 1
 and 3 and reports its limitations explicitly, including that the original

@@ -7,7 +7,7 @@
 % CONFIRMED: JMI abstract limit is 250 words, structured, self-contained, no citations in the abstract
 % (spiedigitallibrary.org/journals/journal-of-medical-imaging/author-guidelines). Trimmed to exactly 250.
 % RESOLVED: added second author (Khairul Anam, Pacific State University).
-% RESOLVED: AI-tools disclosure and code-availability/private-repo wording kept as-is per author decision.
+% RESOLVED: AI-tools disclosure and code-availability now points to the public repo (JMI corrections letter JMI-260644-1).
 % RESOLVED: software versions were already recorded where recoverable (Table S10); latency hardware
 % corrected from "shared consumer laptop" to the actual Kaggle GPU T4 x2 notebook's CPU (4 vCPUs, platform
 % variable per Kaggle's own docs -- Skylake/Broadwell/AMD, no single pinned model).
@@ -27,6 +27,7 @@
 \usepackage{setspace}
 \usepackage[super,comma,sort&compress]{natbib}
 \usepackage{titlesec}
+\usepackage[mathlines]{lineno}
 \titleformat{\section}{\fontsize{12}{14}\selectfont\bfseries}{\thesection}{1em}{}
 \titleformat{\subsection}{\fontsize{12}{14}\selectfont\itshape}{\thesubsection}{1em}{}
 \titleformat{\subsubsection}{\fontsize{11}{13}\selectfont\itshape}{\thesubsubsection}{1em}{}
@@ -36,6 +37,7 @@
 \setlength{\bibsep}{2pt}
 
 \begin{document}
+\linenumbers
 
 \begin{flushleft}
 {\fontsize{16}{19}\selectfont\bfseries Trustworthiness is not one property: a multidimensional evaluation of cervical cytology AI\par}
@@ -185,7 +187,7 @@ MobileViT-S & 0.963 [0.95, 0.98] & $+0.011$ & 0.659 [0.63, 0.69] & 0.416 [0.39, 
 \end{tabular}
 \end{table}
 
-Externally, Herlev, which preserves the single-cell task, gave the highest balanced accuracies (Swin-Tiny 0.747, DeiT-Tiny 0.730, MobileViTv2 0.722, ResNet-50 0.721, ViT-Small 0.715; EfficientNet-Lite0 0.540 and LeViT-128 0.538 lowest). Mendeley LBC and APCEM were mostly at or below 0.5: on Mendeley LBC EfficientNet-Lite0 was highest (0.632) and most transformers scored 0.416--0.504, and on APCEM MobileNetV2 was highest (0.648) while 9 of 12 models had AUROC below 0.5 (Swin-Tiny lowest, balanced accuracy 0.332). The leader differed on every dataset, and the in-distribution leader MobileViTv2 scored 0.722 on Herlev but 0.410 on APCEM, so in-distribution accuracy did not predict external performance. Per-class results show that much of the below-chance performance is near one-class prediction: on APCEM ViT-Small had sensitivity 0.07 and specificity 0.93, whereas TinyViT-5M had 0.84 and 0.03 (full per-class sensitivity and specificity for all 12 models are available from the corresponding author with the code and result files; see Code, Data, and Materials Availability). Because Mendeley LBC and APCEM images are whole fields (and APCEM is enhanced), these results reflect scale and content mismatch as well as institutional differences.
+Externally, Herlev, which preserves the single-cell task, gave the highest balanced accuracies (Swin-Tiny 0.747, DeiT-Tiny 0.730, MobileViTv2 0.722, ResNet-50 0.721, ViT-Small 0.715; EfficientNet-Lite0 0.540 and LeViT-128 0.538 lowest). Mendeley LBC and APCEM were mostly at or below 0.5: on Mendeley LBC EfficientNet-Lite0 was highest (0.632) and most transformers scored 0.416--0.504, and on APCEM MobileNetV2 was highest (0.648) while 9 of 12 models had AUROC below 0.5 (Swin-Tiny lowest, balanced accuracy 0.332). The leader differed on every dataset, and the in-distribution leader MobileViTv2 scored 0.722 on Herlev but 0.410 on APCEM, so in-distribution accuracy did not predict external performance. Per-class results show that much of the below-chance performance is near one-class prediction: on APCEM ViT-Small had sensitivity 0.07 and specificity 0.93, whereas TinyViT-5M had 0.84 and 0.03 (full per-class sensitivity and specificity for all 12 models are available in the public repository; see Code, Data, and Materials Availability). Because Mendeley LBC and APCEM images are whole fields (and APCEM is enhanced), these results reflect scale and content mismatch as well as institutional differences.
 
 \subsection{Protocol Sensitivity and Training Seeds}
 \label{sec:seeds}
@@ -236,7 +238,7 @@ ViT-Small & vs.\ Grad-CAM & -0.189 [-0.254, -0.124] (79\%) & +0.182 [+0.119, +0.
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.78\textwidth]{figs/xai_examples_deit_tiny.png}
-\caption{Representative cluster-grouped test cells for DeiT-Tiny: the cell with its expert nucleus outline, and the attention rollout, Grad-CAM, and relevancy propagation heatmaps. The first five rows are the first correctly classified cell of each of the five classes in test order, and the last three rows are the first misclassified cells; cells were not chosen for appearance. The analogous ViT-Small figure is available from the corresponding author with the code and result files.}
+\caption{Representative cluster-grouped test cells for DeiT-Tiny: the cell with its expert nucleus outline, and the attention rollout, Grad-CAM, and relevancy propagation heatmaps. The first five rows are the first correctly classified cell of each of the five classes in test order, and the last three rows are the first misclassified cells; cells were not chosen for appearance. The analogous ViT-Small figure is available in the public repository (see Code, Data, and Materials Availability).}
 \label{fig:xai-examples}
 \end{figure}
 
@@ -358,7 +360,7 @@ Across 12 architectures, model selection based on internal accuracy did not cons
 The authors declare that there are no financial interests, commercial affiliations, or other potential conflicts of interest that could have influenced the objectivity of this research or the writing of this paper.
 
 \section*{Code, Data, and Materials Availability}
-All datasets analyzed are publicly available: SIPaKMeD,\cite{plissiti2018sipakmed} Herlev,\cite{jantzen2005herlev} Mendeley LBC,\cite{hussain2020mendeley} and APCEM (\url{https://doi.org/10.17632/snzb5g6ddy.2}).\cite{aswini2026apcem} The training and evaluation code and the per-model result files are available from the corresponding author upon reasonable request.
+All datasets analyzed are publicly available: SIPaKMeD,\cite{plissiti2018sipakmed} Herlev,\cite{jantzen2005herlev} Mendeley LBC,\cite{hussain2020mendeley} and APCEM (\url{https://doi.org/10.17632/snzb5g6ddy.2}).\cite{aswini2026apcem} The training and evaluation code, per-model prediction and result files, and figure-generation scripts are publicly available, without access restrictions, at \url{https://github.com/csemrm/accessible-cancer-screening} under the MIT License. No new data were collected; the public datasets above are not redistributed and are available from their original sources under their own terms.
 
 \section*{Acknowledgments}
 This research received no external funding. Generative AI tools assisted with manuscript drafting and language refinement, under the authors' direction, as described in the Materials and Methods. The authors reviewed and verified the content and assume full responsibility for the work.
