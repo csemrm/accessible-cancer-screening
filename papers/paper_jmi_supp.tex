@@ -358,4 +358,26 @@ MobileViT-S & 0.966 $\pm$ 0.005 & 0.662 $\pm$ 0.075 & 0.489 $\pm$ 0.064 & 0.456 
 \bottomrule
 \end{tabular}
 \end{table}
+
+\begin{table}[htbp]
+\centering
+\caption{MC Dropout versus the deep ensemble, paired bootstrap test (2,000 resamples) on risk-coverage AUC, EfficientViT-M0, cluster-grouped split. The ensemble is a single fixed set of 5 seed-13-trained members, reused at every row; MC Dropout is retrained fresh at each listed seed. $\Delta$ is ensemble RC-AUC minus MC Dropout RC-AUC (positive: MC Dropout better; negative: ensemble better). An asterisk marks a 95\% bootstrap interval excluding zero.}
+\label{tab:sig}
+\small
+\begin{tabular}{lrrrrc}
+\toprule
+Dataset & MC seed & MC RC-AUC & Ensemble RC-AUC & $\Delta$ & 95\% CI \\
+\midrule
+Herlev & 13 & 0.2152 & 0.2234 & +0.0083 & [-0.017, +0.032] \\
+Herlev & 17 & 0.2596 & 0.2234 & $-0.0362$* & [-0.058, -0.015] \\
+Herlev & 29 & 0.2406 & 0.2234 & $-0.0171$ & [-0.036, +0.001] \\
+Mendeley LBC & 13 & 0.4594 & 0.3868 & $-0.0727$* & [-0.114, -0.030] \\
+Mendeley LBC & 17 & 0.3275 & 0.3868 & +0.0593* & [+0.030, +0.087] \\
+Mendeley LBC & 29 & 0.4304 & 0.3868 & $-0.0436$* & [-0.074, -0.013] \\
+APCEM & 13 & 0.7803 & 0.8206 & +0.0403* & [+0.027, +0.054] \\
+APCEM & 17 & 0.8320 & 0.8206 & $-0.0115$* & [-0.022, -0.001] \\
+APCEM & 29 & 0.7736 & 0.8206 & +0.0470* & [+0.032, +0.061] \\
+\bottomrule
+\end{tabular}
+\end{table}
 \end{document}
