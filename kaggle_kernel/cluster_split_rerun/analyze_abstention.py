@@ -17,7 +17,7 @@ import numpy as np
 
 D, OUT = sys.argv[1].rstrip("/") + "/", sys.argv[2]
 rng = np.random.default_rng(0)
-NB = 1000
+NB = 2000  # matches analyze.py's resample count, for consistency across all supplementary tables
 ABN = [0, 1]
 MODELS = ["resnet50", "mobilenetv2_100", "efficientnet_lite0", "vit_small_patch16_224", "swin_tiny_patch4_window7_224",
           "deit_tiny_patch16_224", "levit_128", "tiny_vit_5m_224", "mobilevit_s", "mobilevitv2_100", "efficientvit_b0",

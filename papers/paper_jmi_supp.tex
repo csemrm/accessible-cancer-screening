@@ -45,7 +45,7 @@
 \renewcommand{\thetable}{S\arabic{table}}
 \renewcommand{\thefigure}{S\arabic{figure}}
 
-This supplement holds tables and figures referenced in the main manuscript as Tables S1--S11 and Figures S1--S6. Section numbers refer to the main manuscript.
+This supplement holds tables and figures referenced in the main manuscript as Tables S1--S14 and Figures S1--S6. Section numbers refer to the main manuscript.
 
 \begin{table}[htbp]
 \centering
@@ -226,21 +226,21 @@ Attn.\ rollout & 0.825 & 0.936 & 1.18 & 0.888 & 0.927 & 0.97 \\
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.82\textwidth]{figs/p1_fig1_params_vs_accuracy.pdf}
-\caption{Parameters (log scale) versus in-distribution balanced accuracy, colored by architecture family. The two efficient-ViT models with the fewest parameters (EfficientViT-M0 and -B0) are also the two most accurate in this run.}
+\caption{Original cell-level split, seed 13. Parameters (log scale) versus in-distribution balanced accuracy, colored by architecture family. The two efficient-ViT models with the fewest parameters (EfficientViT-M0 and -B0) are also the two most accurate in this run.}
 \label{fig:params-vs-acc}
 \end{figure}
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.82\textwidth]{figs/p1_fig2_mendeley_shift.pdf}
-\caption{Balanced accuracy on Mendeley LBC (zero-shot), sorted and colored by architecture family. All three CNNs cluster above chance, and eight of nine transformer-family models cluster at or below chance, with MobileViT-S the sole catastrophic outlier.}
+\caption{Original cell-level split, seed 13. Balanced accuracy on Mendeley LBC (zero-shot), sorted and colored by architecture family. All three CNNs cluster above chance, and eight of nine transformer-family models cluster at or below chance, with MobileViT-S the sole catastrophic outlier.}
 \label{fig:mendeley-shift}
 \end{figure}
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.82\textwidth]{figs/p1_fig3_apcem_shift.pdf}
-\caption{AUROC on APCEM (zero-shot), sorted and colored by architecture family. Unlike Mendeley LBC, the CNN family spans both the best (MobileNetV2) and one of the worst (ResNet-50) models; no family-level pattern survives this third dataset.}
+\caption{Original cell-level split, seed 13. AUROC on APCEM (zero-shot), sorted and colored by architecture family. Unlike Mendeley LBC, the CNN family spans both the best (MobileNetV2) and one of the worst (ResNet-50) models; no family-level pattern survives this third dataset.}
 \label{fig:apcem-shift}
 \end{figure}
 
@@ -261,7 +261,7 @@ Attn.\ rollout & 0.825 & 0.936 & 1.18 & 0.888 & 0.927 & 0.97 \\
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{figs/p3_fig2_degradation_curves.pdf}
-\caption{Balanced accuracy versus corruption severity for three synthetic degradations (EfficientViT-M0, SIPaKMeD test set). The dotted line marks the clean baseline (0.975). Gaussian blur causes the steepest decline.}
+\caption{Original cell-level split. Balanced accuracy versus corruption severity for three synthetic degradations (EfficientViT-M0, SIPaKMeD test set). The dotted line marks the clean baseline (0.975). Gaussian blur causes the steepest decline.}
 \label{fig:degradation}
 \end{figure}
 
@@ -298,12 +298,12 @@ APCEM (4,253) & Normal (779) & NILM (779) \\
 \toprule
 Component & Information \\
 \midrule
-Software versions & Cluster-grouped re-run: Python 3.13.15, torch 2.11.0+cu128, timm 1.0.29, numpy 2.1.3, CUDA 12.8, cuDNN 9.19. Original runs: minimum versions only (torch $\geq$2.2, timm $\geq$1.0); exact versions not recorded \\
-Training hardware & Google Colab T4 GPU (original benchmark; other stages not individually recorded); Kaggle GPU T4 x2 notebook for the cluster-grouped re-run (12 models in 1.6 GPU hours) \\
+Software versions & All cluster-grouped-split Kaggle sessions (benchmark re-run, seed check, uncertainty-quantification comparison, symmetric ensemble check): Python 3.13.15, torch 2.11.0+cu128, timm 1.0.29, numpy 2.1.3, CUDA 12.8, cuDNN 9.19, identical across sessions. Original cell-level runs: minimum versions only (torch $\geq$2.2, timm $\geq$1.0); exact versions not recorded \\
+Training hardware & Google Colab T4 GPU (original cell-level benchmark; other cell-level stages not individually recorded); Kaggle GPU T4 x2 notebook for all cluster-grouped-split work (benchmark re-run: 12 models in 1.6 GPU hours; seed check, uncertainty-quantification comparison, and symmetric ensemble check: individual session durations not recorded) \\
 Latency hardware & Kaggle GPU T4 x2 notebook CPU, 4 vCPUs (Kaggle documents the underlying Intel platform as variable across Skylake, Broadwell, and AMD rather than a single pinned model); explanation-cost pair measured on the same platform \\
-Random seeds & Training seeds 13 (all stages), 17 and 29 (seed check); split seed 13 plus class index \\
+Random seeds & Cell-level and cluster-grouped benchmarks: training seeds 13 (all stages), 17 and 29 (seed check). Uncertainty-quantification comparison (EfficientViT-M0, cluster-grouped split): baseline/MC Dropout/evidential trained at seed 13; MC Dropout additionally retrained at seeds 17 and 29 for the significance test (Table~S13); deep ensemble built from three independently-seeded 5-member groups, 1--5, 6--10, and 11--15 (Table~8 in the main text). Split seed 13 plus class index for both split types. \\
 Determinism & Only the PyTorch seed is set; deterministic cuDNN not enabled; NumPy, Python, and data-loader workers not separately seeded \\
-Data split & One stratified cell-level manifest, identical across training seeds (main text, Sec. 3.3) \\
+Data split & Two split types, both stratified by class, both identical across training seeds within that type (main text, Sec.~3.3): the \emph{cell-level} manifest (single cells shuffled, 87.8\% test-train source-image overlap) and the \emph{cluster-grouped} manifest (every source cluster image confined to one split, 2,439/630/384/596 train/val/calibration/test cells, 163 test clusters), the latter used as the primary benchmark and for the uncertainty-quantification comparison. \\
 Checkpoint selection & Lowest validation loss, early stopping (patience 7, at most 30 epochs) \\
 \bottomrule
 \end{tabular}
@@ -311,25 +311,25 @@ Checkpoint selection & Lowest validation loss, early stopping (patience 7, at mo
 
 \begin{table}[htbp]
 \centering
-\caption{Paired differences in balanced accuracy (percentage points, leader minus model) between the leader on each cluster-grouped dataset (named in the column header) and every other model, with 95\% bootstrap intervals (1,000 resamples; clusters resampled in distribution, images externally) and an asterisk when the interval excludes zero. Each model is one training run, so intervals capture test-sample uncertainty, not training variability.}
+\caption{Paired differences in balanced accuracy (percentage points, leader minus model) between the leader on each cluster-grouped dataset (named in the column header) and every other model, with 95\% bootstrap intervals (2,000 resamples, matching the resampling count used elsewhere in this supplement; clusters resampled in distribution, images externally) and an asterisk when the interval excludes zero. Each model is one training run, so intervals capture test-sample uncertainty, not training variability.}
 \label{tab:paired}
 \scriptsize
 \begin{tabular}{@{}lcccc@{}}
 \toprule
 Model & In-dist. (MobileViTv2) & Herlev (Swin-Tiny) & Mendeley LBC (EfficientNet-Lite0) & APCEM (MobileNetV2) \\
 \midrule
-MobileViTv2 & leader & +2.4 [+0.2, +4.6]* & +14.4 [+10.4, +18.2]* & +23.9 [+21.4, +26.3]* \\
-MobileViT-S & +0.5 [-1.1, +1.7] & +8.8 [+6.4, +11.4]* & +21.6 [+17.3, +25.6]* & +17.2 [+15.3, +19.2]* \\
-ResNet-50 & +0.7 [-0.9, +2.0] & +2.5 [+0.3, +4.8]* & +9.1 [+5.5, +12.3]* & +13.3 [+10.7, +15.9]* \\
-DeiT-Tiny & +1.0 [-0.6, +2.6] & +1.7 [-0.9, +4.3] & +17.2 [+14.2, +20.3]* & +21.4 [+18.9, +23.8]* \\
-TinyViT-5M & +1.0 [-0.3, +2.3] & +4.4 [+2.1, +6.6]* & +21.4 [+17.4, +24.7]* & +21.4 [+19.5, +23.5]* \\
-EfficientNet-Lite0 & +1.5 [-0.4, +3.5] & +20.7 [+16.5, +24.8]* & leader & +12.8 [+10.7, +15.2]* \\
-EfficientViT-B0 & +1.5 [-0.1, +3.2] & +12.1 [+9.4, +14.8]* & +7.2 [+4.5, +9.8]* & +22.3 [+19.9, +24.9]* \\
-Swin-Tiny & +1.7 [-0.1, +3.6] & leader & +19.6 [+16.2, +22.7]* & +31.6 [+29.2, +34.1]* \\
-EfficientViT-M0 & +2.2 [+0.4, +4.0]* & +9.1 [+6.6, +11.9]* & +18.4 [+15.1, +21.6]* & +20.7 [+18.1, +23.3]* \\
-ViT-Small & +3.3 [+1.3, +5.5]* & +3.2 [+0.4, +6.1]* & +18.9 [+15.3, +22.2]* & +15.0 [+13.3, +17.0]* \\
-MobileNetV2 & +5.6 [+3.2, +8.1]* & +11.4 [+8.4, +14.6]* & +10.1 [+6.3, +13.9]* & leader \\
-LeViT-128 & +16.2 [+11.8, +21.0]* & +20.9 [+17.5, +24.1]* & +12.8 [+9.4, +16.0]* & +13.9 [+12.2, +15.7]* \\
+MobileViTv2 & leader & +2.4 [+0.3, +4.6]* & +14.4 [+10.5, +18.4]* & +23.9 [+21.6, +26.3]* \\
+MobileViT-S & +0.5 [-0.9, +1.8] & +8.8 [+6.2, +11.6]* & +21.6 [+17.4, +26.0]* & +17.2 [+15.2, +19.2]* \\
+ResNet-50 & +0.7 [-0.8, +2.1] & +2.5 [+0.2, +4.8]* & +9.1 [+5.8, +12.4]* & +13.3 [+10.7, +16.0]* \\
+DeiT-Tiny & +1.0 [-0.5, +2.5] & +1.7 [-0.9, +4.5] & +17.2 [+14.1, +20.4]* & +21.4 [+18.8, +24.1]* \\
+TinyViT-5M & +1.0 [-0.4, +2.4] & +4.4 [+2.0, +6.8]* & +21.4 [+17.6, +25.0]* & +21.4 [+19.4, +23.4]* \\
+EfficientNet-Lite0 & +1.5 [-0.5, +3.5] & +20.7 [+16.5, +24.7]* & leader & +12.8 [+10.7, +15.2]* \\
+EfficientViT-B0 & +1.5 [-0.3, +3.2] & +12.1 [+9.5, +14.8]* & +7.2 [+4.5, +10.0]* & +22.3 [+19.6, +25.0]* \\
+Swin-Tiny & +1.7 [-0.2, +3.9] & leader & +19.6 [+16.1, +23.1]* & +31.6 [+29.3, +34.0]* \\
+EfficientViT-M0 & +2.2 [+0.3, +4.0]* & +9.1 [+6.4, +11.8]* & +18.4 [+15.0, +21.7]* & +20.7 [+18.2, +23.3]* \\
+ViT-Small & +3.3 [+1.4, +5.5]* & +3.2 [+0.3, +6.0]* & +18.9 [+15.2, +22.4]* & +15.0 [+13.2, +16.9]* \\
+MobileNetV2 & +5.6 [+3.1, +8.2]* & +11.4 [+8.2, +14.6]* & +10.1 [+6.2, +14.0]* & leader \\
+LeViT-128 & +16.2 [+11.6, +21.6]* & +20.9 [+17.5, +24.3]* & +12.8 [+9.5, +15.9]* & +13.9 [+12.0, +15.7]* \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -361,22 +361,47 @@ MobileViT-S & 0.966 $\pm$ 0.005 & 0.662 $\pm$ 0.075 & 0.489 $\pm$ 0.064 & 0.456 
 
 \begin{table}[htbp]
 \centering
-\caption{MC Dropout versus the deep ensemble, paired bootstrap test (2,000 resamples) on risk-coverage AUC, EfficientViT-M0, cluster-grouped split. The ensemble is a single fixed set of 5 seed-13-trained members, reused at every row; MC Dropout is retrained fresh at each listed seed. $\Delta$ is ensemble RC-AUC minus MC Dropout RC-AUC (positive: MC Dropout better; negative: ensemble better). An asterisk marks a 95\% bootstrap interval excluding zero.}
+\caption{MC Dropout versus the deep ensemble, paired bootstrap test (2,000 resamples, matching the resampling count used elsewhere in this supplement) on risk-coverage AUC, EfficientViT-M0, cluster-grouped split. The ensemble is a single fixed set of 5 seed-13-trained members, reused at every row; MC Dropout is retrained fresh at each listed seed. $\Delta$ is ensemble RC-AUC minus MC Dropout RC-AUC (positive: MC Dropout better; negative: ensemble better). $p$ is a two-sided bootstrap $p$-value computed directly from the resampled difference distribution (twice the smaller tail proportion, not inferred from the confidence-interval endpoints); $p_{\text{Holm}}$ is the Holm step-down-adjusted $p$-value across all 9 tests in this table. Significant at $\alpha=0.05$ after correction: marked with $\dagger$.}
 \label{tab:sig}
 \small
-\begin{tabular}{lrrrrc}
+\begin{tabular}{lrrrrrrc}
 \toprule
-Dataset & MC seed & MC RC-AUC & Ensemble RC-AUC & $\Delta$ & 95\% CI \\
+Dataset & MC seed & MC RC-AUC & Ensemble RC-AUC & $\Delta$ & $p$ & $p_{\text{Holm}}$ & Sig.\ (Holm) \\
 \midrule
-Herlev & 13 & 0.2152 & 0.2234 & +0.0083 & [-0.017, +0.032] \\
-Herlev & 17 & 0.2596 & 0.2234 & $-0.0362$* & [-0.058, -0.015] \\
-Herlev & 29 & 0.2406 & 0.2234 & $-0.0171$ & [-0.036, +0.001] \\
-Mendeley LBC & 13 & 0.4594 & 0.3868 & $-0.0727$* & [-0.114, -0.030] \\
-Mendeley LBC & 17 & 0.3275 & 0.3868 & +0.0593* & [+0.030, +0.087] \\
-Mendeley LBC & 29 & 0.4304 & 0.3868 & $-0.0436$* & [-0.074, -0.013] \\
-APCEM & 13 & 0.7803 & 0.8206 & +0.0403* & [+0.027, +0.054] \\
-APCEM & 17 & 0.8320 & 0.8206 & $-0.0115$* & [-0.022, -0.001] \\
-APCEM & 29 & 0.7736 & 0.8206 & +0.0470* & [+0.032, +0.061] \\
+Herlev & 13 & 0.2152 & 0.2234 & +0.0083 & 0.549 & 0.549 & \\
+Herlev & 17 & 0.2596 & 0.2234 & $-0.0362$ & 0.0010 & 0.0060 & $\dagger$ \\
+Herlev & 29 & 0.2406 & 0.2234 & $-0.0171$ & 0.0780 & 0.1560 & \\
+Mendeley LBC & 13 & 0.4594 & 0.3868 & $-0.0727$ & 0.0010 & 0.0060 & $\dagger$ \\
+Mendeley LBC & 17 & 0.3275 & 0.3868 & +0.0593 & 0.0005 & 0.0045 & $\dagger$ \\
+Mendeley LBC & 29 & 0.4304 & 0.3868 & $-0.0436$ & 0.0080 & 0.0320 & $\dagger$ \\
+APCEM & 13 & 0.7803 & 0.8206 & +0.0403 & 0.0005 & 0.0045 & $\dagger$ \\
+APCEM & 17 & 0.8320 & 0.8206 & $-0.0115$ & 0.0350 & 0.1050 & \\
+APCEM & 29 & 0.7736 & 0.8206 & +0.0470 & 0.0005 & 0.0045 & $\dagger$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\caption{Cluster-grouped benchmark, individual balanced accuracy at each training seed (13/17/29, slash-separated), underlying the means in Table~S12. Same fixed cluster-grouped split at every seed; rows in the same order as Table~S12.}
+\label{tab:cluster-seeds-raw}
+\footnotesize
+\begin{tabular}{lrrrr}
+\toprule
+Model & SIPaKMeD (5-class) & Herlev & Mendeley LBC & APCEM \\
+\midrule
+MobileViTv2 & 0.968/0.967/0.950 & 0.722/0.623/0.683 & 0.487/0.383/0.480 & 0.410/0.441/0.405 \\
+MobileViT-S & 0.963/0.972/0.962 & 0.659/0.589/0.739 & 0.416/0.513/0.537 & 0.476/0.434/0.459 \\
+ResNet-50 & 0.961/0.970/0.955 & 0.721/0.651/0.677 & 0.541/0.461/0.513 & 0.516/0.464/0.433 \\
+DeiT-Tiny & 0.958/0.958/0.961 & 0.730/0.685/0.731 & 0.460/0.417/0.419 & 0.434/0.399/0.424 \\
+TinyViT-5M & 0.958/0.963/0.960 & 0.703/0.656/0.649 & 0.418/0.512/0.551 & 0.434/0.459/0.479 \\
+EfficientNet-Lite0 & 0.953/0.930/0.945 & 0.540/0.618/0.575 & 0.632/0.688/0.563 & 0.520/0.548/0.464 \\
+EfficientViT-B0 & 0.953/0.948/0.968 & 0.625/0.528/0.616 & 0.559/0.581/0.576 & 0.426/0.392/0.364 \\
+Swin-Tiny & 0.951/0.955/0.946 & 0.747/0.750/0.682 & 0.436/0.417/0.486 & 0.332/0.380/0.478 \\
+EfficientViT-M0 & 0.947/0.965/0.948 & 0.655/0.670/0.637 & 0.448/0.397/0.508 & 0.441/0.380/0.417 \\
+ViT-Small & 0.935/0.931/0.943 & 0.715/0.748/0.703 & 0.443/0.427/0.473 & 0.498/0.501/0.446 \\
+MobileNetV2 & 0.912/0.935/0.957 & 0.633/0.666/0.630 & 0.531/0.479/0.608 & 0.648/0.541/0.514 \\
+LeViT-128 & 0.807/0.920/0.945 & 0.538/0.605/0.662 & 0.504/0.577/0.518 & 0.510/0.470/0.493 \\
 \bottomrule
 \end{tabular}
 \end{table}
