@@ -1,0 +1,18 @@
+{
+  "id": "csemrm/sipakmed-cluster-split-rerun",
+  "title": "SIPaKMeD cluster split rerun",
+  "code_file": "run.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_internet": true,
+  "dataset_sources": [
+    "marinaeplissiti/sipakmed",
+    "yuvrajsinhachowdhury/herlev-dataset",
+    "blank1508/mendeley-lbc-cervical-cancer",
+    "csemrm/apcem-cervical-cytology"
+  ],
+  "competition_sources": [],
+  "kernel_sources": []
+}

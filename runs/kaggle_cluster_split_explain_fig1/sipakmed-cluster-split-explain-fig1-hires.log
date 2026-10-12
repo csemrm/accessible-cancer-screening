@@ -1,0 +1,24 @@
+[{"stream_name":"stdout","time":394.42934467,"data":"crop counts: {'im_Dyskeratotic': 813, 'im_Koilocytotic': 825, 'im_Metaplastic': 793, 'im_Parabasal': 787, 'im_Superficial-Intermediate': 831}\n"}
+,{"stream_name":"stdout","time":394.492515058,"data":"crops with nucleus polygons: 4049\n"}
+,{"stream_name":"stdout","time":407.294725801,"data":"test cells: 596\n"}
+,{"stream_name":"stdout","time":407.29507685,"data":"test cells with nucleus polygon: 596\n"}
+,{"stream_name":"stdout","time":412.07143493,"data":"[deit_tiny_patch16_224] pred pass 100/596 (2s)\n"}
+,{"stream_name":"stdout","time":412.882606854,"data":"[deit_tiny_patch16_224] pred pass 200/596 (2s)\n"}
+,{"stream_name":"stdout","time":413.758487431,"data":"[deit_tiny_patch16_224] pred pass 300/596 (3s)\n"}
+,{"stream_name":"stdout","time":414.671498331,"data":"[deit_tiny_patch16_224] pred pass 400/596 (4s)\n"}
+,{"stream_name":"stdout","time":415.703695135,"data":"[deit_tiny_patch16_224] pred pass 500/596 (5s)\n"}
+,{"stream_name":"stdout","time":416.940492494,"data":"deit_tiny_patch16_224 accuracy: 0.9580536912751678\n"}
+,{"stream_name":"stdout","time":432.424214093,"data":"[vit_small_patch16_224] pred pass 100/596 (1s)\n"}
+,{"stream_name":"stdout","time":433.289586846,"data":"[vit_small_patch16_224] pred pass 200/596 (2s)\n"}
+,{"stream_name":"stdout","time":434.235328273,"data":"[vit_small_patch16_224] pred pass 300/596 (3s)\n"}
+,{"stream_name":"stdout","time":435.220815948,"data":"[vit_small_patch16_224] pred pass 400/596 (4s)\n"}
+,{"stream_name":"stdout","time":436.295149697,"data":"[vit_small_patch16_224] pred pass 500/596 (5s)\n"}
+,{"stream_name":"stdout","time":437.570881623,"data":"vit_small_patch16_224 accuracy: 0.9345637583892618\n"}
+,{"stream_name":"stdout","time":441.990547642,"data":"DONE\n"}
+,{"stream_name":"stderr","time":447.811947149,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":447.811975468,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":448.073861265,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":448.073889705,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":448.887736011,"data":"[NbConvertApp] Converting notebook __script__.ipynb to html\n"}
+,{"stream_name":"stderr","time":449.939276157,"data":"[NbConvertApp] Writing 316683 bytes to __results__.html\n"}
+]
