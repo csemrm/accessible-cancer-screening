@@ -229,4 +229,56 @@ fig.tight_layout()
 fig.savefig("figs/p3_fig3_combined_selective.pdf")
 plt.close(fig)
 
+# ---------------------------------------------------------------------------
+# Supplement, Figure S7: cluster-grouped benchmark, mean +/- SD over 3 seeds
+# (13, 17, 29), same data as Table S12.
+# ---------------------------------------------------------------------------
+cluster_seeds = [
+    ("EfficientNet-Lite0", 0.943, 0.012, 0.578, 0.039, 0.628, 0.062, 0.511, 0.043, "cnn"),
+    ("ResNet-50", 0.962, 0.008, 0.683, 0.036, 0.505, 0.041, 0.471, 0.042, "cnn"),
+    ("MobileViTv2", 0.962, 0.010, 0.676, 0.050, 0.450, 0.058, 0.419, 0.020, "eff"),
+    ("MobileNetV2", 0.935, 0.022, 0.643, 0.020, 0.539, 0.065, 0.568, 0.071, "cnn"),
+    ("DeiT-Tiny", 0.959, 0.002, 0.715, 0.026, 0.432, 0.024, 0.419, 0.018, "eff"),
+    ("EfficientViT-B0", 0.956, 0.010, 0.590, 0.053, 0.572, 0.011, 0.394, 0.031, "eff"),
+    ("Swin-Tiny", 0.951, 0.004, 0.727, 0.038, 0.447, 0.036, 0.397, 0.074, "full"),
+    ("ViT-Small", 0.936, 0.006, 0.722, 0.023, 0.448, 0.023, 0.482, 0.031, "full"),
+    ("LeViT-128", 0.890, 0.074, 0.602, 0.062, 0.533, 0.038, 0.491, 0.020, "eff"),
+    ("EfficientViT-M0", 0.953, 0.010, 0.654, 0.017, 0.451, 0.056, 0.412, 0.031, "eff"),
+    ("TinyViT-5M", 0.961, 0.003, 0.669, 0.029, 0.494, 0.068, 0.457, 0.023, "eff"),
+    ("MobileViT-S", 0.966, 0.005, 0.662, 0.075, 0.489, 0.064, 0.456, 0.021, "eff"),
+]
+panels = [
+    ("SIPaKMeD (5-class, in-dist.)", 1, 2, (0.86, 0.98)),
+    ("Herlev", 3, 4, (0.0, 0.85)),
+    ("Mendeley LBC", 5, 6, (0.0, 0.85)),
+    ("APCEM", 7, 8, (0.0, 0.85)),
+]
+fig, axes = plt.subplots(2, 2, figsize=(7.5, 7.0))
+for ax, (title, mi, si, xlim) in zip(axes.flat, panels):
+    rows = sorted(cluster_seeds, key=lambda r: r[mi], reverse=True)
+    names = [r[0] for r in rows]
+    means = [r[mi] for r in rows]
+    sds = [r[si] for r in rows]
+    bar_colors = [colors[r[9]] for r in rows]
+    y_pos = range(len(names))
+    ax.barh(y_pos, means, xerr=sds, color=bar_colors, edgecolor="black", linewidth=0.4,
+            error_kw={"elinewidth": 0.8, "capsize": 2})
+    if title.startswith("SIPaKMeD"):
+        ax.set_xlim(*xlim)
+    else:
+        ax.axvline(0.5, color="black", linestyle="--", linewidth=1)
+        ax.set_xlim(*xlim)
+    ax.set_yticks(y_pos)
+    ax.set_yticklabels(names, fontsize=6.8)
+    ax.invert_yaxis()
+    ax.set_title(title, fontsize=8.5)
+    ax.set_xlabel("Balanced accuracy", fontsize=7.5)
+    ax.grid(alpha=0.25, linewidth=0.5, axis="x")
+handles = [plt.Rectangle((0, 0), 1, 1, color=colors[k]) for k in ("cnn", "full", "eff")]
+fig.legend(handles, ["CNN", "Full ViT", "Efficient ViT"], loc="upper center", ncol=3,
+           fontsize=8, bbox_to_anchor=(0.5, 1.02))
+fig.tight_layout(rect=(0, 0, 1, 0.97))
+fig.savefig("figs/fig_cluster_seeds_summary.pdf")
+plt.close(fig)
+
 print("all figures written to figs/")

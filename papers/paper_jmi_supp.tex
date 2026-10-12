@@ -45,7 +45,7 @@
 \renewcommand{\thetable}{S\arabic{table}}
 \renewcommand{\thefigure}{S\arabic{figure}}
 
-This supplement holds tables and figures referenced in the main manuscript as Tables S1--S14 and Figures S1--S6. Section numbers refer to the main manuscript.
+This supplement holds tables and figures referenced in the main manuscript as Tables S1--S14 and Figures S1--S7. Section numbers refer to the main manuscript.
 
 \begin{table}[htbp]
 \centering
@@ -263,6 +263,13 @@ Attn.\ rollout & 0.825 & 0.936 & 1.18 & 0.888 & 0.927 & 0.97 \\
 \includegraphics[width=\textwidth]{figs/p3_fig2_degradation_curves.pdf}
 \caption{Original cell-level split. Balanced accuracy versus corruption severity for three synthetic degradations (EfficientViT-M0, SIPaKMeD test set). The dotted line marks the clean baseline (0.975). Gaussian blur causes the steepest decline.}
 \label{fig:degradation}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.92\textwidth]{figs/fig_cluster_seeds_summary.pdf}
+\caption{Cluster-grouped split, seeds 13/17/29. Balanced accuracy, mean $\pm$ standard deviation over three training seeds, same fixed cluster-grouped split at every seed; same data as Table~S12, sorted by mean within each panel. The in-distribution ranking reorders across seeds more than the three external-dataset leaders do (Sec.~4.2 in the main text).}
+\label{fig:cluster-seeds}
 \end{figure}
 
 \begin{table}[htbp]
