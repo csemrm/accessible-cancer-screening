@@ -1,0 +1,51 @@
+\documentclass[12pt,letterpaper]{article}
+\usepackage[letterpaper,margin=1in]{geometry}
+\usepackage{mathptmx}
+\usepackage{setspace}
+\setstretch{1.15}
+\pagestyle{empty}
+
+\begin{document}
+
+\begin{flushright}
+Md. Mostafizur Rahman\\
+Department of Electrical and Computer Engineering\\
+San Francisco Bay University\\
+161 Mission Falls Lane, Fremont, California 94539, United States\\
+csemrm@gmail.com\\[6pt]
+\today
+\end{flushright}
+
+\bigskip
+\noindent Editor-in-Chief\\
+Journal of Medical Imaging (SPIE)
+
+\bigskip
+\noindent Dear Editor,
+
+\medskip
+\noindent We are pleased to submit our manuscript, ``\textbf{Trustworthiness is not one property: a multidimensional evaluation of cervical cytology AI},'' for consideration as a research article in the \textit{Journal of Medical Imaging}.
+
+\medskip
+\noindent Lightweight vision transformers are increasingly proposed as classification backbones for automated cervical cytology screening, but ``trustworthy AI'' for such a model is almost always evaluated as a single property, typically in-distribution accuracy alone. Our manuscript tests six separable claims side by side on one cervical cytology task: that a lightweight model gives up little accuracy, that its accuracy transfers to other datasets, that its explanations are faithful, that a chosen uncertainty-quantification method's confidence signal reliably flags where it is wrong, that combining two such signals improves abstention, and that its efficiency claim holds under real measurement. Across a 12-model registry (CNNs, full-size ViTs, and efficient ViTs) benchmarked under a leakage-controlled, cluster-grouped split and evaluated zero-shot on three external cervical cytology datasets (Herlev, Mendeley LBC, and APCEM), we find that these six properties resolve independently: the in-distribution leader is not the external leader on any dataset; the preferred uncertainty-quantification method differs between a single-cell and two field-level datasets and is itself seed-dependent; explainability method choice is comparatively stable across backbones; and efficiency claims (FLOPs, parameters) do not predict measured latency or explanation cost.
+
+\medskip
+\noindent We believe this work will be of interest to \textit{Journal of Medical Imaging} readers because it demonstrates, with a controlled benchmark protocol and paired statistical testing (including Holm-corrected multiple-comparison tests and multi-seed sensitivity checks), that no single verification strategy -- accuracy, robustness, explainability, uncertainty quantification, or efficiency alone -- is sufficient to characterize a screening classifier's trustworthiness, and that evaluation protocol choices (source-image overlap, training seed) materially change which model or method appears best.
+
+\medskip
+\noindent This manuscript is original, has not been published previously, and is not under consideration at any other journal or conference. All authors have approved the manuscript and agree to its submission to the \textit{Journal of Medical Imaging}. We have no conflicts of interest to disclose. Generative AI tools assisted with manuscript drafting and language refinement under the authors' direction, as disclosed in the manuscript's Materials and Methods and Acknowledgments sections; the authors reviewed and verified all content and assume full responsibility for the work.
+
+\medskip
+\noindent The manuscript is accompanied by a supplementary document (Tables S1--S14, Figures S1--S7) providing full reproducibility details, additional statistical tests, and results omitted from the main text for space.
+
+\medskip
+\noindent Thank you for considering our manuscript. We look forward to your response.
+
+\bigskip
+\noindent Sincerely,
+
+\bigskip
+\noindent Md. Mostafizur Rahman (corresponding author)\\
+on behalf of the authors: Md. Mostafizur Rahman and Khairul Anam
+
+\end{document}
