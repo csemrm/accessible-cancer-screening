@@ -17,7 +17,7 @@ Generated 2026-10-11 from the current state of `papers/paper_jmi.tex` / `paper_j
 - **Authors:** Md. Mostafizur Rahman¹* (corresponding), Khairul Anam²
   1. Dept. of Electrical and Computer Engineering, San Francisco Bay University, Fremont, CA, US
   2. Dept. of Computer Science and Engineering, Pacific State University, US
-- **Corresponding author email:** csemrm@gmail.com
+- **Corresponding author email:** mrahman9003@student.sfbu.edu
 - **ORCIDs:** Rahman 0009-0007-2022-8677; Anam 0009-0005-4052-8023
 - **Keywords (6, within SPIE's 3–6 range):** cervical cytology, vision transformers, cross-dataset generalization, explainability, selective prediction, model efficiency
 - **Abstract:** 249 words (structured: Purpose/Approach/Results/Conclusions), under JMI's 250-word limit
@@ -48,6 +48,6 @@ Not populated — fill in on the portal if JMI's form asks for suggested/exclude
 ## Before you click submit
 
 1. Re-read `papers/paper_jmi.pdf` title page once more for typos in author info (last manual check was this session, commit `9e9d083`).
-2. Confirm the corresponding-author email (`csemrm@gmail.com`) is one you check regularly — SPIE will send review correspondence there.
+2. Confirm the corresponding-author email (`mrahman9003@student.sfbu.edu`) is one you check regularly (institutional, per JMI office request) — SPIE will send review correspondence there.
 3. Check SPIE's current file-size limits on their submission portal against `paper_jmi.pdf`'s ~5.3 MB (grew from ~1.3 MB after the Figure 1 resolution bump); if the portal balks, the 300 dpi PNG can be stepped down to ~200 dpi without falling back to the old 150 dpi quality.
 4. `docs/submission_tracker.md` in this repo still describes the old, abandoned 3-separate-papers conference track (TCCE/TEHI) — it is stale relative to this JMI submission and should probably be updated or removed once this submission goes in, so a future reader isn't misled.
